@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var nombreUsuario = User.Identity?.Name ?? "Usuario";
+    var correoUsuario = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+}
+
+<div class="container py-4">
+    <!-- Hero Banner -->
+    <div class="card-custom mb-4" style="background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-card) 100%);">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 class="h2 mb-1">
+                    ¡Bienvenido, <span class="text-gold">@nombreUsuario</span>!
+                </h1>
+                <p class="text-muted-custom mb-0">
+                    Sesión autenticada en <strong>EL CAMINO</strong> mediante Cookies y PostgreSQL. Tu plataforma personal de hardware está lista.
+                </p>
+                @if (!string.IsNullOrEmpty(correoUsuario))
+                {
+                    <span class="badge bg-dark border border-secondary mt-2 text-muted">@correoUsuario</span>
+                }
+            </div>
+            <div>
+                <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger btn-sm px-3">
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-title">Dispositivos Registrados</div>
+                <div class="stat-value">0</div>
+                <small class="text-muted-custom">Bitácora de Hardware</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-title">Categorías Activas</div>
+                <div class="stat-value">0</div>
+                <small class="text-muted-custom">Smartphones, Laptops, Gadgets</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="border-left-color: var(--color-primary);">
+                <div class="stat-title">Estado de Autenticación</div>
+                <div class="stat-value text-primary" style="font-size: 1.5rem;">ACTIVO</div>
+                <small class="text-success">&bull; Sesión verificada</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Swagger Integration Callout -->
+    <div class="card-custom border-dashed border-primary d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            <h5 class="mb-1 text-white">Swagger API Activo</h5>
+            <p class="text-muted-custom mb-0" style="font-size: 0.88rem;">
+                Puedes probar la autenticación y endpoints REST desde la interfaz Swagger.
+            </p>
+        </div>
+        <a href="/swagger" target="_blank" class="btn btn-primary btn-sm px-3">
+            Explorar Swagger UI &rarr;
+        </a>
+    </div>
+</div>

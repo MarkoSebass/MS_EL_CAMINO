@@ -1,0 +1,408 @@
+@model MS_EL_CAMINO.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="login-page-container">
+    <div class="login-wrapper">
+        <div class="login-card">
+            <!-- Encabezado de Marca -->
+            <div class="brand-header">
+                <div class="brand-badge">
+                    <span class="dot"></span>
+                    <span>Plataforma Personal</span>
+                </div>
+                <h1 class="brand-title">
+                    EL <span class="accent">CAMINO</span>
+                </h1>
+                <p class="brand-subtitle">Tu evolución tecnológica</p>
+            </div>
+
+            <!-- Notificación de Errores -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert-error" role="alert">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <div>
+                        @foreach (var modelState in ViewData.ModelState.Values)
+                        {
+                            foreach (var error in modelState.Errors)
+                            {
+                                <div>@error.ErrorMessage</div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Formulario de Inicio de Sesión -->
+            <form asp-controller="Login" asp-action="Index" method="post" autocomplete="off">
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <!-- Campo Correo -->
+                <div class="form-group">
+                    <label class="form-label" asp-for="Correo">Correo Electrónico</label>
+                    <div class="input-container">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"/>
+                        </svg>
+                        <input asp-for="Correo"
+                               class="form-control"
+                               type="email"
+                               placeholder="admin@elcamino.com"
+                               required
+                               autofocus />
+                    </div>
+                    <span asp-validation-for="Correo" class="validation-feedback"></span>
+                </div>
+
+                <!-- Campo Contraseña -->
+                <div class="form-group">
+                    <label class="form-label" asp-for="Password">Contraseña</label>
+                    <div class="input-container">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <input asp-for="Password"
+                               id="passwordInput"
+                               class="form-control"
+                               type="password"
+                               placeholder="••••••••"
+                               required />
+                        <button type="button" class="toggle-password" id="togglePasswordBtn" aria-label="Mostrar u ocultar contraseña">
+                            <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="validation-feedback"></span>
+                </div>
+
+                <!-- Recordarme Checkbox -->
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" asp-for="Recordarme" />
+                        <span>Mantener sesión iniciada</span>
+                    </label>
+                </div>
+
+                <!-- Botón Iniciar Sesión -->
+                <button type="submit" class="btn-submit">
+                    <span>Iniciar Sesión</span>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="card-footer-info">
+                El Camino &bull; Registro y Gestión de Dispositivos
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-page-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1.5rem;
+        position: relative;
+    }
+
+    .login-wrapper {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 460px;
+    }
+
+    .login-card {
+        background: var(--color-card);
+        border: 1px solid var(--color-border);
+        border-radius: 20px;
+        padding: 2.75rem 2.25rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.05);
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-gold), var(--color-primary));
+    }
+
+    .brand-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-gold-light);
+        margin-bottom: 0.85rem;
+    }
+
+    .brand-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--color-gold);
+        box-shadow: 0 0 8px var(--color-gold);
+    }
+
+    .brand-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+        color: var(--color-text);
+        margin-bottom: 0.3rem;
+        line-height: 1.15;
+    }
+
+    .brand-title span.accent {
+        background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+        font-size: 0.92rem;
+        font-weight: 400;
+        color: var(--color-muted);
+        letter-spacing: 0.03em;
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 12px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        color: #FCA5A5;
+        font-size: 0.88rem;
+    }
+
+    .alert-error svg {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+        color: var(--color-danger);
+    }
+
+    .form-group {
+        margin-bottom: 1.35rem;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-muted);
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.02em;
+    }
+
+    .input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 14px;
+        width: 18px;
+        height: 18px;
+        color: var(--color-muted);
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .form-control {
+        width: 100%;
+        height: 48px;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        padding: 0 42px 0 42px;
+        color: var(--color-text);
+        font-size: 0.92rem;
+        outline: none;
+        transition: all 0.25s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        background-color: #151D29;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        background: transparent;
+        border: none;
+        color: var(--color-muted);
+        cursor: pointer;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: color 0.2s ease;
+    }
+
+    .toggle-password:hover {
+        color: var(--color-text);
+    }
+
+    .validation-feedback {
+        display: block;
+        font-size: 0.78rem;
+        color: #F87171;
+        margin-top: 0.4rem;
+    }
+
+    .form-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.75rem;
+        font-size: 0.85rem;
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        color: var(--color-muted);
+        user-select: none;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 5px;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .checkbox-container input[type="checkbox"]:checked {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+
+    .checkbox-container input[type="checkbox"]:checked::before {
+        content: '';
+        width: 9px;
+        height: 5px;
+        border-left: 2px solid white;
+        border-bottom: 2px solid white;
+        transform: rotate(-45deg) translate(1px, -1px);
+    }
+
+    .btn-submit {
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        border-radius: 10px;
+        color: var(--color-text);
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+        transition: all 0.25s ease;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+
+    .btn-submit svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-submit:hover svg {
+        transform: translateX(3px);
+    }
+
+    .card-footer-info {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.76rem;
+        color: #64748B;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const toggleBtn = document.getElementById('togglePasswordBtn');
+        const passInput = document.getElementById('passwordInput');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        if (toggleBtn && passInput && eyeIcon) {
+            toggleBtn.addEventListener('click', function () {
+                const isPassword = passInput.getAttribute('type') === 'password';
+                passInput.setAttribute('type', isPassword ? 'text' : 'password');
+
+                if (isPassword) {
+                    eyeIcon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                    `;
+                } else {
+                    eyeIcon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    `;
+                }
+            });
+        }
+    </script>
+}
