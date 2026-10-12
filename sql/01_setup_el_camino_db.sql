@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     id_usuario SERIAL PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
+    usu_lg VARCHAR(100) NOT NULL UNIQUE,
     correo VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
@@ -18,11 +19,15 @@ CREATE TABLE IF NOT EXISTS usuario (
 );
 
 -- 2. Índice único para acelerar y asegurar la búsqueda por correo en minúsculas
+CREATE UNIQUE INDEX IF NOT EXISTS ix_usuario_usu_lg
+ON usuario (LOWER(usu_lg));
+
 CREATE UNIQUE INDEX IF NOT EXISTS ix_usuario_correo 
 ON usuario (LOWER(correo));
 
 -- 3. Limpieza opcional del usuario de prueba antes de insertar (para evitar duplicados)
-DELETE FROM usuario WHERE LOWER(correo) = 'admin@elcamino.com';
+DELETE FROM usuario
+WHERE LOWER(correo) = 'admin@elcamino.com' OR LOWER(usu_lg) = 'admin';
 
 -- 4. Inserción de usuario administrador para pruebas
 -- Credenciales de acceso:
@@ -32,6 +37,7 @@ DELETE FROM usuario WHERE LOWER(correo) = 'admin@elcamino.com';
 INSERT INTO usuario (
     nombres, 
     apellidos, 
+    usu_lg,
     correo, 
     password_hash, 
     activo, 
@@ -40,6 +46,7 @@ INSERT INTO usuario (
 VALUES (
     'Marko', 
     'Camino', 
+    'admin',
     'admin@elcamino.com', 
     '$2a$11$HpSpO4q.n9Sh9e9WFPJPJudMhRXN2ShA6DcdV9rQshTPLw6yhn09i', 
     TRUE, 
@@ -49,6 +56,7 @@ VALUES (
 -- 5. Consulta de verificación
 SELECT 
     id_usuario, 
+    usu_lg,
     nombres, 
     apellidos, 
     correo, 

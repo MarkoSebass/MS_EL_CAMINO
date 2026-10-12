@@ -41,6 +41,15 @@ public class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsRequired();
 
+            entity.Property(e => e.UsuLg)
+                .HasColumnName("usu_lg")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.HasIndex(e => e.UsuLg)
+                .IsUnique()
+                .HasDatabaseName("ix_usuario_usu_lg");
+
             entity.Property(e => e.Correo)
                 .HasColumnName("correo")
                 .HasMaxLength(150)

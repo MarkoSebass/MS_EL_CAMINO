@@ -8,10 +8,9 @@ namespace MS_EL_CAMINO.ViewModels;
 /// </summary>
 public class LoginViewModel
 {
-    [Required(ErrorMessage = "Por favor, ingresa tu correo electrónico.")]
-    [EmailAddress(ErrorMessage = "El correo electrónico no tiene un formato válido.")]
-    [Display(Name = "Correo Electrónico")]
-    public string Correo { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Por favor, ingresa tu usuario.")]
+    [Display(Name = "Usuario")]
+    public string UsuLg { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Por favor, ingresa tu contraseña.")]
     [DataType(DataType.Password)]

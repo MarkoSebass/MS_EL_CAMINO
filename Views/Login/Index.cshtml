@@ -41,21 +41,21 @@
             <form asp-controller="Login" asp-action="Index" method="post" autocomplete="off">
                 <input type="hidden" asp-for="ReturnUrl" />
 
-                <!-- Campo Correo -->
+                <!-- Campo Usuario -->
                 <div class="form-group">
-                    <label class="form-label" asp-for="Correo">Correo Electrónico</label>
+                    <label class="form-label" asp-for="UsuLg">Usuario</label>
                     <div class="input-container">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"/>
                         </svg>
-                        <input asp-for="Correo"
+                           <input asp-for="UsuLg"
                                class="form-control"
-                               type="email"
-                               placeholder="admin@elcamino.com"
+                               type="text"
+                               placeholder="Ingresa tu usuario"
                                required
                                autofocus />
                     </div>
-                    <span asp-validation-for="Correo" class="validation-feedback"></span>
+                          <span asp-validation-for="UsuLg" class="validation-feedback"></span>
                 </div>
 
                 <!-- Campo Contraseña -->

@@ -61,7 +61,7 @@
                                     <li><a class="dropdown-item text-white" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
                                     <li><hr class="dropdown-divider" style="border-color: var(--color-border);"></li>
                                     <li>
-                                        <form asp-controller="Login" asp-action="Logout" method="post" class="m-0">
+                                        <form asp-controller="Login" asp-action="Logout" method="post" class="m-0" data-confirm-logout>
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
                                         </form>
@@ -88,6 +88,36 @@
         <main role="main" class="flex-grow-1 d-flex flex-column">
             @RenderBody()
         </main>
+    </div>
+
+    @if (TempData["NotificationMessage"] is string notificationMessage)
+    {
+        <div class="toast-container position-fixed top-0 end-0 p-3 notification-container" aria-live="polite" aria-atomic="true">
+            <div class="toast app-toast text-bg-success border-0" role="status" data-bs-delay="5000">
+                <div class="toast-body d-flex align-items-center justify-content-between gap-3">
+                    <span>@notificationMessage</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutConfirmationTitle" aria-describedby="logoutConfirmationDescription" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content logout-modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="logoutConfirmationTitle">Cerrar sesión</h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cancelar"></button>
+                </div>
+                <div class="modal-body" id="logoutConfirmationDescription">
+                    ¿Estás seguro de que deseas cerrar tu sesión?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Seguir aquí</button>
+                    <button type="button" class="btn btn-danger" id="confirmLogoutButton">Cerrar sesión</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer Oficial -->

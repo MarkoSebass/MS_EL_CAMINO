@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MS_EL_CAMINO.DTOs;
 
@@ -7,9 +8,9 @@ namespace MS_EL_CAMINO.DTOs;
 /// </summary>
 public class LoginRequestDTO
 {
-    [Required(ErrorMessage = "El correo es obligatorio.")]
-    [EmailAddress(ErrorMessage = "El formato de correo no es válido.")]
-    public string Correo { get; set; } = string.Empty;
+    [Required(ErrorMessage = "El usuario es obligatorio.")]
+    [JsonPropertyName("usu_lg")]
+    public string UsuLg { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "La contraseña es obligatoria.")]
     public string Password { get; set; } = string.Empty;

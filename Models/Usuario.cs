@@ -27,6 +27,11 @@ public class Usuario
 
     [Required]
     [MaxLength(150)]
+    [Column("usu_lg")]
+    public string UsuLg { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(150)]
     [Column("correo")]
     public string Correo { get; set; } = string.Empty;
 

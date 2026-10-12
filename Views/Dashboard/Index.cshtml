@@ -44,7 +44,8 @@
 
                 <form asp-controller="Login"
                       asp-action="Logout"
-                      method="post">
+                        method="post"
+                        data-confirm-logout>
 
                     @Html.AntiForgeryToken()
 

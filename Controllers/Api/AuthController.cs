@@ -52,13 +52,13 @@ public class AuthController : ControllerBase
             });
         }
 
-        var normalizedEmail = request.Correo.Trim().ToLower();
+        var normalizedUsuLg = request.UsuLg.Trim().ToLower();
         Usuario? usuario = null;
 
         try
         {
             usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Correo.ToLower() == normalizedEmail);
+                .FirstOrDefaultAsync(u => u.UsuLg.ToLower() == normalizedUsuLg);
         }
         catch (Exception ex)
         {
@@ -75,7 +75,7 @@ public class AuthController : ControllerBase
             return Unauthorized(new LoginResponseDTO
             {
                 Success = false,
-                Message = "Correo o contraseña incorrectos"
+                Message = "Usuario o contraseña incorrectos"
             });
         }
 
@@ -94,7 +94,7 @@ public class AuthController : ControllerBase
             return Unauthorized(new LoginResponseDTO
             {
                 Success = false,
-                Message = "Correo o contraseña incorrectos"
+                Message = "Usuario o contraseña incorrectos"
             });
         }
 

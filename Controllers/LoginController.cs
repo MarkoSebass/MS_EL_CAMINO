@@ -63,14 +63,14 @@ public class LoginController : Controller
             return View(model);
         }
 
-        var normalizedEmail = model.Correo.Trim().ToLower();
+        var normalizedUsuLg = model.UsuLg.Trim().ToLower();
         Usuario? usuario = null;
 
         // 1. Consulta segura a PostgreSQL con captura de excepciones
         try
         {
             usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Correo.ToLower() == normalizedEmail);
+                .FirstOrDefaultAsync(u => u.UsuLg.ToLower() == normalizedUsuLg);
         }
         catch (Exception ex)
         {
@@ -80,10 +80,10 @@ public class LoginController : Controller
             return View(model);
         }
 
-        // 2. Validar si el correo existe
+        // 2. Validar si el usuario existe
         if (usuario == null)
         {
-            ModelState.AddModelError(string.Empty, "El correo electrónico no se encuentra registrado en el sistema.");
+            ModelState.AddModelError(string.Empty, "El usuario no se encuentra registrado en el sistema.");
             return View(model);
         }
 
@@ -129,6 +129,7 @@ public class LoginController : Controller
             new ClaimsPrincipal(claimsIdentity),
             authProperties);
 
+        TempData["NotificationMessage"] = $"¡Bienvenido, {usuario.Nombres}!";
         _logger.LogInformation("Usuario ID {UsuarioId} ({Correo}) autenticado exitosamente.", usuario.IdUsuario, usuario.Correo);
 
         // 6. Redireccionamiento seguro
@@ -143,11 +144,12 @@ public class LoginController : Controller
     /// <summary>
     /// Cierra la sesión activa del usuario y limpia la Cookie.
     /// </summary>
-    [HttpGet]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        TempData["NotificationMessage"] = "Has cerrado sesión correctamente.";
         _logger.LogInformation("Sesión cerrada por el usuario.");
         return RedirectToAction("Index", "Login");
     }
