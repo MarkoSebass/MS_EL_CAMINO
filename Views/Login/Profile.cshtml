@@ -1,44 +1,53 @@
 @model MS_EL_CAMINO.ViewModels.PerfilViewModel
 @{
     ViewData["Title"] = "Mi perfil";
+    var nombreCompleto = $"{Model.Nombres} {Model.Apellidos}".Trim();
+    var inicial = string.IsNullOrWhiteSpace(Model.Nombres) ? "U" : Model.Nombres[..1].ToUpperInvariant();
 }
 
-<div class="container py-5">
-    <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+<div class="container py-5 profile-page">
+    <header class="profile-page-header">
         <div>
-            <span class="badge bg-primary mb-2">CUENTA</span>
+            <span class="profile-kicker">CUENTA PERSONAL</span>
             <h1 class="h2 mb-1">Mi perfil</h1>
-            <p class="text-muted-custom mb-0">Información de tu cuenta. Solo lectura.</p>
+            <p class="text-muted-custom mb-0">Tus datos de acceso e identidad.</p>
         </div>
-        <a class="btn btn-outline-light" asp-controller="Dashboard" asp-action="Index">Volver al Dashboard</a>
-    </div>
+        <a class="btn btn-outline-light profile-back-link" asp-controller="Dashboard" asp-action="Index">Volver al Dashboard</a>
+    </header>
 
-    <section class="card-custom" aria-label="Datos del perfil">
-        <dl class="row mb-0">
-            <div class="col-md-6 mb-3">
-                <dt class="text-muted-custom">Identificador</dt>
-                <dd class="mb-0">@Model.IdUsuario</dd>
+    <section class="profile-panel" aria-label="Datos del perfil">
+        <div class="profile-identity">
+            <div class="profile-avatar" aria-hidden="true">@inicial</div>
+            <div class="profile-identity-copy">
+                <span class="profile-identity-label">PERFIL DE USUARIO</span>
+                <h2>@nombreCompleto</h2>
+                <p>@Model.UsuLg</p>
             </div>
-            <div class="col-md-6 mb-3">
-                <dt class="text-muted-custom">Usuario (usu_lg)</dt>
-                <dd class="mb-0">@Model.UsuLg</dd>
+            <div class="profile-role">
+                <span>Rol</span>
+                <strong>@Model.Rol</strong>
             </div>
-            <div class="col-md-6 mb-3">
-                <dt class="text-muted-custom">Nombres</dt>
-                <dd class="mb-0">@Model.Nombres</dd>
+        </div>
+
+        <div class="profile-details">
+            <div class="profile-section-heading">
+                <h3>Información personal</h3>
+                <p>Datos de solo lectura asociados a tu cuenta.</p>
             </div>
-            <div class="col-md-6 mb-3">
-                <dt class="text-muted-custom">Apellidos</dt>
-                <dd class="mb-0">@Model.Apellidos</dd>
-            </div>
-            <div class="col-md-6 mb-3">
-                <dt class="text-muted-custom">Correo electrónico</dt>
-                <dd class="mb-0">@Model.Correo</dd>
-            </div>
-            <div class="col-md-6 mb-3">
-                <dt class="text-muted-custom">Rol</dt>
-                <dd class="mb-0">@Model.Rol</dd>
-            </div>
-        </dl>
+            <dl class="profile-grid mb-0">
+                <div class="profile-field">
+                    <dt>Nombres</dt>
+                    <dd>@Model.Nombres</dd>
+                </div>
+                <div class="profile-field">
+                    <dt>Apellidos</dt>
+                    <dd>@Model.Apellidos</dd>
+                </div>
+                <div class="profile-field profile-field-wide">
+                    <dt>Correo electrónico</dt>
+                    <dd>@Model.Correo</dd>
+                </div>
+            </dl>
+        </div>
     </section>
 </div>

@@ -147,28 +147,24 @@ public class LoginController : Controller
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> Profile()
+    public IActionResult Profile()
     {
         if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
             return Forbid();
         }
 
-        var profile = await _context.Usuarios
-            .AsNoTracking()
-            .Where(usuario => usuario.IdUsuario == userId)
-            .Select(usuario => new PerfilViewModel
-            {
-                IdUsuario = usuario.IdUsuario,
-                Nombres = usuario.Nombres,
-                Apellidos = usuario.Apellidos,
-                UsuLg = usuario.UsuLg,
-                Correo = usuario.Correo,
-                Rol = usuario.Rol
-            })
-            .FirstOrDefaultAsync();
+        var profile = new PerfilViewModel
+        {
+            IdUsuario = userId,
+            Nombres = User.FindFirstValue("Nombres") ?? string.Empty,
+            Apellidos = User.FindFirstValue("Apellidos") ?? string.Empty,
+            UsuLg = User.Identity?.Name ?? string.Empty,
+            Correo = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            Rol = User.FindFirstValue(ClaimTypes.Role) ?? "USER"
+        };
 
-        return profile == null ? NotFound() : View(profile);
+        return View(profile);
     }
 
     /// <summary>
