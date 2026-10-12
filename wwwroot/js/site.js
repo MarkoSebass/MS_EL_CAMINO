@@ -3,6 +3,26 @@
 
 // Write your JavaScript code.
 document.addEventListener("DOMContentLoaded", () => {
+	document.querySelectorAll("[data-uppercase]").forEach((input) => {
+		const uppercaseValue = input.value.toUpperCase();
+		input.value = uppercaseValue;
+
+		input.addEventListener("input", () => {
+			const selectionStart = input.selectionStart;
+			const selectionEnd = input.selectionEnd;
+			const uppercaseValue = input.value.toUpperCase();
+
+			if (input.value === uppercaseValue) {
+				return;
+			}
+
+			input.value = uppercaseValue;
+			if (selectionStart !== null && selectionEnd !== null) {
+				input.setSelectionRange(selectionStart, selectionEnd);
+			}
+		});
+	});
+
 	let pendingLogoutForm = null;
 	const logoutModalElement = document.getElementById("logoutConfirmationModal");
 

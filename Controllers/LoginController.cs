@@ -14,7 +14,6 @@ namespace MS_EL_CAMINO.Controllers;
 /// <summary>
 /// Controlador MVC para la autenticación de usuarios mediante Cookies en 'El Camino'.
 /// </summary>
-[AllowAnonymous]
 public class LoginController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -36,6 +35,7 @@ public class LoginController : Controller
     /// Si el usuario ya está autenticado, lo redirige al Dashboard.
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Index(string? returnUrl = null)
     {
         if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -55,6 +55,7 @@ public class LoginController : Controller
     /// Procesa el inicio de sesión con validación robusta y manejo de excepciones de base de datos.
     /// </summary>
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(LoginViewModel model)
     {
@@ -103,11 +104,14 @@ public class LoginController : Controller
         }
 
         // 5. Configurar Claims e iniciar sesión con Cookie
+        var nombreCompleto = $"{usuario.Nombres} {usuario.Apellidos}".Trim();
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-            new(ClaimTypes.Name, $"{usuario.Nombres} {usuario.Apellidos}".Trim()),
+            new(ClaimTypes.Name, usuario.UsuLg),
             new(ClaimTypes.Email, usuario.Correo),
+            new(ClaimTypes.Role, usuario.Rol.Trim().ToUpperInvariant()),
+            new("NombreCompleto", nombreCompleto),
             new("Nombres", usuario.Nombres),
             new("Apellidos", usuario.Apellidos),
             new("UsuarioId", usuario.IdUsuario.ToString())
@@ -139,6 +143,32 @@ public class LoginController : Controller
         }
 
         return RedirectToAction("Index", "Dashboard");
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Profile()
+    {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Forbid();
+        }
+
+        var profile = await _context.Usuarios
+            .AsNoTracking()
+            .Where(usuario => usuario.IdUsuario == userId)
+            .Select(usuario => new PerfilViewModel
+            {
+                IdUsuario = usuario.IdUsuario,
+                Nombres = usuario.Nombres,
+                Apellidos = usuario.Apellidos,
+                UsuLg = usuario.UsuLg,
+                Correo = usuario.Correo,
+                Rol = usuario.Rol
+            })
+            .FirstOrDefaultAsync();
+
+        return profile == null ? NotFound() : View(profile);
     }
 
     /// <summary>

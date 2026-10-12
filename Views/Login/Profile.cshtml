@@ -1,0 +1,44 @@
+@model MS_EL_CAMINO.ViewModels.PerfilViewModel
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<div class="container py-5">
+    <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge bg-primary mb-2">CUENTA</span>
+            <h1 class="h2 mb-1">Mi perfil</h1>
+            <p class="text-muted-custom mb-0">Información de tu cuenta. Solo lectura.</p>
+        </div>
+        <a class="btn btn-outline-light" asp-controller="Dashboard" asp-action="Index">Volver al Dashboard</a>
+    </div>
+
+    <section class="card-custom" aria-label="Datos del perfil">
+        <dl class="row mb-0">
+            <div class="col-md-6 mb-3">
+                <dt class="text-muted-custom">Identificador</dt>
+                <dd class="mb-0">@Model.IdUsuario</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-muted-custom">Usuario (usu_lg)</dt>
+                <dd class="mb-0">@Model.UsuLg</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-muted-custom">Nombres</dt>
+                <dd class="mb-0">@Model.Nombres</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-muted-custom">Apellidos</dt>
+                <dd class="mb-0">@Model.Apellidos</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-muted-custom">Correo electrónico</dt>
+                <dd class="mb-0">@Model.Correo</dd>
+            </div>
+            <div class="col-md-6 mb-3">
+                <dt class="text-muted-custom">Rol</dt>
+                <dd class="mb-0">@Model.Rol</dd>
+            </div>
+        </dl>
+    </section>
+</div>

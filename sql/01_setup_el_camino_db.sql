@@ -14,9 +14,13 @@ CREATE TABLE IF NOT EXISTS usuario (
     usu_lg VARCHAR(100) NOT NULL UNIQUE,
     correo VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL DEFAULT 'USER',
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     fecha_registro TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE usuario
+ADD COLUMN IF NOT EXISTS rol VARCHAR(50) NOT NULL DEFAULT 'USER';
 
 -- 2. Índice único para acelerar y asegurar la búsqueda por correo en minúsculas
 CREATE UNIQUE INDEX IF NOT EXISTS ix_usuario_usu_lg
@@ -40,6 +44,7 @@ INSERT INTO usuario (
     usu_lg,
     correo, 
     password_hash, 
+    rol,
     activo, 
     fecha_registro
 ) 
@@ -49,6 +54,7 @@ VALUES (
     'admin',
     'admin@elcamino.com', 
     '$2a$11$HpSpO4q.n9Sh9e9WFPJPJudMhRXN2ShA6DcdV9rQshTPLw6yhn09i', 
+    'ADMIN',
     TRUE, 
     NOW()
 );
@@ -60,6 +66,7 @@ SELECT
     nombres, 
     apellidos, 
     correo, 
+    rol,
     activo, 
     fecha_registro 
 FROM usuario;

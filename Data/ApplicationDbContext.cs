@@ -64,6 +64,12 @@ public class ApplicationDbContext : DbContext
                 .HasMaxLength(255)
                 .IsRequired();
 
+            entity.Property(e => e.Rol)
+                .HasColumnName("rol")
+                .HasMaxLength(50)
+                .HasDefaultValue("USER")
+                .IsRequired();
+
             entity.Property(e => e.Activo)
                 .HasColumnName("activo")
                 .HasDefaultValue(true)

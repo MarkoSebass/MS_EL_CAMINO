@@ -1,7 +1,7 @@
 @{
     ViewData["Title"] = "Dashboard";
 
-    var nombreUsuario = User.Identity?.Name ?? "Usuario";
+    var nombreUsuario = User.FindFirst("NombreCompleto")?.Value ?? User.Identity?.Name ?? "Usuario";
 
     var correoUsuario = User.Claims
         .FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?

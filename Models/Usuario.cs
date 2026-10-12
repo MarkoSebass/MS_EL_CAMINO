@@ -40,6 +40,11 @@ public class Usuario
     [Column("password_hash")]
     public string PasswordHash { get; set; } = string.Empty;
 
+    [Required]
+    [MaxLength(50)]
+    [Column("rol")]
+    public string Rol { get; set; } = "USER";
+
     [Column("activo")]
     public bool Activo { get; set; } = true;
 
