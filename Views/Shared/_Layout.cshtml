@@ -1,48 +1,142 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    var isAuthenticated = User?.Identity?.IsAuthenticated == true;
+    var loginUrl = "/Identity/Account/Login";
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EL CAMINO</title>
-    <script type="importmap"></script>
+    <meta name="theme-color" content="#050505" />
+    <title>@ViewData["Title"] · EL CAMINO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MS_EL_CAMINO.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EL CAMINO</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <a class="skip-link" href="#main-content">Saltar al contenido</a>
+    <header class="site-header">
+        <nav class="journey-nav" aria-label="Navegación principal">
+            <div class="journey-nav__inner">
+                <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, inicio">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 32 32" fill="none">
+                            <path d="M4 25.5 12.1 6.5h7.8L28 25.5h-7.4l-2-5h-5.2l-2 5H4Z" />
+                            <path d="M15.1 15.6h1.8" />
+                        </svg>
+                    </span>
+                    <span class="brand-copy">
+                        <span class="brand-name">EL CAMINO</span>
+                        <span class="brand-meta">KM-001 <i aria-hidden="true"></i> EN RUTA</span>
+                    </span>
+                </a>
+
+                <button class="nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation"
+                        aria-controls="main-navigation" aria-expanded="false" aria-label="Abrir navegación">
+                    <span></span><span></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+                <div class="journey-nav__content collapse" id="main-navigation">
+                    <div class="road-progress" aria-hidden="true"><span></span></div>
+                    <ul class="module-nav">
+                        <li>
+                            <a class="module-link is-current" asp-controller="Home" asp-action="Index" aria-current="page">
+                                <span class="module-link__index">00</span>Inicio
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#catalogo"><span class="module-link__index">01</span>Catálogo Tecnológico</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">
+                                    <span class="module-link__index">01</span>Catálogo Tecnológico<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
+                        </li>
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#setup"><span class="module-link__index">02</span>Mi Setup PC</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">
+                                    <span class="module-link__index">02</span>Mi Setup PC<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
+                        </li>
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#biblioteca"><span class="module-link__index">03</span>Biblioteca de Juegos</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
+                                    <span class="module-link__index">03</span>Biblioteca de Juegos<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
+                        </li>
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#creador"><span class="module-link__index">04</span>Sobre el Creador</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Sobre el Creador">
+                                    <span class="module-link__index">04</span>Sobre el Creador<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
                         </li>
                     </ul>
+
+                    @if (isAuthenticated)
+                    {
+                        <a class="account-action" href="/Identity/Account/Manage">
+                            <span class="account-action__dot" aria-hidden="true"></span>Mi Perfil
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="account-action" href="@loginUrl">
+                            Iniciar Sesión <span aria-hidden="true">↗</span>
+                        </a>
+                    }
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            EL CAMINO - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main id="main-content" class="page-content" role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <span>EL CAMINO <span class="footer-separator">/</span> Cada adquisición cuenta una parte de mi historia tecnológica.</span>
+            <span class="footer-coordinates">KM-001 · EN CONSTRUCCIÓN</span>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <div class="modal fade access-modal" id="access-modal" tabindex="-1" aria-labelledby="access-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <button class="modal-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+                <span class="modal-kicker"><span></span> ACCESO RESTRINGIDO</span>
+                <h2 id="access-modal-title">Un tramo más adelante.</h2>
+                <p class="access-modal__message">Módulo bloqueado.<br />Debes iniciar sesión para acceder a esta sección.</p>
+                <p class="access-modal__module" id="access-modal-module"></p>
+                <a class="button-primary access-modal__action" href="@loginUrl">Iniciar Sesión <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
