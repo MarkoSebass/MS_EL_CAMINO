@@ -17,7 +17,7 @@
 </head>
 <body>
     <a class="skip-link" href="#main-content">Saltar al contenido</a>
-    <header class="site-header">
+    <header class="site-header" id="page-top">
         <nav class="journey-nav" aria-label="Navegación principal">
             <div class="journey-nav__inner">
                 <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, inicio">
@@ -118,9 +118,57 @@
     </main>
 
     <footer class="site-footer">
-        <div class="site-footer__inner">
-            <span>EL CAMINO <span class="footer-separator">/</span> Cada adquisición cuenta una parte de mi historia tecnológica.</span>
-            <span class="footer-coordinates">KM-001 · EN CONSTRUCCIÓN</span>
+        <div class="site-footer__main">
+            <div class="footer-brand">
+                <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, volver al inicio">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 32 32" fill="none">
+                            <path d="M4 25.5 12.1 6.5h7.8L28 25.5h-7.4l-2-5h-5.2l-2 5H4Z" />
+                            <path d="M15.1 15.6h1.8" />
+                        </svg>
+                    </span>
+                    <span class="brand-copy">
+                        <span class="brand-name">EL CAMINO</span>
+                        <span class="brand-meta">BITÁCORA TECNOLÓGICA PERSONAL</span>
+                    </span>
+                </a>
+                <p>Cada adquisición cuenta una parte de mi historia tecnológica.</p>
+                <span class="footer-philosophy">No es lo que tienes. Es el camino.</span>
+            </div>
+
+            <div class="footer-column footer-nav">
+                <span class="footer-heading">EL PROYECTO</span>
+                <a asp-controller="Home" asp-action="Index">Inicio <span aria-hidden="true">↗</span></a>
+                <a asp-controller="Home" asp-action="Privacy">Privacidad <span aria-hidden="true">↗</span></a>
+            </div>
+
+            <div class="footer-column footer-connect">
+                <span class="footer-heading">CONECTA</span>
+                <span class="footer-contact-name">Marko Sebastian<br />Orihuela Carrasco</span>
+                <span class="footer-contact-role">Creador de EL CAMINO</span>
+                <div class="footer-socials" aria-label="Redes sociales">
+                    <a href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Marko Sebastian (abre en una pestaña nueva)">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="5" />
+                            <circle cx="12" cy="12" r="4" />
+                            <circle class="social-icon__dot" cx="17.5" cy="6.8" r="1" />
+                        </svg>
+                        <span>Instagram</span><span class="social-external" aria-hidden="true">↗</span>
+                    </a>
+                    <a href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Marko Sebastian (abre en una pestaña nueva)">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 9v10M5 5.5v.1M10 19v-6a4 4 0 0 1 8 0v6M10 9v10" />
+                        </svg>
+                        <span>LinkedIn</span><span class="social-external" aria-hidden="true">↗</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="site-footer__bottom">
+            <span class="footer-copyright">© @DateTime.Now.Year EL CAMINO <span class="footer-separator">/</span> Un proyecto personal en evolución.</span>
+            <span class="footer-route__status"><i aria-hidden="true"></i> EN RUTA · KM-001</span>
+            <a class="footer-back-top" href="#page-top">Volver al inicio <span aria-hidden="true">↑</span></a>
         </div>
     </footer>
 
