@@ -42,54 +42,54 @@
                     <ul class="module-nav">
                         <li>
                             <a class="module-link is-current" asp-controller="Home" asp-action="Index" aria-current="page">
-                                <span class="module-link__index">00</span>Inicio
+                                Inicio
                             </a>
                         </li>
                         <li>
                             @if (isAuthenticated)
                             {
-                                <a class="module-link" href="#catalogo"><span class="module-link__index">01</span>Catálogo Tecnológico</a>
+                                <a class="module-link" href="#catalogo">Catálogo Tecnológico</a>
                             }
                             else
                             {
                                 <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">
-                                    <span class="module-link__index">01</span>Catálogo Tecnológico<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                    Catálogo Tecnológico<span class="lock-mark" aria-label="Bloqueado">↗</span>
                                 </button>
                             }
                         </li>
                         <li>
                             @if (isAuthenticated)
                             {
-                                <a class="module-link" href="#setup"><span class="module-link__index">02</span>Mi Setup PC</a>
+                                <a class="module-link" href="#setup">Mi Setup PC</a>
                             }
                             else
                             {
                                 <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">
-                                    <span class="module-link__index">02</span>Mi Setup PC<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                    Mi Setup PC<span class="lock-mark" aria-label="Bloqueado">↗</span>
                                 </button>
                             }
                         </li>
                         <li>
                             @if (isAuthenticated)
                             {
-                                <a class="module-link" href="#biblioteca"><span class="module-link__index">03</span>Biblioteca de Juegos</a>
+                                <a class="module-link" href="#biblioteca">Biblioteca de Juegos</a>
                             }
                             else
                             {
                                 <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
-                                    <span class="module-link__index">03</span>Biblioteca de Juegos<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                    Biblioteca de Juegos<span class="lock-mark" aria-label="Bloqueado">↗</span>
                                 </button>
                             }
                         </li>
                         <li>
                             @if (isAuthenticated)
                             {
-                                <a class="module-link" href="#creador"><span class="module-link__index">04</span>Sobre el Creador</a>
+                                <a class="module-link" href="#creador">Sobre el Creador</a>
                             }
                             else
                             {
                                 <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Sobre el Creador">
-                                    <span class="module-link__index">04</span>Sobre el Creador<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                    Sobre el Creador<span class="lock-mark" aria-label="Bloqueado">↗</span>
                                 </button>
                             }
                         </li>

@@ -87,6 +87,7 @@ a:focus-visible {
 }
 
 .journey-nav__inner {
+    position: relative;
     display: flex;
     min-height: 82px;
     align-items: center;
@@ -133,7 +134,6 @@ a:focus-visible {
 }
 
 .brand-meta,
-.module-link__index,
 .hero-kicker,
 .eyebrow,
 .footer-coordinates,
@@ -167,7 +167,6 @@ a:focus-visible {
     min-width: 0;
     flex: 1;
     align-items: center;
-    justify-content: space-between;
     gap: 18px;
 }
 
@@ -191,13 +190,16 @@ a:focus-visible {
 }
 
 .module-nav {
+    position: absolute;
+    left: 50%;
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: clamp(4px, 1.35vw, 22px);
+    gap: clamp(18px, 2.2vw, 34px);
     margin: 0;
     padding: 0;
     list-style: none;
+    transform: translateX(-50%);
 }
 
 .module-nav li {
@@ -209,7 +211,6 @@ a:focus-visible {
     display: inline-flex;
     min-height: 42px;
     align-items: center;
-    gap: 7px;
     padding: 0 3px;
     border: 0;
     background: transparent;
@@ -228,21 +229,12 @@ a:focus-visible {
 
 .module-link.is-current::after {
     position: absolute;
-    right: 3px;
+    right: 0;
     bottom: 2px;
-    left: 25px;
+    left: 0;
     height: 2px;
     background: var(--ray);
     content: "";
-}
-
-.module-link__index {
-    color: #62626a;
-    font-size: 9px;
-}
-
-.module-link.is-current .module-link__index {
-    color: var(--ray);
 }
 
 .module-link--locked {
@@ -263,6 +255,7 @@ a:focus-visible {
     display: inline-flex;
     min-height: 40px;
     flex: 0 0 auto;
+    margin-left: auto;
     align-items: center;
     justify-content: center;
     gap: 9px;
@@ -577,6 +570,108 @@ a:focus-visible {
     font-weight: 600;
 }
 
+.value-section {
+    padding: 76px 0 80px;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.value-section .section-heading {
+    margin-bottom: 26px;
+}
+
+.value-grid {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+}
+
+.value-card.card {
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .085);
+    border-radius: 6px;
+    background:
+        linear-gradient(145deg, rgba(242, 177, 52, .055), transparent 55%),
+        var(--asphalt);
+    color: var(--lime);
+    transition: transform .2s ease, border-color .2s ease;
+}
+
+.value-card.card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(242, 177, 52, .4);
+}
+
+.value-card .card-body {
+    display: flex;
+    min-height: 190px;
+    flex-direction: column;
+    padding: 22px;
+}
+
+.value-card__index {
+    color: var(--ray);
+    font-family: var(--font-data);
+    font-size: 9px;
+    letter-spacing: .07em;
+}
+
+.value-card h3 {
+    margin: auto 0 9px;
+    color: var(--lime);
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -.035em;
+}
+
+.value-card p {
+    margin: 0;
+    color: var(--smoke);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.journey-callout {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 22px;
+    padding: 19px 22px;
+    border: 1px solid rgba(242, 177, 52, .2);
+    border-radius: 6px;
+    background: linear-gradient(100deg, rgba(242, 177, 52, .075), rgba(242, 177, 52, .015) 75%);
+}
+
+.journey-callout__marker {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    place-items: center;
+    border: 1px solid rgba(242, 177, 52, .36);
+    border-radius: 50%;
+    color: var(--ray);
+    font-family: var(--font-data);
+    font-size: 11px;
+}
+
+.journey-callout .eyebrow {
+    font-size: 8px;
+}
+
+.journey-callout p {
+    margin: 4px 0 0;
+    color: var(--lime);
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+
+.journey-callout .text-link {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
 .module-section {
     padding: 88px 0 94px;
 }
@@ -602,14 +697,14 @@ a:focus-visible {
 }
 
 .module-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
 }
 
 .module-card {
     position: relative;
     display: flex;
+    height: 100%;
     min-height: 205px;
     flex-direction: column;
     padding: 21px;
@@ -617,6 +712,10 @@ a:focus-visible {
     border-radius: 6px;
     background: linear-gradient(135deg, rgba(255, 255, 255, .025), transparent 65%), var(--asphalt);
     transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.module-card.card {
+    color: var(--lime);
 }
 
 .module-card:hover {
@@ -1022,21 +1121,12 @@ a:focus-visible {
         flex-basis: 190px;
     }
 
-    .module-nav {
-        gap: 10px;
-    }
-
     .module-link {
-        gap: 5px;
         font-size: 11px;
     }
 
-    .module-link__index {
-        display: none;
-    }
-
-    .module-link.is-current::after {
-        left: 3px;
+    .module-nav {
+        gap: clamp(12px, 1.5vw, 18px);
     }
 }
 
@@ -1097,9 +1187,11 @@ a:focus-visible {
     }
 
     .module-nav {
+        position: static;
         align-items: stretch;
         flex-direction: column;
         gap: 2px;
+        transform: none;
     }
 
     .module-link {
@@ -1111,20 +1203,15 @@ a:focus-visible {
         text-align: left;
     }
 
-    .module-link__index {
-        display: inline;
-        width: 24px;
-        color: #66666e;
-    }
-
     .module-link.is-current::after {
         right: auto;
         bottom: 4px;
-        left: 32px;
+        left: 4px;
         width: 24px;
     }
 
     .account-action {
+        margin-left: 0;
         align-self: flex-start;
     }
 
@@ -1139,9 +1226,6 @@ a:focus-visible {
         padding: 68px 0;
     }
 
-    .module-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 }
 
 @media (max-width: 640px) {
@@ -1199,6 +1283,30 @@ a:focus-visible {
         max-width: 480px;
     }
 
+    .value-section {
+        padding: 58px 0 62px;
+    }
+
+    .value-card .card-body {
+        min-height: 170px;
+        padding: 19px;
+    }
+
+    .journey-callout {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 17px;
+    }
+
+    .journey-callout > div {
+        flex: 1 1 calc(100% - 60px);
+    }
+
+    .journey-callout .text-link {
+        margin-left: 56px;
+    }
+
     .module-section {
         padding: 60px 0 64px;
     }
@@ -1212,10 +1320,6 @@ a:focus-visible {
 
     .section-heading > p {
         max-width: 440px;
-    }
-
-    .module-grid {
-        gap: 9px;
     }
 
     .module-card {
