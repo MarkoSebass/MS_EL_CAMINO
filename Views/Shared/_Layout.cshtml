@@ -1,6 +1,7 @@
 ﻿@{
     var isAuthenticated = User?.Identity?.IsAuthenticated == true;
     var loginUrl = "/Identity/Account/Login";
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -41,7 +42,7 @@
                     <div class="road-progress" aria-hidden="true"><span></span></div>
                     <ul class="module-nav">
                         <li>
-                            <a class="module-link is-current" asp-controller="Home" asp-action="Index" aria-current="page">
+                            <a class="module-link @(currentAction == "Index" ? "is-current" : "")" asp-controller="Home" asp-action="Index" aria-current="@(currentAction == "Index" ? "page" : null)">
                                 Inicio
                             </a>
                         </li>
@@ -82,16 +83,9 @@
                             }
                         </li>
                         <li>
-                            @if (isAuthenticated)
-                            {
-                                <a class="module-link" href="#creador">Sobre el Creador</a>
-                            }
-                            else
-                            {
-                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Sobre el Creador">
-                                    Sobre el Creador<span class="lock-mark" aria-label="Bloqueado">↗</span>
-                                </button>
-                            }
+                            <a class="module-link @(currentAction == "SobreElCreador" ? "is-current" : "")"
+                               asp-controller="Home" asp-action="SobreElCreador"
+                               aria-current="@(currentAction == "SobreElCreador" ? "page" : null)">Sobre el Creador</a>
                         </li>
                     </ul>
 
@@ -118,7 +112,7 @@
 
     <footer class="site-footer">
         <div class="site-footer__main">
-            <div class="footer-brand">
+            <section class="footer-brand" aria-label="Acerca de EL CAMINO">
                 <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, volver al inicio">
                     <span class="brand-mark" aria-hidden="true">
                         <img src="~/images/el-camino-logo.png" alt="" />
@@ -130,18 +124,48 @@
                 </a>
                 <p>Cada adquisición cuenta una parte de mi historia tecnológica.</p>
                 <span class="footer-philosophy">No es lo que tienes. Es el camino.</span>
-            </div>
+                <div class="footer-build-status">
+                    <span class="footer-build-status__light" aria-hidden="true"></span>
+                    PROYECTO PERSONAL · EN EVOLUCIÓN
+                </div>
+            </section>
 
-            <div class="footer-column footer-nav">
-                <span class="footer-heading">EL PROYECTO</span>
+            <nav class="footer-column footer-nav" aria-label="Enlaces del proyecto">
+                <span class="footer-heading">DESCUBRE</span>
                 <a asp-controller="Home" asp-action="Index">Inicio <span aria-hidden="true">↗</span></a>
-                <a asp-controller="Home" asp-action="Privacy">Privacidad <span aria-hidden="true">↗</span></a>
+                <a asp-controller="Home" asp-action="SobreElCreador">Sobre el creador <span aria-hidden="true">↗</span></a>
+                <a href="@Url.Action("Index", "Home")#filosofia">La filosofía <span aria-hidden="true">↗</span></a>
+                <a href="@Url.Action("Index", "Home")#modulos">El mapa del camino <span aria-hidden="true">↗</span></a>
+            </nav>
+
+            <div class="footer-column footer-destinations">
+                <span class="footer-heading">PARADAS</span>
+                @if (isAuthenticated)
+                {
+                    <a href="@Url.Action("Index", "Home")#catalogo">Catálogo tecnológico <span aria-hidden="true">↗</span></a>
+                    <a href="@Url.Action("Index", "Home")#setup">Mi Setup PC <span aria-hidden="true">↗</span></a>
+                    <a href="@Url.Action("Index", "Home")#biblioteca">Biblioteca de juegos <span aria-hidden="true">↗</span></a>
+                }
+                else
+                {
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">Catálogo tecnológico <span aria-hidden="true">↗</span></button>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">Mi Setup PC <span aria-hidden="true">↗</span></button>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">Biblioteca de juegos <span aria-hidden="true">↗</span></button>
+                }
+                @if (isAuthenticated)
+                {
+                    <span class="footer-destinations-note">Tu recorrido personal, siempre en evolución.</span>
+                }
+                else
+                {
+                    <span class="footer-destinations-note">Áreas personales disponibles al iniciar sesión.</span>
+                }
             </div>
 
             <div class="footer-column footer-connect">
-                <span class="footer-heading">CONECTA</span>
+                <span class="footer-heading">CONECTA CONMIGO</span>
                 <span class="footer-contact-name">Marko Sebastian<br />Orihuela Carrasco</span>
-                <span class="footer-contact-role">Creador de EL CAMINO</span>
+                <span class="footer-contact-role">Creador y autor de EL CAMINO</span>
                 <div class="footer-socials" aria-label="Redes sociales">
                     <a href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Marko Sebastian (abre en una pestaña nueva)">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -162,8 +186,8 @@
         </div>
 
         <div class="site-footer__bottom">
-            <span class="footer-copyright">© @DateTime.Now.Year EL CAMINO <span class="footer-separator">/</span> Un proyecto personal en evolución.</span>
-            <span class="footer-route__status"><i aria-hidden="true"></i> EN RUTA · KM-001</span>
+            <span class="footer-copyright">© @DateTime.Now.Year EL CAMINO <span class="footer-separator">/</span> Creado por Marko Sebastian Orihuela Carrasco.</span>
+            <span class="footer-route__status"><i aria-hidden="true"></i> CADA PASO CUENTA</span>
             <a class="footer-back-top" href="#page-top">Volver al inicio <span aria-hidden="true">↑</span></a>
         </div>
     </footer>

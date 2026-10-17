@@ -1,0 +1,132 @@
+﻿@{
+    ViewData["Title"] = "Sobre el creador";
+}
+
+<div class="home-page creator-page">
+    <div class="creator-breadcrumb" aria-label="Ruta de navegación">
+        <a asp-controller="Home" asp-action="Index">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Sobre el creador</span>
+    </div>
+
+    <section class="creator-hero" aria-labelledby="creator-title">
+        <div class="creator-hero__copy">
+            <span class="hero-kicker">AUTOR / BITÁCORA PERSONAL / KM-001</span>
+            <p class="creator-overline">HOLA, SOY MARKO</p>
+            <h1 id="creator-title">La tecnología<br />también cuenta<br /><span>quiénes somos.</span></h1>
+            <p class="creator-intro">
+                Soy <strong>Marko Sebastian Orihuela Carrasco</strong>, creador de EL CAMINO.
+                Aquí documento las decisiones, los equipos y las experiencias que van dando forma
+                a mi historia tecnológica.
+            </p>
+
+            <div class="creator-socials" aria-label="Perfiles de Marko">
+                <a class="creator-socials__primary" href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer"
+                   aria-label="Visitar perfil de LinkedIn de Marko Sebastian (abre en una pestaña nueva)">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M5 9v10M5 5.5v.1M10 19v-6a4 4 0 0 1 8 0v6M10 9v10" />
+                    </svg>
+                    Conecta en LinkedIn <span aria-hidden="true">↗</span>
+                </a>
+                <a class="creator-socials__secondary" href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer"
+                   aria-label="Visitar Instagram de Marko Sebastian (abre en una pestaña nueva)">
+                    Instagram <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+
+            <div class="creator-byline">
+                <span class="creator-byline__rule" aria-hidden="true"></span>
+                <span>Una historia personal. Un paso a la vez.</span>
+            </div>
+        </div>
+
+        <figure class="creator-portrait">
+            <img src="~/images/creator-sample.jpg"
+                 alt="Retrato de muestra temporal; se reemplazará por una fotografía de Marko." />
+            <span class="creator-portrait__badge">FOTO DE MUESTRA</span>
+            <figcaption>
+                <span class="creator-portrait__caption-label">EL AUTOR</span>
+                <span>Marko Sebastian Orihuela Carrasco</span>
+            </figcaption>
+        </figure>
+    </section>
+
+    <section class="creator-story" aria-labelledby="creator-story-title">
+        <div class="creator-section-label">
+            <span class="eyebrow">01 — POR QUÉ EXISTE</span>
+            <span class="creator-section-label__line" aria-hidden="true"></span>
+        </div>
+        <div class="row g-4 g-lg-5">
+            <div class="col-12 col-lg-5">
+                <h2 id="creator-story-title">No quería olvidar el camino.</h2>
+                <p class="creator-story__dek">Así empezó EL CAMINO: como una forma de dar contexto a las cosas que forman parte de mi vida tecnológica.</p>
+            </div>
+            <div class="col-12 col-lg-7">
+                <div class="creator-prose">
+                    <p>
+                        Con el tiempo, un dispositivo deja de ser solo un objeto. Puede recordarte
+                        una meta, una etapa o el momento en que aprendiste algo nuevo. Quería un
+                        espacio propio donde esas historias no quedaran reducidas a una lista.
+                    </p>
+                    <p>
+                        Por eso reúno aquí mis adquisiciones, la evolución de mi setup, los juegos
+                        que me acompañan y las ideas que tengo por delante. No para medir cuánto
+                        tengo, sino para reconocer todo lo que hay detrás de cada paso.
+                    </p>
+                    <p class="creator-manifesto">Cada adquisición cuenta una parte de mi historia tecnológica</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="creator-focus" aria-labelledby="creator-focus-title">
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">02 — MI PUNTO DE VISTA</span>
+                <h2 id="creator-focus-title">Más que objetos: memoria, criterio y evolución.</h2>
+            </div>
+            <p>Esta es la mirada con la que construyo el proyecto y comparto mi recorrido.</p>
+        </div>
+
+        <div class="row g-3 creator-focus-grid">
+            <div class="col-12 col-md-4">
+                <article class="creator-focus-card card h-100">
+                    <div class="card-body">
+                        <span class="creator-focus-card__index">01 / CONTEXTO</span>
+                        <h3>Detrás de cada elección</h3>
+                        <p>Me interesa conservar no solo qué tecnología llegó, sino qué significó en el momento de elegirla.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="col-12 col-md-4">
+                <article class="creator-focus-card card h-100">
+                    <div class="card-body">
+                        <span class="creator-focus-card__index">02 / EVOLUCIÓN</span>
+                        <h3>El progreso toma tiempo</h3>
+                        <p>Un setup y una colección cambian con cada etapa: aprender a mirar ese cambio también es parte del camino.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="col-12 col-md-4">
+                <article class="creator-focus-card card h-100">
+                    <div class="card-body">
+                        <span class="creator-focus-card__index">03 / INTENCIÓN</span>
+                        <h3>Elegir lo que sigue</h3>
+                        <p>Las próximas metas también cuentan la historia: una idea guardada puede ser el inicio del siguiente tramo.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="creator-closing" aria-labelledby="creator-closing-title">
+        <div>
+            <span class="eyebrow">SIGAMOS EN CONTACTO</span>
+            <h2 id="creator-closing-title">Toda ruta empieza con una conversación.</h2>
+            <p>Encuéntrame en LinkedIn y conoce más sobre mi recorrido.</p>
+        </div>
+        <a class="button-primary" href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer">
+            Visitar mi LinkedIn <span aria-hidden="true">↗</span>
+        </a>
+    </section>
+</div>
