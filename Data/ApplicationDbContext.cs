@@ -14,6 +14,10 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<Dispositivo> Dispositivos => Set<Dispositivo>();
+    public DbSet<Componente> Componentes => Set<Componente>();
+    public DbSet<Juego> Juegos => Set<Juego>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +83,41 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("fecha_registro")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<Categoria>(entity =>
+        {
+            entity.HasKey(e => e.IdCategoria);
+            entity.Property(e => e.Nombre).IsRequired();
+        });
+
+        modelBuilder.Entity<Dispositivo>(entity =>
+        {
+            entity.HasKey(e => e.IdDispositivo);
+            entity.Property(e => e.FechaCompra).HasColumnType("date");
+            entity.HasOne(e => e.Categoria)
+                .WithMany()
+                .HasForeignKey(e => e.IdCategoria)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Componente>(entity =>
+        {
+            entity.HasKey(e => e.IdComponente);
+            entity.Property(e => e.TipoComponente).IsRequired();
+            entity.Property(e => e.FechaCompra).HasColumnType("date");
+        });
+
+        modelBuilder.Entity<Juego>(entity =>
+        {
+            entity.HasKey(e => e.IdJuego);
+            entity.Property(e => e.Plataforma).IsRequired();
+            entity.Property(e => e.Titulo).IsRequired();
+            entity.Property(e => e.FechaCompra).HasColumnType("date");
+            entity.HasOne(e => e.Categoria)
+                .WithMany()
+                .HasForeignKey(e => e.IdCategoria)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
