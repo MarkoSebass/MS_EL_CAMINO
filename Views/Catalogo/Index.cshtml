@@ -1,0 +1,203 @@
+@using System.Globalization
+@model MS_EL_CAMINO.ViewModels.CatalogoViewModel
+@{
+    ViewData["Title"] = "Catálogo tecnológico";
+    var currencyCulture = CultureInfo.GetCultureInfo("es-PE");
+}
+
+<div class="catalog-page">
+    <header class="catalog-hero">
+        <div class="catalog-hero__copy">
+            <span class="catalog-kicker"><i class="bi bi-compass-fill" aria-hidden="true"></i> KM-001 / COLECCIÓN PERSONAL</span>
+            <h1>Lo que forma<br />parte del <span>camino.</span></h1>
+            <p>Un registro vivo de los dispositivos, componentes y juegos que acompañan cada etapa de tu historia tecnológica.</p>
+        </div>
+        <div class="catalog-hero__mark" aria-hidden="true">
+            <span class="catalog-hero__orbit"></span>
+            <i class="bi bi-box-seam"></i>
+            <span class="catalog-hero__coordinates">EL CAMINO · 001</span>
+        </div>
+    </header>
+
+    <section class="catalog-overview" aria-label="Resumen de la colección">
+        <article class="catalog-stat catalog-stat--featured">
+            <span class="catalog-stat__label">PIEZAS EN TU RECORRIDO</span>
+            <strong>@Model.Productos.Count</strong>
+            <span class="catalog-stat__detail">registros personales</span>
+        </article>
+        <article class="catalog-stat">
+            <span class="catalog-stat__icon"><i class="bi bi-laptop" aria-hidden="true"></i></span>
+            <span class="catalog-stat__label">DISPOSITIVOS</span>
+            <strong>@Model.TotalDispositivos</strong>
+            <span class="catalog-stat__detail">equipos registrados</span>
+        </article>
+        <article class="catalog-stat">
+            <span class="catalog-stat__icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+            <span class="catalog-stat__label">COMPONENTES</span>
+            <strong>@Model.TotalComponentes</strong>
+            <span class="catalog-stat__detail">piezas del setup</span>
+        </article>
+        <article class="catalog-stat">
+            <span class="catalog-stat__icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+            <span class="catalog-stat__label">VIDEOJUEGOS</span>
+            <strong>@Model.TotalJuegos</strong>
+            <span class="catalog-stat__detail">mundos recorridos</span>
+        </article>
+        <article class="catalog-stat catalog-stat--investment">
+            <span class="catalog-stat__label">INVERSIÓN REGISTRADA</span>
+            <strong>@Model.InversionTotal.ToString("C", currencyCulture)</strong>
+            <span class="catalog-stat__detail">suma de los importes disponibles</span>
+        </article>
+    </section>
+
+    <section class="catalog-collection" aria-labelledby="collection-title">
+        <div class="catalog-collection__heading">
+            <div>
+                <span class="catalog-kicker">ARCHIVO / 01</span>
+                <h2 id="collection-title">Tu colección</h2>
+                <p>Todos tus registros, reunidos en un solo lugar.</p>
+            </div>
+            <label class="catalog-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <span class="visually-hidden">Buscar en el catálogo</span>
+                <input id="catalog-search" type="search" placeholder="Buscar por nombre, tipo o estado..." autocomplete="off" />
+            </label>
+        </div>
+
+        <div class="catalog-toolbar">
+            <div class="catalog-filters" role="group" aria-label="Filtrar catálogo por tipo">
+                <button type="button" class="catalog-filter is-active" data-catalog-filter="TODOS" aria-pressed="true">Todo <span>@Model.Productos.Count</span></button>
+                <button type="button" class="catalog-filter" data-catalog-filter="DISPOSITIVO" aria-pressed="false">Dispositivos <span>@Model.TotalDispositivos</span></button>
+                <button type="button" class="catalog-filter" data-catalog-filter="COMPONENTE" aria-pressed="false">Componentes <span>@Model.TotalComponentes</span></button>
+                <button type="button" class="catalog-filter" data-catalog-filter="JUEGO" aria-pressed="false">Videojuegos <span>@Model.TotalJuegos</span></button>
+            </div>
+            <span class="catalog-results" id="catalog-results" aria-live="polite">@Model.Productos.Count productos</span>
+        </div>
+
+        @if (Model.Productos.Count == 0)
+        {
+            <div class="catalog-empty">
+                <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                <h3>Tu colección empieza aquí.</h3>
+                <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
+                <a asp-controller="Dashboard" asp-action="Index">Volver al Dashboard <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+        }
+        else
+        {
+            <div class="catalog-grid" id="catalog-grid">
+                @foreach (var producto in Model.Productos)
+                {
+                    var searchText = $"{producto.Nombre} {producto.Categoria} {producto.Detalle} {producto.Estado} {producto.Tipo}";
+                    var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                    <article class="catalog-card"
+                             data-catalog-item
+                             data-type="@producto.Tipo"
+                             data-search="@searchText">
+                        <div class="catalog-card__visual">
+                            @if (tieneImagen)
+                            {
+                                <img src="@producto.ImagenUrl" alt="@producto.Nombre" loading="lazy" />
+                            }
+                            <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                                <span></span>
+                                <i class="bi @producto.Icono"></i>
+                            </div>
+                            <span class="catalog-card__type">@producto.Tipo</span>
+                        </div>
+                        <div class="catalog-card__body">
+                            <span class="catalog-card__category">@producto.Categoria</span>
+                            <h3>@producto.Nombre</h3>
+                            @if (!string.IsNullOrWhiteSpace(producto.Detalle))
+                            {
+                                <p class="catalog-card__detail">@producto.Detalle</p>
+                            }
+                            <div class="catalog-card__meta">
+                                @if (producto.FechaCompra.HasValue)
+                                {
+                                    <span><i class="bi bi-calendar3" aria-hidden="true"></i> @producto.FechaCompra.Value.ToDateTime(TimeOnly.MinValue).ToString("dd MMM yyyy", currencyCulture)</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(producto.Estado))
+                                {
+                                    <span class="catalog-card__status"><i aria-hidden="true"></i>@producto.Estado</span>
+                                }
+                            </div>
+                            <div class="catalog-card__footer">
+                                <span>VALOR REGISTRADO</span>
+                                @if (producto.Precio.HasValue)
+                                {
+                                    <strong>@producto.Precio.Value.ToString("C", currencyCulture)</strong>
+                                }
+                                else
+                                {
+                                    <strong class="catalog-card__no-price">Sin importe</strong>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+            <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
+                <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <h3>No encontramos coincidencias.</h3>
+                <p>Prueba con otro nombre, categoría o tipo de producto.</p>
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    @if (Model.Productos.Count > 0)
+    {
+        <script>
+            (() => {
+                const searchInput = document.getElementById("catalog-search");
+                const filterButtons = document.querySelectorAll("[data-catalog-filter]");
+                const items = Array.from(document.querySelectorAll("[data-catalog-item]"));
+                const resultsLabel = document.getElementById("catalog-results");
+                const noResults = document.getElementById("catalog-no-results");
+                let activeFilter = "TODOS";
+
+                document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
+                    image.addEventListener("error", () => {
+                        image.hidden = true;
+                        const placeholder = image.nextElementSibling;
+                        if (placeholder) {
+                            placeholder.hidden = false;
+                        }
+                    });
+                });
+
+                const updateCatalog = () => {
+                    const query = searchInput.value.trim().toLocaleLowerCase("es");
+                    let visibleCount = 0;
+
+                    items.forEach((item) => {
+                        const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
+                        const matchesQuery = (item.dataset.search || "").toLocaleLowerCase("es").includes(query);
+                        const isVisible = matchesType && matchesQuery;
+                        item.hidden = !isVisible;
+                        visibleCount += isVisible ? 1 : 0;
+                    });
+
+                    resultsLabel.textContent = `${visibleCount} ${visibleCount === 1 ? "producto" : "productos"}`;
+                    noResults.hidden = visibleCount > 0;
+                };
+
+                filterButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        activeFilter = button.dataset.catalogFilter;
+                        filterButtons.forEach((filter) => {
+                            const isActive = filter === button;
+                            filter.classList.toggle("is-active", isActive);
+                            filter.setAttribute("aria-pressed", String(isActive));
+                        });
+                        updateCatalog();
+                    });
+                });
+
+                searchInput.addEventListener("input", updateCatalog);
+            })();
+        </script>
+    }
+}

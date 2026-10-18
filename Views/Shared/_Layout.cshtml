@@ -3,6 +3,8 @@
     var isAuthenticated = User?.Identity?.IsAuthenticated == true;
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var isHomePage = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
     var isLoginPage = string.Equals(currentController, "Login", StringComparison.OrdinalIgnoreCase)
         && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
     var loginUrl = Url.Action("Index", "Login") ?? "/Login";
@@ -50,14 +52,16 @@
                     <div class="road-progress" aria-hidden="true"><span></span></div>
                     <ul class="module-nav">
                         <li>
-                            <a class="module-link @(currentAction == "Index" ? "is-current" : "")" asp-controller="Home" asp-action="Index" aria-current="@(currentAction == "Index" ? "page" : null)">
+                            <a class="module-link @(isHomePage ? "is-current" : "")" asp-controller="Home" asp-action="Index" aria-current="@(isHomePage ? "page" : null)">
                                 Inicio
                             </a>
                         </li>
                         <li>
                             @if (isAuthenticated)
                             {
-                                <a class="module-link" href="#catalogo">Catálogo Tecnológico</a>
+                                <a class="module-link @(string.Equals(currentController, "Catalogo", StringComparison.OrdinalIgnoreCase) ? "is-current" : "")"
+                                   asp-controller="Catalogo" asp-action="Index"
+                                   aria-current="@(string.Equals(currentController, "Catalogo", StringComparison.OrdinalIgnoreCase) ? "page" : null)">Catálogo Tecnológico</a>
                             }
                             else
                             {
@@ -204,7 +208,7 @@
                 </span>
                 @if (isAuthenticated)
                 {
-                    <a href="@Url.Action("Index", "Home")#catalogo" class="footer-link">
+                    <a asp-controller="Catalogo" asp-action="Index" class="footer-link">
                         <i class="bi bi-laptop me-1 text-warning"></i> Catálogo tecnológico
                     </a>
                     <a href="@Url.Action("Index", "Home")#setup" class="footer-link">
