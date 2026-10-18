@@ -76,8 +76,8 @@ public class LoginController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al conectar o consultar PostgreSQL durante el inicio de sesión.");
-            ModelState.AddModelError(string.Empty, 
-                $"Error al conectar con PostgreSQL: {ex.Message}. Verifica tu cadena de conexión en appsettings.json y que la tabla 'usuario' exista.");
+            ModelState.AddModelError(string.Empty,
+                "No se pudo validar el acceso en este momento. Inténtalo de nuevo más tarde.");
             return View(model);
         }
 

@@ -455,7 +455,7 @@
                     </a>
                     @if (!isAuthenticated)
                     {
-                        <a href="/Identity/Account/Login" class="btn btn-outline-light btn-lg fw-semibold px-4 py-3 rounded-3 btn-hover-glow">
+                        <a asp-controller="Login" asp-action="Index" class="btn btn-outline-light btn-lg fw-semibold px-4 py-3 rounded-3 btn-hover-glow">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
                         </a>
                     }
@@ -503,5 +503,4 @@
         </div>
     </section>
 </div>
-
 

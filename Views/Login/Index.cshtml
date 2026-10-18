@@ -38,7 +38,7 @@
             }
 
             <!-- Formulario de Inicio de Sesión -->
-            <form asp-controller="Login" asp-action="Index" method="post" autocomplete="off">
+            <form asp-controller="Login" asp-action="Index" method="post">
                 <input type="hidden" asp-for="ReturnUrl" />
 
                 <!-- Campo Usuario -->
@@ -50,8 +50,8 @@
                         </svg>
                            <input asp-for="UsuLg"
                                class="form-control text-uppercase"
-                               data-uppercase
                                type="text"
+                               autocomplete="username"
                                placeholder="Ingresa tu usuario"
                                required
                                autofocus />
@@ -70,6 +70,7 @@
                                id="passwordInput"
                                class="form-control"
                                type="password"
+                               autocomplete="current-password"
                                placeholder="••••••••"
                                required />
                         <button type="button" class="toggle-password" id="togglePasswordBtn" aria-label="Mostrar u ocultar contraseña">
@@ -100,7 +101,8 @@
             </form>
 
             <div class="card-footer-info">
-                El Camino &bull; Registro y Gestión de Dispositivos
+                <span>El Camino &bull; Registro y Gestión de Dispositivos</span>
+                <a asp-controller="Home" asp-action="Index">Volver al inicio</a>
             </div>
         </div>
     </div>
@@ -108,27 +110,42 @@
 
 <style>
     .login-page-container {
+        --color-bg: var(--void);
+        --color-surface: var(--asphalt);
+        --color-card: var(--pitch);
+        --color-primary: var(--ray);
+        --color-primary-hover: #D99518;
+        --color-gold: var(--ray);
+        --color-gold-light: var(--lime);
+        --color-text: var(--lime);
+        --color-muted: var(--smoke);
+        --color-border: var(--graphite);
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 2.5rem 1.5rem;
+        min-height: 100vh;
+        padding: clamp(1.5rem, 5vw, 3.5rem) 1rem;
         position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(ellipse at 50% 10%, rgba(242, 177, 52, .12), transparent 32rem),
+            var(--void);
     }
 
     .login-wrapper {
         position: relative;
         z-index: 1;
         width: 100%;
-        max-width: 460px;
+        max-width: 440px;
     }
 
     .login-card {
         background: var(--color-card);
         border: 1px solid var(--color-border);
-        border-radius: 20px;
-        padding: 2.75rem 2.25rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.05);
+        border-radius: 18px;
+        padding: clamp(2rem, 6vw, 2.75rem);
+        box-shadow: 0 28px 80px rgba(0, 0, 0, .6);
         backdrop-filter: blur(12px);
         position: relative;
         overflow: hidden;
@@ -142,7 +159,7 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, var(--color-primary), var(--color-gold), var(--color-primary));
+        background: linear-gradient(90deg, transparent, var(--ray), transparent);
     }
 
     .brand-header {
@@ -156,8 +173,8 @@
         gap: 6px;
         padding: 4px 12px;
         border-radius: 9999px;
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.25);
+        background: rgba(242, 177, 52, .07);
+        border: 1px solid rgba(242, 177, 52, .22);
         font-size: 0.72rem;
         font-weight: 600;
         letter-spacing: 0.12em;
@@ -263,8 +280,8 @@
 
     .form-control:focus {
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-        background-color: #151D29;
+        box-shadow: 0 0 0 3px rgba(242, 177, 52, .14);
+        background-color: var(--pitch);
     }
 
     .toggle-password {
@@ -332,8 +349,8 @@
         content: '';
         width: 9px;
         height: 5px;
-        border-left: 2px solid white;
-        border-bottom: 2px solid white;
+        border-left: 2px solid var(--void);
+        border-bottom: 2px solid var(--void);
         transform: rotate(-45deg) translate(1px, -1px);
     }
 
@@ -341,7 +358,7 @@
         width: 100%;
         height: 50px;
         background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-        border: 1px solid rgba(59, 130, 246, 0.4);
+        border: 1px solid rgba(242, 177, 52, .5);
         border-radius: 10px;
         color: var(--color-text);
         font-size: 0.95rem;
@@ -352,13 +369,13 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+        box-shadow: 0 6px 20px rgba(242, 177, 52, .16);
         transition: all 0.25s ease;
     }
 
     .btn-submit:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        box-shadow: 0 9px 26px rgba(242, 177, 52, .25);
     }
 
     .btn-submit svg {
@@ -375,9 +392,58 @@
         margin-top: 2rem;
         text-align: center;
         font-size: 0.76rem;
-        color: #64748B;
+        color: var(--smoke);
         letter-spacing: 0.05em;
         text-transform: uppercase;
+    }
+
+    .brand-title {
+        font-family: var(--font-display);
+        letter-spacing: -.045em;
+    }
+
+    .brand-title span.accent {
+        color: var(--ray);
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+
+    .brand-badge {
+        background: rgba(242, 177, 52, .07);
+        border-color: rgba(242, 177, 52, .22);
+    }
+
+    .brand-badge .dot {
+        box-shadow: 0 0 10px rgba(242, 177, 52, .7);
+    }
+
+    .login-card .form-control:focus {
+        background-color: var(--pitch);
+        box-shadow: 0 0 0 3px rgba(242, 177, 52, .14);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #F2B134 0%, #D99518 100%);
+        border-color: rgba(242, 177, 52, .5);
+        color: var(--void);
+        box-shadow: 0 6px 20px rgba(242, 177, 52, .16);
+    }
+
+    .btn-submit:hover {
+        box-shadow: 0 9px 26px rgba(242, 177, 52, .25);
+    }
+
+    .card-footer-info a {
+        display: block;
+        margin-top: .75rem;
+        color: var(--ray);
+        font-size: .78rem;
+        letter-spacing: .02em;
+        text-transform: none;
+    }
+
+    .card-footer-info a:hover {
+        color: var(--lime);
     }
 </style>
 
