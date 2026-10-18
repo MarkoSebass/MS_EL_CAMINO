@@ -183,6 +183,7 @@ a:focus-visible {
     min-width: 0;
     flex: 1;
     align-items: center;
+    justify-content: flex-end;
     gap: 18px;
 }
 
@@ -206,16 +207,15 @@ a:focus-visible {
 }
 
 .module-nav {
-    position: absolute;
-    left: 50%;
     display: flex;
     min-width: 0;
+    flex: 1;
     align-items: center;
+    justify-content: center;
     gap: clamp(18px, 2.2vw, 34px);
     margin: 0;
     padding: 0;
     list-style: none;
-    transform: translateX(-50%);
 }
 
 .module-nav li {
@@ -294,6 +294,14 @@ a:focus-visible {
 .account-action__dot {
     width: 7px;
     height: 7px;
+    flex: 0 0 7px;
+}
+
+.account-action__name {
+    max-width: clamp(7rem, 13vw, 11rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nav-toggle {
@@ -1592,7 +1600,11 @@ a:focus-visible {
     }
 
     .module-nav {
-        gap: clamp(12px, 1.5vw, 18px);
+        gap: clamp(10px, 1.2vw, 16px);
+    }
+
+    .account-action__name {
+        max-width: 8rem;
     }
 }
 
@@ -1696,8 +1708,11 @@ a:focus-visible {
     }
 
     .account-action {
-        margin-left: 0;
-        align-self: flex-start;
+        margin-left: auto;
+    }
+
+    .journey-nav__content > .nav-item {
+        align-self: flex-end;
     }
 
     .home-page {
