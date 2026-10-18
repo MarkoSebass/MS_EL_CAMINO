@@ -1,138 +1,318 @@
+@using System.Security.Claims
 @{
-    var nombreVisible = User.FindFirst("NombreCompleto")?.Value ?? User.Identity?.Name ?? "Usuario";
+    var isAuthenticated = User?.Identity?.IsAuthenticated == true;
+    var loginUrl = "/Identity/Account/Login";
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+    var nombreVisible = User?.FindFirst("NombreCompleto")?.Value ?? User?.Identity?.Name ?? "Usuario";
 }
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EL CAMINO</title>
-
-    <!-- Google Fonts: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- CSS del Sistema y Paleta Oficial -->
+    <meta name="theme-color" content="#050505" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " - " : "")EL CAMINO</title>
+    <link rel="icon" type="image/png" href="~/images/el-camino-logo.png" asp-append-version="true" />
+    <link rel="apple-touch-icon" href="~/images/el-camino-logo.png" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MS_EL_CAMINO.styles.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <!-- Navbar Oficial de 'El Camino' -->
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-dark">
-            <div class="container-fluid px-4">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    EL <span>CAMINO</span>
+    <a class="skip-link" href="#main-content">Saltar al contenido</a>
+    <header class="site-header" id="page-top">
+        <nav class="journey-nav" aria-label="Navegación principal">
+            <div class="journey-nav__inner">
+                <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, inicio">
+                    <span class="brand-mark" aria-hidden="true">
+                        <img src="~/images/el-camino-logo.png" alt="" />
+                    </span>
+                    <span class="brand-copy">
+                        <span class="brand-name">EL CAMINO</span>
+                        <span class="brand-meta">KM-001 <i aria-hidden="true"></i> EN RUTA</span>
+                    </span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+
+                <button class="nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation"
+                        aria-controls="main-navigation" aria-expanded="false" aria-label="Abrir navegación">
+                    <span></span><span></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
-                        </li>
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-                            </li>
-                        }
-                    </ul>
-                    <ul class="navbar-nav align-items-center gap-2">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/swagger" target="_blank" title="Documentación Swagger">
-                                <span class="badge border border-primary text-primary" style="background-color: var(--color-surface); font-size: 0.75rem;">
-                                    Swagger API
-                                </span>
+
+                <div class="journey-nav__content collapse" id="main-navigation">
+                    <div class="road-progress" aria-hidden="true"><span></span></div>
+                    <ul class="module-nav">
+                        <li>
+                            <a class="module-link @(currentAction == "Index" ? "is-current" : "")" asp-controller="Home" asp-action="Index" aria-current="@(currentAction == "Index" ? "page" : null)">
+                                Inicio
                             </a>
                         </li>
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="rounded-circle d-inline-flex justify-content-center align-items-center text-white" 
-                                          style="width:28px; height:28px; font-size:12px; font-weight:700; background: linear-gradient(135deg, var(--color-primary), var(--color-gold));">
-                                        @(nombreVisible.Length > 0 ? nombreVisible.Substring(0, 1).ToUpper() : "U")
-                                    </span>
-                                    <span>@User.Identity.Name</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" style="background-color: var(--color-card); border: 1px solid var(--color-border);">
-                                    <li><a class="dropdown-item text-white" asp-controller="Login" asp-action="Profile">Mi perfil</a></li>
-                                    <li><hr class="dropdown-divider" style="border-color: var(--color-border);"></li>
-                                    <li><a class="dropdown-item text-white" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                                    <li><hr class="dropdown-divider" style="border-color: var(--color-border);"></li>
-                                    <li>
-                                        <form asp-controller="Login" asp-action="Logout" method="post" class="m-0" data-confirm-logout>
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="btn btn-sm btn-primary px-3" asp-controller="Login" asp-action="Index">
-                                    Iniciar Sesión
-                                </a>
-                            </li>
-                        }
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#catalogo">Catálogo Tecnológico</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">
+                                    Catálogo Tecnológico<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
+                        </li>
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#setup">Mi Setup PC</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">
+                                    Mi Setup PC<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
+                        </li>
+                        <li>
+                            @if (isAuthenticated)
+                            {
+                                <a class="module-link" href="#biblioteca">Biblioteca de Juegos</a>
+                            }
+                            else
+                            {
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
+                                    Biblioteca de Juegos<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                </button>
+                            }
+                        </li>
+                        <li>
+                            <a class="module-link @(currentAction == "SobreElCreador" ? "is-current" : "")"
+                               asp-controller="Home" asp-action="SobreElCreador"
+                               aria-current="@(currentAction == "SobreElCreador" ? "page" : null)">Sobre el Creador</a>
+                        </li>
                     </ul>
+
+                    @if (isAuthenticated)
+                    {
+                        <div class="nav-item dropdown">
+                            <a class="account-action dropdown-toggle d-inline-flex align-items-center gap-2 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="account-action__dot" aria-hidden="true"></span>
+                                <span>@nombreVisible</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary mt-2">
+                                <li>
+                                    <h6 class="dropdown-header text-warning font-monospace small">KM-001 · SESIÓN ACTIVA</h6>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Dashboard" asp-action="Index">
+                                        <i class="bi bi-speedometer2 text-warning"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/Identity/Account/Manage">
+                                        <i class="bi bi-person-gear text-warning"></i> Mi Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/swagger" target="_blank">
+                                        <i class="bi bi-code-slash text-info"></i> Documentación API
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider border-secondary"></li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" data-bs-toggle="modal" data-bs-target="#logoutConfirmationModal">
+                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="account-action" href="@loginUrl">
+                            Iniciar Sesión <span aria-hidden="true">↗</span>
+                        </a>
+                    }
                 </div>
             </div>
         </nav>
     </header>
 
-    <!-- Contenido Principal -->
-    <div class="flex-grow-1 d-flex flex-column">
-        <main role="main" class="flex-grow-1 d-flex flex-column">
-            @RenderBody()
-        </main>
-    </div>
+    <main id="main-content" class="page-content flex-grow-1" role="main">
+        @RenderBody()
+    </main>
 
-    @if (TempData["NotificationMessage"] is string notificationMessage)
-    {
-        <div class="toast-container position-fixed top-0 end-0 p-3 notification-container" aria-live="polite" aria-atomic="true">
-            <div class="toast app-toast text-bg-success border-0" role="status" data-bs-delay="5000">
-                <div class="toast-body d-flex align-items-center justify-content-between gap-3">
-                    <span>@notificationMessage</span>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    <!-- FOOTER EL CAMINO -->
+    <footer class="site-footer mt-auto border-top border-secondary-subtle">
+        <div class="site-footer__main">
+            <!-- BRAND -->
+            <section class="footer-brand" aria-label="Acerca de EL CAMINO">
+                <a class="brand-lockup mb-3" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, volver al inicio">
+                    <span class="brand-mark" aria-hidden="true">
+                        <img src="~/images/el-camino-logo.png" alt="" />
+                    </span>
+                    <span class="brand-copy">
+                        <span class="brand-name text-white fs-5 fw-bold">EL CAMINO</span>
+                        <span class="brand-meta font-monospace text-warning small">KM-001 · BITÁCORA PERSONAL</span>
+                    </span>
+                </a>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-dark border border-warning-subtle text-warning font-monospace px-3 py-2 fw-semibold">
+                        <i class="bi bi-compass-fill me-1"></i> "No es lo que tienes. Es el camino."
+                    </span>
+                </div>
+                <p class="text-light-silver small mb-3 lh-base">
+                    Un espacio dedicado a registrar la historia, elecciones y evolución tecnológica detrás de cada adquisición y proyecto personal.
+                </p>
+                <div class="d-flex align-items-center gap-2 text-secondary small font-monospace">
+                    <i class="bi bi-geo-alt-fill text-warning"></i>
+                    <span>Lima, Perú · En ruta continua</span>
+                </div>
+            </section>
+
+            <!-- NAVIGATION LINKS -->
+            <nav class="footer-column footer-nav" aria-label="Enlaces del proyecto">
+                <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
+                    <i class="bi bi-compass me-1"></i> EXPLORAR
+                </span>
+                <a asp-controller="Home" asp-action="Index" class="footer-link">
+                    <i class="bi bi-house me-1 text-warning"></i> Inicio
+                </a>
+                <a asp-controller="Home" asp-action="SobreElCreador" class="footer-link">
+                    <i class="bi bi-person-badge me-1 text-warning"></i> Sobre el creador
+                </a>
+                <a href="@Url.Action("Index", "Home")#filosofia" class="footer-link">
+                    <i class="bi bi-book me-1 text-warning"></i> La filosofía
+                </a>
+                <a href="@Url.Action("Index", "Home")#modulos" class="footer-link">
+                    <i class="bi bi-map me-1 text-warning"></i> El mapa de módulos
+                </a>
+            </nav>
+
+            <!-- MODULE DESTINATIONS -->
+            <div class="footer-column footer-destinations">
+                <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
+                    <i class="bi bi-signpost-split me-1"></i> DESTINOS
+                </span>
+                @if (isAuthenticated)
+                {
+                    <a href="@Url.Action("Index", "Home")#catalogo" class="footer-link">
+                        <i class="bi bi-laptop me-1 text-warning"></i> Catálogo tecnológico
+                    </a>
+                    <a href="@Url.Action("Index", "Home")#setup" class="footer-link">
+                        <i class="bi bi-cpu me-1 text-warning"></i> Mi Setup PC
+                    </a>
+                    <a href="@Url.Action("Index", "Home")#biblioteca" class="footer-link">
+                        <i class="bi bi-controller me-1 text-warning"></i> Biblioteca de juegos
+                    </a>
+                    <span class="footer-destinations-note text-success small mt-2 d-block">
+                        <i class="bi bi-shield-check me-1"></i> Sesión iniciada
+                    </span>
+                }
+                else
+                {
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Catálogo tecnológico
+                    </button>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Mi Setup PC
+                    </button>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Biblioteca de juegos
+                    </button>
+                    <span class="footer-destinations-note text-secondary small mt-2 d-block">
+                        <i class="bi bi-shield-lock me-1"></i> Módulos protegidos con inicio de sesión.
+                    </span>
+                }
+            </div>
+
+            <!-- CREATOR & SOCIALS (UNIFICADOS) -->
+            <div class="footer-column footer-connect">
+                <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
+                    <i class="bi bi-person-lines-fill me-1"></i> CONEXIÓN
+                </span>
+                <span class="footer-contact-name text-white fw-bold fs-6">Marko Sebastian Orihuela Carrasco</span>
+                <span class="footer-contact-role text-light-silver small mb-3 d-block">Autor y Desarrollador</span>
+
+                <div class="footer-socials d-flex flex-wrap gap-2">
+                    <a href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-linkedin text-warning"></i>
+                        <span class="text-white fw-semibold">LinkedIn</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://github.com/MarkoSebass" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-github text-warning"></i>
+                        <span class="text-white fw-semibold">GitHub</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://x.com/marko_sebas" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-twitter-x text-warning"></i>
+                        <span class="text-white fw-semibold">X</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-instagram text-warning"></i>
+                        <span class="text-white fw-semibold">Instagram</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://wa.me/51926495952" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-whatsapp text-success"></i>
+                        <span class="text-white fw-semibold">+51 926 495 952</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="mailto:ms.orihuelac@gmail.com" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-envelope-at-fill text-warning"></i>
+                        <span class="text-white fw-semibold">ms.orihuelac@gmail.com</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-    }
-
-    <div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutConfirmationTitle" aria-describedby="logoutConfirmationDescription" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content logout-modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="logoutConfirmationTitle">Cerrar sesión</h2>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cancelar"></button>
-                </div>
-                <div class="modal-body" id="logoutConfirmationDescription">
-                    ¿Estás seguro de que deseas cerrar tu sesión?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Seguir aquí</button>
-                    <button type="button" class="btn btn-danger" id="confirmLogoutButton">Cerrar sesión</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer Oficial -->
-    <footer class="footer text-center">
-        <div class="container">
-            EL CAMINO &bull; Tu evolución tecnológica &copy; 2026
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- MODAL DE ACCESO RESTRINGIDO -->
+    <div class="modal fade access-modal" id="access-modal" tabindex="-1" aria-labelledby="access-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <button class="modal-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
+                <span class="modal-kicker"><span></span> ACCESO RESTRINGIDO</span>
+                <h2 id="access-modal-title">Un tramo más adelante.</h2>
+                <p class="access-modal__message">Módulo bloqueado.<br />Debes iniciar sesión para acceder a esta sección.</p>
+                <p class="access-modal__module" id="access-modal-module"></p>
+                <a class="button-primary access-modal__action" href="@loginUrl">Iniciar Sesión <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+    <div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title font-monospace text-warning" id="logoutModalLabel">
+                        <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-light-silver">
+                    ¿Estás seguro de que deseas cerrar tu sesión en <strong>EL CAMINO</strong>?
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit" class="btn btn-danger btn-sm">Confirmar y Salir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
