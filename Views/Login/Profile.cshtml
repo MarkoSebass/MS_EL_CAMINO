@@ -1,0 +1,53 @@
+@model MS_EL_CAMINO.ViewModels.PerfilViewModel
+@{
+    ViewData["Title"] = "Mi perfil";
+    var nombreCompleto = $"{Model.Nombres} {Model.Apellidos}".Trim();
+    var inicial = string.IsNullOrWhiteSpace(Model.Nombres) ? "U" : Model.Nombres[..1].ToUpperInvariant();
+}
+
+<div class="container py-5 profile-page">
+    <header class="profile-page-header">
+        <div>
+            <span class="profile-kicker">CUENTA PERSONAL</span>
+            <h1 class="h2 mb-1">Mi perfil</h1>
+            <p class="text-muted-custom mb-0">Tus datos de acceso e identidad.</p>
+        </div>
+        <a class="btn btn-outline-light profile-back-link" asp-controller="Dashboard" asp-action="Index">Volver al Dashboard</a>
+    </header>
+
+    <section class="profile-panel" aria-label="Datos del perfil">
+        <div class="profile-identity">
+            <div class="profile-avatar" aria-hidden="true">@inicial</div>
+            <div class="profile-identity-copy">
+                <span class="profile-identity-label">PERFIL DE USUARIO</span>
+                <h2>@nombreCompleto</h2>
+                <p>@Model.UsuLg</p>
+            </div>
+            <div class="profile-role">
+                <span>Rol</span>
+                <strong>@Model.Rol</strong>
+            </div>
+        </div>
+
+        <div class="profile-details">
+            <div class="profile-section-heading">
+                <h3>Información personal</h3>
+                <p>Datos de solo lectura asociados a tu cuenta.</p>
+            </div>
+            <dl class="profile-grid mb-0">
+                <div class="profile-field">
+                    <dt>Nombres</dt>
+                    <dd>@Model.Nombres</dd>
+                </div>
+                <div class="profile-field">
+                    <dt>Apellidos</dt>
+                    <dd>@Model.Apellidos</dd>
+                </div>
+                <div class="profile-field profile-field-wide">
+                    <dt>Correo electrónico</dt>
+                    <dd>@Model.Correo</dd>
+                </div>
+            </dl>
+        </div>
+    </section>
+</div>

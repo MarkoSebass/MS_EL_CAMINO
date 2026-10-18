@@ -1,7 +1,9 @@
+@using System.Security.Claims
 @{
     var isAuthenticated = User?.Identity?.IsAuthenticated == true;
     var loginUrl = "/Identity/Account/Login";
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+    var nombreVisible = User?.FindFirst("NombreCompleto")?.Value ?? User?.Identity?.Name ?? "Usuario";
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -9,17 +11,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050505" />
-    <title>EL CAMINO</title>
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " - " : "")EL CAMINO</title>
     <link rel="icon" type="image/png" href="~/images/el-camino-logo.png" asp-append-version="true" />
     <link rel="apple-touch-icon" href="~/images/el-camino-logo.png" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <a class="skip-link" href="#main-content">Saltar al contenido</a>
     <header class="site-header" id="page-top">
         <nav class="journey-nav" aria-label="Navegación principal">
@@ -92,9 +94,38 @@
 
                     @if (isAuthenticated)
                     {
-                        <a class="account-action" href="/Identity/Account/Manage">
-                            <span class="account-action__dot" aria-hidden="true"></span>Mi Perfil
-                        </a>
+                        <div class="nav-item dropdown">
+                            <a class="account-action dropdown-toggle d-inline-flex align-items-center gap-2 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="account-action__dot" aria-hidden="true"></span>
+                                <span>@nombreVisible</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary mt-2">
+                                <li>
+                                    <h6 class="dropdown-header text-warning font-monospace small">KM-001 · SESIÓN ACTIVA</h6>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Dashboard" asp-action="Index">
+                                        <i class="bi bi-speedometer2 text-warning"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/Identity/Account/Manage">
+                                        <i class="bi bi-person-gear text-warning"></i> Mi Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/swagger" target="_blank">
+                                        <i class="bi bi-code-slash text-info"></i> Documentación API
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider border-secondary"></li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" data-bs-toggle="modal" data-bs-target="#logoutConfirmationModal">
+                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     }
                     else
                     {
@@ -107,11 +138,12 @@
         </nav>
     </header>
 
-    <main id="main-content" class="page-content" role="main">
+    <main id="main-content" class="page-content flex-grow-1" role="main">
         @RenderBody()
     </main>
 
-    <footer class="site-footer mt-5 border-top border-secondary-subtle">
+    <!-- FOOTER EL CAMINO -->
+    <footer class="site-footer mt-auto border-top border-secondary-subtle">
         <div class="site-footer__main">
             <!-- BRAND -->
             <section class="footer-brand" aria-label="Acerca de EL CAMINO">
@@ -194,7 +226,7 @@
                 }
             </div>
 
-            <!-- CREATOR, PHONE, EMAIL & SOCIALS -->
+            <!-- CREATOR & SOCIALS (UNIFICADOS) -->
             <div class="footer-column footer-connect">
                 <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
                     <i class="bi bi-person-lines-fill me-1"></i> CONEXIÓN
@@ -202,7 +234,6 @@
                 <span class="footer-contact-name text-white fw-bold fs-6">Marko Sebastian Orihuela Carrasco</span>
                 <span class="footer-contact-role text-light-silver small mb-3 d-block">Autor y Desarrollador</span>
 
-                <!-- UNIFIED SOCIAL & DIRECT CONTACT BUTTONS WITH SAME STYLE -->
                 <div class="footer-socials d-flex flex-wrap gap-2">
                     <a href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer" 
                        class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
@@ -245,6 +276,7 @@
         </div>
     </footer>
 
+    <!-- MODAL DE ACCESO RESTRINGIDO -->
     <div class="modal fade access-modal" id="access-modal" tabindex="-1" aria-labelledby="access-modal-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -254,6 +286,29 @@
                 <p class="access-modal__message">Módulo bloqueado.<br />Debes iniciar sesión para acceder a esta sección.</p>
                 <p class="access-modal__module" id="access-modal-module"></p>
                 <a class="button-primary access-modal__action" href="@loginUrl">Iniciar Sesión <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+    <div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title font-monospace text-warning" id="logoutModalLabel">
+                        <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-light-silver">
+                    ¿Estás seguro de que deseas cerrar tu sesión en <strong>EL CAMINO</strong>?
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit" class="btn btn-danger btn-sm">Confirmar y Salir</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
