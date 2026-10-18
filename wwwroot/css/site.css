@@ -319,6 +319,11 @@ a:focus-visible {
     min-height: calc(100vh - 150px);
 }
 
+.login-shell .page-content {
+    display: flex;
+    min-height: 100vh;
+}
+
 .home-page {
     width: min(100% - 64px, 1320px);
     margin: 0 auto;
