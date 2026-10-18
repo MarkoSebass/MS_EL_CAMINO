@@ -32,7 +32,7 @@ public class LoginController : Controller
 
     /// <summary>
     /// Muestra la vista de login con el navbar del sistema.
-    /// Si el usuario ya está autenticado, lo redirige al Dashboard.
+    /// Si el usuario ya está autenticado, lo redirige a la página de inicio.
     /// </summary>
     [HttpGet]
     [AllowAnonymous]
@@ -40,7 +40,7 @@ public class LoginController : Controller
     {
         if (User.Identity != null && User.Identity.IsAuthenticated)
         {
-            return RedirectToAction("Index", "Dashboard");
+            return RedirectToAction("Index", "Home");
         }
 
         var model = new LoginViewModel
@@ -142,7 +142,7 @@ public class LoginController : Controller
             return Redirect(model.ReturnUrl);
         }
 
-        return RedirectToAction("Index", "Dashboard");
+        return RedirectToAction("Index", "Home");
     }
 
     [Authorize]
