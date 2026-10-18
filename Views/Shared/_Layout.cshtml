@@ -1,4 +1,4 @@
-﻿@{
+@{
     var isAuthenticated = User?.Identity?.IsAuthenticated == true;
     var loginUrl = "/Identity/Account/Login";
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
@@ -16,6 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
@@ -110,85 +111,137 @@
         @RenderBody()
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer mt-5 border-top border-secondary-subtle">
         <div class="site-footer__main">
+            <!-- BRAND -->
             <section class="footer-brand" aria-label="Acerca de EL CAMINO">
-                <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, volver al inicio">
+                <a class="brand-lockup mb-3" asp-controller="Home" asp-action="Index" aria-label="EL CAMINO, volver al inicio">
                     <span class="brand-mark" aria-hidden="true">
                         <img src="~/images/el-camino-logo.png" alt="" />
                     </span>
                     <span class="brand-copy">
-                        <span class="brand-name">EL CAMINO</span>
-                        <span class="brand-meta">BITÁCORA TECNOLÓGICA PERSONAL</span>
+                        <span class="brand-name text-white fs-5 fw-bold">EL CAMINO</span>
+                        <span class="brand-meta font-monospace text-warning small">KM-001 · BITÁCORA PERSONAL</span>
                     </span>
                 </a>
-                <p>Cada adquisición cuenta una parte de mi historia tecnológica.</p>
-                <span class="footer-philosophy">No es lo que tienes. Es el camino.</span>
-                <div class="footer-build-status">
-                    <span class="footer-build-status__light" aria-hidden="true"></span>
-                    PROYECTO PERSONAL · EN EVOLUCIÓN
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-dark border border-warning-subtle text-warning font-monospace px-3 py-2 fw-semibold">
+                        <i class="bi bi-compass-fill me-1"></i> "No es lo que tienes. Es el camino."
+                    </span>
+                </div>
+                <p class="text-light-silver small mb-3 lh-base">
+                    Un espacio dedicado a registrar la historia, elecciones y evolución tecnológica detrás de cada adquisición y proyecto personal.
+                </p>
+                <div class="d-flex align-items-center gap-2 text-secondary small font-monospace">
+                    <i class="bi bi-geo-alt-fill text-warning"></i>
+                    <span>Lima, Perú · En ruta continua</span>
                 </div>
             </section>
 
+            <!-- NAVIGATION LINKS -->
             <nav class="footer-column footer-nav" aria-label="Enlaces del proyecto">
-                <span class="footer-heading">DESCUBRE</span>
-                <a asp-controller="Home" asp-action="Index">Inicio <span aria-hidden="true">↗</span></a>
-                <a asp-controller="Home" asp-action="SobreElCreador">Sobre el creador <span aria-hidden="true">↗</span></a>
-                <a href="@Url.Action("Index", "Home")#filosofia">La filosofía <span aria-hidden="true">↗</span></a>
-                <a href="@Url.Action("Index", "Home")#modulos">El mapa del camino <span aria-hidden="true">↗</span></a>
+                <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
+                    <i class="bi bi-compass me-1"></i> EXPLORAR
+                </span>
+                <a asp-controller="Home" asp-action="Index" class="footer-link">
+                    <i class="bi bi-house me-1 text-warning"></i> Inicio
+                </a>
+                <a asp-controller="Home" asp-action="SobreElCreador" class="footer-link">
+                    <i class="bi bi-person-badge me-1 text-warning"></i> Sobre el creador
+                </a>
+                <a href="@Url.Action("Index", "Home")#filosofia" class="footer-link">
+                    <i class="bi bi-book me-1 text-warning"></i> La filosofía
+                </a>
+                <a href="@Url.Action("Index", "Home")#modulos" class="footer-link">
+                    <i class="bi bi-map me-1 text-warning"></i> El mapa de módulos
+                </a>
             </nav>
 
+            <!-- MODULE DESTINATIONS -->
             <div class="footer-column footer-destinations">
-                <span class="footer-heading">PARADAS</span>
+                <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
+                    <i class="bi bi-signpost-split me-1"></i> DESTINOS
+                </span>
                 @if (isAuthenticated)
                 {
-                    <a href="@Url.Action("Index", "Home")#catalogo">Catálogo tecnológico <span aria-hidden="true">↗</span></a>
-                    <a href="@Url.Action("Index", "Home")#setup">Mi Setup PC <span aria-hidden="true">↗</span></a>
-                    <a href="@Url.Action("Index", "Home")#biblioteca">Biblioteca de juegos <span aria-hidden="true">↗</span></a>
+                    <a href="@Url.Action("Index", "Home")#catalogo" class="footer-link">
+                        <i class="bi bi-laptop me-1 text-warning"></i> Catálogo tecnológico
+                    </a>
+                    <a href="@Url.Action("Index", "Home")#setup" class="footer-link">
+                        <i class="bi bi-cpu me-1 text-warning"></i> Mi Setup PC
+                    </a>
+                    <a href="@Url.Action("Index", "Home")#biblioteca" class="footer-link">
+                        <i class="bi bi-controller me-1 text-warning"></i> Biblioteca de juegos
+                    </a>
+                    <span class="footer-destinations-note text-success small mt-2 d-block">
+                        <i class="bi bi-shield-check me-1"></i> Sesión iniciada
+                    </span>
                 }
                 else
                 {
-                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">Catálogo tecnológico <span aria-hidden="true">↗</span></button>
-                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">Mi Setup PC <span aria-hidden="true">↗</span></button>
-                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">Biblioteca de juegos <span aria-hidden="true">↗</span></button>
-                }
-                @if (isAuthenticated)
-                {
-                    <span class="footer-destinations-note">Tu recorrido personal, siempre en evolución.</span>
-                }
-                else
-                {
-                    <span class="footer-destinations-note">Áreas personales disponibles al iniciar sesión.</span>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Catálogo tecnológico
+                    </button>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Mi Setup PC
+                    </button>
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Biblioteca de juegos
+                    </button>
+                    <span class="footer-destinations-note text-secondary small mt-2 d-block">
+                        <i class="bi bi-shield-lock me-1"></i> Módulos protegidos con inicio de sesión.
+                    </span>
                 }
             </div>
 
+            <!-- CREATOR, PHONE, EMAIL & SOCIALS -->
             <div class="footer-column footer-connect">
-                <span class="footer-heading">CONECTA CONMIGO</span>
-                <span class="footer-contact-name">Marko Sebastian<br />Orihuela Carrasco</span>
-                <span class="footer-contact-role">Creador y autor de EL CAMINO</span>
-                <div class="footer-socials" aria-label="Redes sociales">
-                    <a href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Marko Sebastian (abre en una pestaña nueva)">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="3" y="3" width="18" height="18" rx="5" />
-                            <circle cx="12" cy="12" r="4" />
-                            <circle class="social-icon__dot" cx="17.5" cy="6.8" r="1" />
-                        </svg>
-                        <span>Instagram</span><span class="social-external" aria-hidden="true">↗</span>
+                <span class="footer-heading font-monospace text-warning fw-bold mb-3 d-block">
+                    <i class="bi bi-person-lines-fill me-1"></i> CONEXIÓN
+                </span>
+                <span class="footer-contact-name text-white fw-bold fs-6">Marko Sebastian Orihuela Carrasco</span>
+                <span class="footer-contact-role text-light-silver small mb-3 d-block">Autor y Desarrollador</span>
+
+                <!-- UNIFIED SOCIAL & DIRECT CONTACT BUTTONS WITH SAME STYLE -->
+                <div class="footer-socials d-flex flex-wrap gap-2">
+                    <a href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-linkedin text-warning"></i>
+                        <span class="text-white fw-semibold">LinkedIn</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
                     </a>
-                    <a href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Marko Sebastian (abre en una pestaña nueva)">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M5 9v10M5 5.5v.1M10 19v-6a4 4 0 0 1 8 0v6M10 9v10" />
-                        </svg>
-                        <span>LinkedIn</span><span class="social-external" aria-hidden="true">↗</span>
+                    <a href="https://github.com/MarkoSebass" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-github text-warning"></i>
+                        <span class="text-white fw-semibold">GitHub</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://x.com/marko_sebas" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-twitter-x text-warning"></i>
+                        <span class="text-white fw-semibold">X</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-instagram text-warning"></i>
+                        <span class="text-white fw-semibold">Instagram</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="https://wa.me/51926495952" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-whatsapp text-success"></i>
+                        <span class="text-white fw-semibold">+51 926 495 952</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
+                    </a>
+                    <a href="mailto:ms.orihuelac@gmail.com" 
+                       class="btn btn-sm btn-social-pill d-inline-flex align-items-center gap-2 rounded-2">
+                        <i class="bi bi-envelope-at-fill text-warning"></i>
+                        <span class="text-white fw-semibold">ms.orihuelac@gmail.com</span>
+                        <i class="bi bi-arrow-up-right small text-light-silver"></i>
                     </a>
                 </div>
             </div>
-        </div>
-
-        <div class="site-footer__bottom">
-            <span class="footer-copyright">© @DateTime.Now.Year EL CAMINO <span class="footer-separator">/</span> Creado por Marko Sebastian Orihuela Carrasco.</span>
-            <span class="footer-route__status"><i aria-hidden="true"></i> CADA PASO CUENTA</span>
-            <a class="footer-back-top" href="#page-top">Volver al inicio <span aria-hidden="true">↑</span></a>
         </div>
     </footer>
 

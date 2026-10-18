@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     color-scheme: dark;
     --void: #050505;
     --asphalt: #0E0E10;
@@ -1914,6 +1914,290 @@ a:focus-visible {
     }
 }
 
+/* ==========================================================================
+   ENHANCED HOME PAGE & MODERN BOOTSTRAP DESIGN STYLES
+   ========================================================================== */
+
+.text-gradient-gold {
+    background: linear-gradient(135deg, #F2B134 0%, #FFD56B 50%, #FF9E1B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(242, 177, 52, 0.08);
+}
+
+.btn-hover-lift {
+    transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.25s ease;
+}
+
+.btn-hover-lift:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(242, 177, 52, 0.35) !important;
+}
+
+.btn-hover-glow {
+    transition: all 0.25s ease;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.btn-hover-glow:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--ray);
+    color: var(--ray) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(242, 177, 52, 0.2);
+}
+
+.stat-pill {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: all 0.2s ease;
+}
+
+.stat-pill:hover {
+    border-color: rgba(242, 177, 52, 0.3);
+    background: rgba(242, 177, 52, 0.05);
+    transform: translateY(-2px);
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    box-shadow: 0 0 10px #22c55e;
+    animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+}
+
+.pulse-badge {
+    position: relative;
+}
+
+.route-journey-animated {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 3.5;
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    animation: drawPath 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes drawPath {
+    0% {
+        stroke-dashoffset: 400;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.pulsating-point {
+    animation: pulsePoint 2s infinite ease-in-out;
+    transform-origin: 65px 270px;
+}
+
+@keyframes pulsePoint {
+    0%, 100% { r: 6.5; filter: drop-shadow(0 0 8px rgba(242, 177, 52, 0.9)); }
+    50% { r: 8.5; filter: drop-shadow(0 0 16px rgba(242, 177, 52, 1)); }
+}
+
+.glass-panel {
+    background: rgba(22, 22, 26, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.feature-box {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.04) 0%, rgba(14, 14, 16, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.feature-box:hover {
+    transform: translateY(-6px);
+    border-color: rgba(242, 177, 52, 0.45) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(242, 177, 52, 0.1);
+}
+
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: rgba(242, 177, 52, 0.1);
+    border: 1px solid rgba(242, 177, 52, 0.25);
+    box-shadow: inset 0 0 12px rgba(242, 177, 52, 0.1);
+}
+
+.module-card-wrapper {
+    transition: transform 0.25s ease;
+}
+
+.module-card-wrapper:hover {
+    transform: translateY(-5px);
+}
+
+.module-card {
+    background: linear-gradient(145deg, rgba(31, 31, 36, 0.9) 0%, rgba(14, 14, 16, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.module-card:hover {
+    border-color: rgba(242, 177, 52, 0.5) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(242, 177, 52, 0.15);
+}
+
+.module-locked {
+    position: relative;
+    opacity: 0.92;
+}
+
+.module-locked:hover {
+    border-color: rgba(242, 177, 52, 0.35) !important;
+}
+
+.creator-card-highlight {
+    background: linear-gradient(145deg, rgba(242, 177, 52, 0.12) 0%, rgba(14, 14, 16, 0.95) 100%);
+    border: 1px solid rgba(242, 177, 52, 0.3) !important;
+}
+
+.creator-card-highlight:hover {
+    border-color: var(--ray) !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(242, 177, 52, 0.25);
+}
+
+.module-icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+}
+
+.timeline-step-card {
+    background: rgba(22, 22, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.timeline-step-card:hover {
+    background: rgba(22, 22, 26, 0.95);
+    border-color: rgba(242, 177, 52, 0.4);
+    transform: translateY(-3px);
+}
+
+.timeline-step-card.active-step {
+    border-color: rgba(242, 177, 52, 0.5);
+    background: linear-gradient(145deg, rgba(242, 177, 52, 0.08), rgba(22, 22, 26, 0.9));
+    box-shadow: 0 0 20px rgba(242, 177, 52, 0.1);
+}
+
+.step-num {
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.cta-banner {
+    background: radial-gradient(circle at 100% 0%, rgba(242, 177, 52, 0.22) 0%, rgba(14, 14, 16, 0.95) 60%),
+                linear-gradient(135deg, rgba(31, 31, 36, 0.9) 0%, rgba(5, 5, 5, 0.98) 100%);
+    border: 1px solid rgba(242, 177, 52, 0.3);
+}
+
+.cta-banner::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(242, 177, 52, 0.12), transparent 70%);
+    pointer-events: none;
+}
+
+.max-w-md {
+    max-width: 420px;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST TEXT & PHILOSOPHY WRAPPER UPGRADE
+   ========================================================================== */
+
+.hero-lead-bright {
+    color: #e2e8f0 !important;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.text-light-silver {
+    color: #d1d5db !important;
+}
+
+.manifesto-wrapper {
+    background: radial-gradient(circle at 0% 0%, rgba(242, 177, 52, 0.14) 0%, rgba(18, 18, 22, 0.95) 50%, rgba(10, 10, 12, 0.98) 100%);
+    border: 1px solid rgba(242, 177, 52, 0.28) !important;
+}
+
+.manifesto-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -20%;
+    width: 60%;
+    height: 180%;
+    background: radial-gradient(circle, rgba(242, 177, 52, 0.08), transparent 70%);
+    pointer-events: none;
+}
+
+.manifesto-box {
+    background: rgba(14, 14, 18, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.quote-callout {
+    background: linear-gradient(90deg, rgba(242, 177, 52, 0.15) 0%, rgba(242, 177, 52, 0.04) 100%);
+    border-left: 4px solid var(--ray);
+    border-top: 1px solid rgba(242, 177, 52, 0.15);
+    border-right: 1px solid rgba(242, 177, 52, 0.1);
+    border-bottom: 1px solid rgba(242, 177, 52, 0.15);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        grid-template-columns: 1fr;
+        padding-top: 40px;
+    }
+    
+    .cta-banner {
+        padding: 2rem 1.5rem !important;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -1924,3 +2208,109 @@ a:focus-visible {
         animation-iteration-count: 1 !important;
     }
 }
+
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ash) !important;
+    font-size: 13px;
+    padding: 3px 0;
+    transition: color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    color: #ffffff !important;
+    transform: translateX(4px);
+}
+
+.footer-locked-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ash) !important;
+    font-size: 13px;
+    padding: 3px 0;
+    border: none;
+    background: transparent;
+    text-align: left;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-locked-link:hover {
+    color: var(--ray) !important;
+    transform: translateX(4px);
+}
+
+.btn-social-pill {
+    background: rgba(22, 22, 26, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    padding: 7px 14px !important;
+    border-radius: 8px !important;
+    transition: all 0.25s ease;
+    text-decoration: none !important;
+}
+
+.btn-social-pill:hover {
+    background: rgba(242, 177, 52, 0.16) !important;
+    border-color: var(--ray) !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(242, 177, 52, 0.25) !important;
+}
+
+
+.contact-pill {
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.contact-pill:hover {
+    border-color: var(--ray) !important;
+    background: rgba(242, 177, 52, 0.08) !important;
+    transform: translateX(3px);
+}
+
+/* ==========================================================================
+   TELEMETRY TERMINAL WIDGET (INNOVATIVE LIVE CONSOLE)
+   ========================================================================== */
+
+.telemetry-terminal {
+    background: radial-gradient(circle at 100% 0%, rgba(242, 177, 52, 0.12) 0%, rgba(14, 14, 18, 0.95) 70%);
+    border: 1px solid rgba(242, 177, 52, 0.3) !important;
+    backdrop-filter: blur(14px);
+}
+
+.terminal-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.telemetry-chip {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: all 0.2s ease;
+}
+
+.telemetry-chip:hover {
+    border-color: rgba(242, 177, 52, 0.35);
+    background: rgba(242, 177, 52, 0.06);
+    transform: translateY(-1px);
+}
+
+.terminal-code-block {
+    background: rgba(5, 5, 8, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-left: 3px solid var(--ray);
+}
+
+.future-vision-banner {
+    background: radial-gradient(circle at 0% 0%, rgba(242, 177, 52, 0.16) 0%, rgba(14, 14, 18, 0.98) 60%);
+    border: 1px solid rgba(242, 177, 52, 0.28);
+}
+
+
+

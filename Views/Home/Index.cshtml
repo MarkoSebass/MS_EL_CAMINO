@@ -1,199 +1,507 @@
-﻿@{
+@{
     ViewData["Title"] = "Cada adquisición cuenta";
+    var isAuthenticated = User?.Identity?.IsAuthenticated == true;
 }
 
 <div class="home-page">
-    <section class="hero" aria-labelledby="hero-title">
+    <!-- HERO SECTION -->
+    <section class="hero py-5 position-relative" aria-labelledby="hero-title">
         <div class="hero-copy">
-            <span class="hero-kicker">BITÁCORA TECNOLÓGICA PERSONAL <span>·</span> KM-001</span>
-            <h1 id="hero-title">No es lo que tienes.<br />Es el <span>camino.</span></h1>
-            <p class="hero-lede">
-                Cada adquisición cuenta una parte de mi historia tecnológica.
-                <strong>EL CAMINO</strong> es el registro personal de todo lo que he aprendido, elegido y construido.
+            <!-- MAIN TITLE -->
+            <h1 id="hero-title" class="display-3 fw-bolder lh-1 text-white mb-4">
+                No es lo que tienes.<br />
+                Es el <span class="text-gradient-gold">camino.</span>
+            </h1>
+            
+            <p class="hero-lede fs-5 hero-lead-bright mb-4 lh-base">
+                Cada adquisición cuenta un fragmento de mi historia tecnológica.
+                <strong class="text-white fw-bold">EL CAMINO</strong> es el registro vivo donde confluyen elecciones, vivencias, componentes y el propósito detrás de cada paso.
             </p>
-            <div class="hero-actions">
-                <a class="button-primary" href="#modulos">Explorar el recorrido <span aria-hidden="true">↓</span></a>
-                <a class="text-link" href="#filosofia">Conocer la filosofía <span aria-hidden="true">↗</span></a>
+
+            <!-- CALL TO ACTIONS -->
+            <div class="hero-actions d-flex flex-wrap align-items-center gap-3 pt-2">
+                <a class="btn btn-warning btn-lg fw-bold px-4 py-3 shadow-lg d-inline-flex align-items-center gap-2 text-dark rounded-3 btn-hover-lift" href="#modulos">
+                    <span>Explorar el recorrido</span>
+                    <i class="bi bi-arrow-down-short fs-4"></i>
+                </a>
+                <a class="btn btn-outline-light btn-lg fw-semibold px-4 py-3 d-inline-flex align-items-center gap-2 rounded-3 btn-hover-glow" href="#filosofia">
+                    <span>Conocer la filosofía</span>
+                    <i class="bi bi-compass text-warning"></i>
+                </a>
+                <a class="btn btn-outline-warning btn-lg fw-semibold px-4 py-3 d-inline-flex align-items-center gap-2 rounded-3 btn-hover-glow" asp-controller="Home" asp-action="SobreElCreador">
+                    <i class="bi bi-person-fill"></i>
+                    <span>Sobre el Creador</span>
+                </a>
+            </div>
+
+            <!-- QUICK STATS CHIPS -->
+            <div class="row g-3 mt-4 pt-3 border-top border-secondary">
+                <div class="col-6 col-md-4">
+                    <div class="stat-pill p-3 rounded-3 h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="stat-number fs-4 fw-bold text-white">100%</span>
+                            <i class="bi bi-person-check text-warning fs-5"></i>
+                        </div>
+                        <div class="stat-desc text-light-silver small">Perspectiva Personal</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="stat-pill p-3 rounded-3 h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="stat-number fs-4 fw-bold text-warning">04</span>
+                            <i class="bi bi-grid-fill text-warning fs-5"></i>
+                        </div>
+                        <div class="stat-desc text-light-silver small">Módulos de Registro</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="stat-pill p-3 rounded-3 h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="stat-number fs-4 fw-bold text-white">KM-001</span>
+                            <i class="bi bi-signpost-2-fill text-warning fs-5"></i>
+                        </div>
+                        <div class="stat-desc text-light-silver small">Etapa Actual</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="road-card" aria-label="Visualización conceptual de una ruta tecnológica en progreso">
-            <div class="road-card__head">
-                <span class="road-label">RUTA PERSONAL / 001</span>
-                <span class="road-state">EN RUTA</span>
+        <!-- HERO INTERACTIVE ROUTE CARD WITH HUD VIBES -->
+        <div class="road-card shadow-2xl position-relative overflow-hidden" aria-label="Visualización conceptual de la ruta tecnológica">
+            <div class="road-card__head d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary text-white font-monospace px-2 py-1">GPS // NODO 001</span>
+                    <span class="badge bg-warning text-dark font-monospace fw-bold px-2 py-1">RADAR ACTIVO</span>
+                </div>
+                <span class="road-state pulse-badge font-monospace text-warning small">
+                    <i class="bi bi-broadcast me-1"></i> EN RUTA CONTINUA
+                </span>
             </div>
-            <div class="route-visual" aria-hidden="true">
+
+            <div class="route-visual my-3 position-relative" aria-hidden="true">
                 <svg viewBox="0 0 460 300" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#F2B134" />
+                            <stop offset="100%" stop-color="#FF7A00" />
+                        </linearGradient>
+                        <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="5" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
                     <path class="route-ground" d="M65 270C65 222 111 230 111 190S73 131 130 111s82 48 136 8 16-83 80-84 71 47 71 101-36 45-36 93 23 44 23 67" />
                     <path class="route-line" d="M65 270C65 222 111 230 111 190S73 131 130 111s82 48 136 8 16-83 80-84 71 47 71 101-36 45-36 93 23 44 23 67" />
-                    <path class="route-journey" d="M65 270C65 222 111 230 111 190S73 131 130 111s82 48 136 8" />
-                    <circle class="route-point" cx="65" cy="270" r="6" />
-                    <circle class="route-stop" cx="130" cy="111" r="5" />
-                    <circle class="route-stop" cx="266" cy="119" r="5" />
-                    <circle class="route-stop" cx="346" cy="35" r="5" />
-                    <circle class="route-stop" cx="381" cy="229" r="5" />
+                    <path class="route-journey-animated" stroke="url(#routeGradient)" filter="url(#glowEffect)" d="M65 270C65 222 111 230 111 190S73 131 130 111s82 48 136 8" />
+                    
+                    <circle class="route-point pulsating-point" cx="65" cy="270" r="7" />
+                    <circle class="route-stop" cx="130" cy="111" r="5.5" />
+                    <circle class="route-stop" cx="266" cy="119" r="5.5" />
+                    <circle class="route-stop" cx="346" cy="35" r="5.5" />
+                    <circle class="route-stop" cx="381" cy="229" r="5.5" />
                 </svg>
             </div>
-            <div class="road-card__caption">
+
+            <div class="road-card__caption d-flex align-items-end justify-content-between p-3 rounded-3 glass-panel">
                 <div>
-                    <strong>Una historia en construcción.</strong>
-                    <span>El siguiente destino todavía está por descubrir.</span>
+                    <strong class="d-block text-white fs-6 mb-1">
+                        <i class="bi bi-signpost-2 text-warning me-1"></i> Una historia en construcción
+                    </strong>
+                    <span class="text-light-silver small">Cada objeto guarda el momento que representa.</span>
                 </div>
-                <span class="road-km">01 / ∞</span>
+                <div class="text-end">
+                    <span class="badge bg-warning text-dark font-monospace fw-bold">KM 01 / &infin;</span>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="manifesto" id="filosofia" aria-labelledby="manifesto-title">
-        <div>
-            <span class="eyebrow">01 — LA FILOSOFÍA</span>
-            <h2 id="manifesto-title">La tecnología también se mide en lo recorrido.</h2>
-        </div>
-        <div class="manifesto__copy">
-            <p>No es un inventario ni una lista de precios. Es una bitácora para guardar el contexto detrás de cada elección: qué tenía, qué aprendí y hacia dónde quiero avanzar.</p>
-            <p><strong>Un objeto marca una etapa. El conjunto cuenta una historia.</strong> Así, cada dispositivo, componente y juego encuentra su lugar en una evolución personal.</p>
-        </div>
-    </section>
-
-    <section class="value-section" aria-labelledby="value-title">
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">02 — EL PROPÓSITO</span>
-                <h2 id="value-title">Una colección con contexto vale más.</h2>
+    <!-- MANIFESTO SECTION -->
+    <section class="manifesto-wrapper my-5 p-4 p-lg-5 rounded-4 position-relative overflow-hidden shadow-2xl" id="filosofia" aria-labelledby="manifesto-title">
+        <div class="row align-items-center g-4 position-relative z-1">
+            <div class="col-12 col-lg-5">
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-3">
+                    <i class="bi bi-book-half me-1"></i> 01 — LA FILOSOFÍA
+                </span>
+                <h2 id="manifesto-title" class="display-5 fw-bold text-white mt-2 lh-tight">
+                    La tecnología también se mide en <span class="text-gradient-gold">lo recorrido.</span>
+                </h2>
+                <p class="text-light-silver mt-3 mb-0 fs-6">
+                    El valor de las herramientas no está en su precio, sino en los proyectos y momentos que hicieron posibles.
+                </p>
             </div>
-            <p>EL CAMINO convierte datos cotidianos en memoria, perspectiva y decisiones con intención.</p>
-        </div>
-
-        <div class="value-grid row g-3">
-            <div class="col-12 col-md-4">
-                <article class="value-card card h-100">
-                    <div class="card-body">
-                        <span class="value-card__index">01 / RECORDAR</span>
-                        <h3>La historia detrás de cada pieza.</h3>
-                        <p>Qué compré, cuándo llegó y por qué la elegí: cada objeto conserva el momento que representa.</p>
+            <div class="col-12 col-lg-7">
+                <div class="manifesto-box p-4 rounded-4">
+                    <p class="fs-5 text-white mb-3 lh-base">
+                        No es un inventario frío ni una hoja de cálculo con especificaciones y números. Es una <strong class="text-warning">bitácora de vida</strong> para preservar el contexto detrás de cada elección: qué herramientas tenía, qué problemas resolví, qué aprendí y hacia dónde apunto.
+                    </p>
+                    <div class="quote-callout p-3 my-3 rounded-3 d-flex align-items-center gap-3">
+                        <i class="bi bi-quote fs-1 text-warning lh-1"></i>
+                        <p class="mb-0 text-white fw-semibold fst-italic fs-5">
+                            "Un objeto marca una etapa. El conjunto cuenta una historia."
+                        </p>
                     </div>
-                </article>
+                    <p class="text-light-silver mb-0 fs-6">
+                        Así, cada dispositivo, componente y videojuego encuentra su propósito en un mapa de evolución personal único e intransferible.
+                    </p>
+                </div>
             </div>
-            <div class="col-12 col-md-4">
-                <article class="value-card card h-100">
-                    <div class="card-body">
-                        <span class="value-card__index">02 / COMPRENDER</span>
-                        <h3>Una evolución que puedes recorrer.</h3>
-                        <p>Conecta dispositivos, componentes y experiencias para ver cómo fueron cambiando tus prioridades.</p>
-                    </div>
-                </article>
-            </div>
-            <div class="col-12 col-md-4">
-                <article class="value-card card h-100">
-                    <div class="card-body">
-                        <span class="value-card__index">03 / PROYECTAR</span>
-                        <h3>Próximos pasos con sentido.</h3>
-                        <p>Guarda lo que te gustaría conseguir y el motivo, sin perder de vista el camino que te trajo hasta ahí.</p>
-                    </div>
-                </article>
-            </div>
-        </div>
-
-        <div class="journey-callout">
-            <span class="journey-callout__marker" aria-hidden="true">KM</span>
-            <div>
-                <span class="eyebrow">NO SE TRATA DE TENER MÁS</span>
-                <p>Se trata de recordar por qué cada paso importó.</p>
-            </div>
-            <a class="text-link" href="#modulos">Ver las paradas <span aria-hidden="true">↓</span></a>
         </div>
     </section>
 
-    <section class="module-section" id="modulos" aria-labelledby="modules-title">
-        <div class="section-heading">
+    <!-- VALUE PILLARS SECTION -->
+    <section class="value-section py-5" aria-labelledby="value-title">
+        <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
             <div>
-                <span class="eyebrow">03 — EL MAPA</span>
-                <h2 id="modules-title">Cada capítulo tiene su lugar.</h2>
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-2">
+                    <i class="bi bi-bullseye me-1"></i> 02 — EL PROPÓSITO
+                </span>
+                <h2 id="value-title" class="display-6 fw-bold text-white mb-0">Una colección con contexto vale más.</h2>
             </div>
-            <p>Cuatro espacios conectados para organizar recuerdos, equipos, experiencias y próximos destinos.</p>
+            <p class="text-light-silver mb-0 max-w-md fs-6">EL CAMINO convierte datos cotidianos en memoria tangible, perspectiva estratégica y decisiones con intención.</p>
         </div>
 
-        <div class="module-grid row g-3">
-            <div class="col-12 col-sm-6 col-xl-3">
-                <article class="module-card card h-100" id="catalogo">
-                    <div class="module-card__top">
-                        <span class="module-card__number">01 / COLECCIÓN</span>
-                        <svg class="module-card__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="3.5" y="4" width="17" height="12" rx="1.5" /><path d="M8 20h8M12 16v4M7 8h5M7 11h9" />
-                        </svg>
+        <div class="value-grid row g-4">
+            <div class="col-12 col-md-4">
+                <article class="value-card card h-100 border-0 shadow-sm feature-box">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="feature-icon mb-4">
+                            <i class="bi bi-clock-history fs-3 text-warning"></i>
+                        </div>
+                        <span class="value-card__index font-monospace text-warning fw-bold mb-2">01 / RECORDAR</span>
+                        <h3 class="fs-4 fw-bold text-white mb-3">La historia detrás de cada pieza.</h3>
+                        <p class="text-light-silver mb-0 fs-6">Qué adquirí, cuándo llegó a mi vida y por qué la elegí: cada objeto conserva la motivación exacta del momento que representa.</p>
                     </div>
-                    <h3>Catálogo Tecnológico</h3>
-                    <p>Dispositivos que acompañan cada etapa: de la primera compra a la próxima idea.</p>
-                    <span class="module-card__arrow" aria-hidden="true">↗</span>
                 </article>
             </div>
-
-            <div class="col-12 col-sm-6 col-xl-3">
-                <article class="module-card card h-100" id="setup">
-                    <div class="module-card__top">
-                        <span class="module-card__number">02 / CONSTRUCCIÓN</span>
-                        <svg class="module-card__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="4" y="3.5" width="16" height="17" rx="2" /><circle cx="12" cy="11" r="3.5" /><path d="M12 7.5v2M12 12.5v2M8.5 11h2M13.5 11h2M8 17h.01" />
-                        </svg>
+            <div class="col-12 col-md-4">
+                <article class="value-card card h-100 border-0 shadow-sm feature-box">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="feature-icon mb-4">
+                            <i class="bi bi-graph-up-arrow fs-3 text-warning"></i>
+                        </div>
+                        <span class="value-card__index font-monospace text-warning fw-bold mb-2">02 / COMPRENDER</span>
+                        <h3 class="fs-4 fw-bold text-white mb-3">Una evolución que puedes recorrer.</h3>
+                        <p class="text-light-silver mb-0 fs-6">Conecta dispositivos, componentes y experiencias interactivas para ver cómo fueron madurando tus necesidades y prioridades.</p>
                     </div>
-                    <h3>Mi Setup PC</h3>
-                    <p>Componentes, decisiones y el camino que convierte piezas en un setup propio.</p>
-                    <span class="module-card__arrow" aria-hidden="true">↗</span>
                 </article>
             </div>
-
-            <div class="col-12 col-sm-6 col-xl-3">
-                <article class="module-card card h-100" id="biblioteca">
-                    <div class="module-card__top">
-                        <span class="module-card__number">03 / EXPERIENCIAS</span>
-                        <svg class="module-card__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M7 7.5h10a3 3 0 0 1 2.9 2.2l1.2 4.5a2.5 2.5 0 0 1-4.1 2.5l-2.2-1.9H9.2L7 16.7a2.5 2.5 0 0 1-4.1-2.5l1.2-4.5A3 3 0 0 1 7 7.5Z" /><path d="M8 10v4M6 12h4M16.5 11h.01M18.5 13h.01" />
-                        </svg>
+            <div class="col-12 col-md-4">
+                <article class="value-card card h-100 border-0 shadow-sm feature-box">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="feature-icon mb-4">
+                            <i class="bi bi-compass-fill fs-3 text-warning"></i>
+                        </div>
+                        <span class="value-card__index font-monospace text-warning fw-bold mb-2">03 / PROYECTAR</span>
+                        <h3 class="fs-4 fw-bold text-white mb-3">Próximos pasos con sentido.</h3>
+                        <p class="text-light-silver mb-0 fs-6">Guarda lo que anhelas conseguir y el porqué, sin perder de vista los aprendizajes del camino que te trajo hasta aquí.</p>
                     </div>
-                    <h3>Biblioteca de Juegos</h3>
-                    <p>Un registro de historias jugadas, pendientes y las que todavía esperan su turno.</p>
-                    <span class="module-card__arrow" aria-hidden="true">↗</span>
                 </article>
             </div>
+        </div>
 
-            <div class="col-12 col-sm-6 col-xl-3">
-                <article class="module-card card h-100" id="creador">
-                    <div class="module-card__top">
-                        <span class="module-card__number">04 / ORIGEN</span>
-                        <svg class="module-card__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="12" cy="8" r="3.5" /><path d="M5 20c.6-3.6 3.2-5.5 7-5.5s6.4 1.9 7 5.5M4 4v3M2.5 5.5h3" />
-                        </svg>
+        <div class="journey-callout card mt-4 border-0 p-4">
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="journey-callout__marker bg-warning text-dark fw-bold rounded-circle p-3 d-flex align-items-center justify-content-center shadow" aria-hidden="true">
+                        <i class="bi bi-sign-turn-right-fill fs-5"></i>
+                    </span>
+                    <div>
+                        <span class="badge bg-warning text-dark font-monospace fw-bold px-2 py-1 mb-1">RECORDATORIO ESENCIAL</span>
+                        <p class="fs-5 text-white fw-bold mb-0">No se trata de tener más, sino de recordar por qué cada paso importó.</p>
                     </div>
-                    <h3>Sobre el Creador</h3>
-                    <p>Conoce a Marko y la idea que dio origen a esta bitácora tecnológica personal.</p>
-                    <a class="creator-card-link" asp-controller="Home" asp-action="SobreElCreador">
-                        Conocer al creador <span aria-hidden="true">↗</span>
+                </div>
+                <a class="btn btn-warning text-dark fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 rounded-pill shadow-sm btn-hover-lift" href="#modulos">
+                    <span>Ver las paradas</span>
+                    <i class="bi bi-arrow-down"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODULES MAP SECTION -->
+    <section class="module-section py-5" id="modulos" aria-labelledby="modules-title">
+        <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
+            <div>
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-2">
+                    <i class="bi bi-map-fill me-1"></i> 03 — EL MAPA
+                </span>
+                <h2 id="modules-title" class="display-6 fw-bold text-white mb-0">Cada capítulo tiene su lugar.</h2>
+            </div>
+            <p class="text-light-silver mb-0 max-w-md fs-6">Cuatro espacios interconectados para organizar recuerdos, equipos de cómputo, experiencias lúdicas y nuevos horizontes.</p>
+        </div>
+
+        <div class="module-grid row g-4">
+            <!-- MODULE 1: CATALOGO -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="module-card-wrapper h-100">
+                    @if (isAuthenticated)
+                    {
+                        <a href="#catalogo" class="text-decoration-none h-100 d-block">
+                            <article class="module-card card h-100 border-0 p-4" id="catalogo">
+                                <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                    <span class="module-card__number font-monospace text-light-silver">01 / COLECCIÓN</span>
+                                    <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
+                                        <i class="bi bi-laptop fs-4"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Catálogo Tecnológico</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Dispositivos que acompañan cada etapa: de la primera compra a la próxima idea.</p>
+                                <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-warning">
+                                    <span class="small fw-bold">Ingresar al catálogo</span>
+                                    <i class="bi bi-arrow-up-right-circle-fill fs-5"></i>
+                                </div>
+                            </article>
+                        </a>
+                    }
+                    else
+                    {
+                        <div role="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Catálogo Tecnológico" class="h-100">
+                            <article class="module-card card h-100 border-0 p-4 module-locked" id="catalogo">
+                                <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                    <span class="module-card__number font-monospace text-light-silver">01 / COLECCIÓN</span>
+                                    <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
+                                        <i class="bi bi-laptop fs-4"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Catálogo Tecnológico</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Dispositivos que acompañan cada etapa: de la primera compra a la próxima idea.</p>
+                                <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-light">
+                                    <span class="small fw-semibold"><i class="bi bi-lock-fill text-warning me-1"></i> Requiere acceso</span>
+                                    <i class="bi bi-box-arrow-in-right fs-5 text-warning"></i>
+                                </div>
+                            </article>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- MODULE 2: SETUP PC -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="module-card-wrapper h-100">
+                    @if (isAuthenticated)
+                    {
+                        <a href="#setup" class="text-decoration-none h-100 d-block">
+                            <article class="module-card card h-100 border-0 p-4" id="setup">
+                                <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                    <span class="module-card__number font-monospace text-light-silver">02 / CONSTRUCCIÓN</span>
+                                    <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
+                                        <i class="bi bi-cpu fs-4"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Mi Setup PC</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Componentes, decisiones y el camino que convierte piezas en un setup propio.</p>
+                                <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-warning">
+                                    <span class="small fw-bold">Explorar componentes</span>
+                                    <i class="bi bi-arrow-up-right-circle-fill fs-5"></i>
+                                </div>
+                            </article>
+                        </a>
+                    }
+                    else
+                    {
+                        <div role="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC" class="h-100">
+                            <article class="module-card card h-100 border-0 p-4 module-locked" id="setup">
+                                <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                    <span class="module-card__number font-monospace text-light-silver">02 / CONSTRUCCIÓN</span>
+                                    <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
+                                        <i class="bi bi-cpu fs-4"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Mi Setup PC</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Componentes, decisiones y el camino que convierte piezas en un setup propio.</p>
+                                <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-light">
+                                    <span class="small fw-semibold"><i class="bi bi-lock-fill text-warning me-1"></i> Requiere acceso</span>
+                                    <i class="bi bi-box-arrow-in-right fs-5 text-warning"></i>
+                                </div>
+                            </article>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- MODULE 3: JUEGOS -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="module-card-wrapper h-100">
+                    @if (isAuthenticated)
+                    {
+                        <a href="#biblioteca" class="text-decoration-none h-100 d-block">
+                            <article class="module-card card h-100 border-0 p-4" id="biblioteca">
+                                <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                    <span class="module-card__number font-monospace text-light-silver">03 / EXPERIENCIAS</span>
+                                    <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
+                                        <i class="bi bi-controller fs-4"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Biblioteca de Juegos</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Un registro de mundos recorridos, anécdotas y las historias que esperan su turno.</p>
+                                <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-warning">
+                                    <span class="small fw-bold">Ver colección</span>
+                                    <i class="bi bi-arrow-up-right-circle-fill fs-5"></i>
+                                </div>
+                            </article>
+                        </a>
+                    }
+                    else
+                    {
+                        <div role="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos" class="h-100">
+                            <article class="module-card card h-100 border-0 p-4 module-locked" id="biblioteca">
+                                <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                    <span class="module-card__number font-monospace text-light-silver">03 / EXPERIENCIAS</span>
+                                    <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
+                                        <i class="bi bi-controller fs-4"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Biblioteca de Juegos</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Un registro de mundos recorridos, anécdotas y las historias que esperan su turno.</p>
+                                <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-light">
+                                    <span class="small fw-semibold"><i class="bi bi-lock-fill text-warning me-1"></i> Requiere acceso</span>
+                                    <i class="bi bi-box-arrow-in-right fs-5 text-warning"></i>
+                                </div>
+                            </article>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- MODULE 4: CREADOR -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="module-card-wrapper h-100">
+                    <a asp-controller="Home" asp-action="SobreElCreador" class="text-decoration-none h-100 d-block">
+                        <article class="module-card card h-100 border-0 p-4 creator-card-highlight" id="creador">
+                            <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
+                                <span class="module-card__number font-monospace text-warning fw-bold">04 / ORIGEN</span>
+                                <span class="module-icon-circle bg-warning text-dark p-2 rounded-3 shadow">
+                                    <i class="bi bi-person-fill fs-4"></i>
+                                </span>
+                            </div>
+                            <h3 class="fs-4 fw-bold text-white mb-2">Sobre el Creador</h3>
+                            <p class="text-light-silver small mb-4 flex-grow-1">Conoce a Marko Sebastian y la visión personal que dio origen a este proyecto.</p>
+                            <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-warning-subtle text-warning">
+                                <span class="small fw-bold">Conocer al autor</span>
+                                <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+                            </div>
+                        </article>
                     </a>
-                </article>
+                </div>
             </div>
         </div>
 
-        <div class="timeline" aria-label="Etapas del recorrido de EL CAMINO">
-            <article class="timeline-step">
-                <span class="timeline-step__number">01 / REGISTRA</span>
-                <h3>Guarda el momento</h3>
-                <p>Añade el objeto o experiencia y conserva sus datos esenciales.</p>
-            </article>
-            <article class="timeline-step">
-                <span class="timeline-step__number">02 / DA CONTEXTO</span>
-                <h3>Cuenta por qué</h3>
-                <p>Una nota personal convierte una ficha en un recuerdo propio.</p>
-            </article>
-            <article class="timeline-step">
-                <span class="timeline-step__number">03 / MIRA ATRÁS</span>
-                <h3>Reconoce el cambio</h3>
-                <p>Recorre tus etapas y descubre cómo evolucionaron tus intereses.</p>
-            </article>
-            <article class="timeline-step">
-                <span class="timeline-step__number">04 / SIGUE EN RUTA</span>
-                <h3>Elige el próximo paso</h3>
-                <p>Proyecta nuevos objetivos y continúa escribiendo tu historia.</p>
-            </article>
+        <!-- TIMELINE STEPS -->
+        <div class="timeline-container mt-5 pt-4">
+            <div class="text-center mb-4">
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2">
+                    <i class="bi bi-arrow-repeat me-1"></i> EL CICLO DE VIDA
+                </span>
+                <h4 class="text-white fw-bold mt-2">¿Cómo funciona la bitácora?</h4>
+            </div>
+
+            <div class="row g-4 timeline-grid">
+                <div class="col-12 col-md-3">
+                    <article class="timeline-step-card p-4 rounded-4 h-100">
+                        <div class="step-badge text-warning font-monospace fw-bold mb-3">
+                            <span class="step-num">01</span> / REGISTRA
+                        </div>
+                        <h4 class="fs-5 fw-bold text-white mb-2">Guarda el momento</h4>
+                        <p class="text-light-silver small mb-0">Añade el objeto, dispositivo o experiencia conservando fechas, especificaciones e impresiones iniciales.</p>
+                    </article>
+                </div>
+                <div class="col-12 col-md-3">
+                    <article class="timeline-step-card p-4 rounded-4 h-100">
+                        <div class="step-badge text-warning font-monospace fw-bold mb-3">
+                            <span class="step-num">02</span> / CONTEXTUALIZA
+                        </div>
+                        <h4 class="fs-5 fw-bold text-white mb-2">Cuenta por qué</h4>
+                        <p class="text-light-silver small mb-0">Una nota reflexiva convierte un dato frío en un recuerdo con significado y valor duradero.</p>
+                    </article>
+                </div>
+                <div class="col-12 col-md-3">
+                    <article class="timeline-step-card p-4 rounded-4 h-100">
+                        <div class="step-badge text-warning font-monospace fw-bold mb-3">
+                            <span class="step-num">03</span> / ANALIZA
+                        </div>
+                        <h4 class="fs-5 fw-bold text-white mb-2">Reconoce el cambio</h4>
+                        <p class="text-light-silver small mb-0">Recorre tus etapas pasadas y observa cómo han madurado tus criterios y prioridades técnicas.</p>
+                    </article>
+                </div>
+                <div class="col-12 col-md-3">
+                    <article class="timeline-step-card p-4 rounded-4 h-100 active-step">
+                        <div class="step-badge text-warning font-monospace fw-bold mb-3">
+                            <span class="step-num">04</span> / EN RUTA
+                        </div>
+                        <h4 class="fs-5 fw-bold text-white mb-2">Sigue construyendo</h4>
+                        <p class="text-light-silver small mb-0">Planifica tus siguientes pasos y adquisiciones manteniendo intacta la visión de tu trayectoria.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CALL TO ACTION BANNER CONSOLA DE EXPLORACIÓN -->
+    <section class="cta-banner my-5 p-4 p-lg-5 rounded-4 position-relative overflow-hidden shadow-2xl">
+        <div class="row align-items-center g-4 position-relative z-1">
+            <div class="col-12 col-lg-7">
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-3">
+                    <i class="bi bi-compass-fill me-1"></i> COMIENZA A RECORRER
+                </span>
+                <h2 class="display-6 fw-bolder text-white mb-3">¿Listo para sumergirte en el camino?</h2>
+                <p class="text-light-silver fs-5 mb-4">
+                    Explora las decisiones detrás de cada dispositivo, la configuración de hardware del setup o conoce la visión detrás de esta bitácora personal.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-controller="Home" asp-action="SobreElCreador" class="btn btn-warning btn-lg fw-bold px-4 py-3 shadow text-dark rounded-3 btn-hover-lift">
+                        <i class="bi bi-person-fill me-1"></i> Sobre el Creador
+                    </a>
+                    @if (!isAuthenticated)
+                    {
+                        <a href="/Identity/Account/Login" class="btn btn-outline-light btn-lg fw-semibold px-4 py-3 rounded-3 btn-hover-glow">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+                        </a>
+                    }
+                    <a href="#modulos" class="btn btn-outline-warning btn-lg fw-semibold px-4 py-3 rounded-3 btn-hover-glow">
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i> Ver Módulos
+                    </a>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: INTERACTIVE STATUS CHIP -->
+            <div class="col-12 col-lg-5">
+                <div class="telemetry-terminal card border border-warning-subtle rounded-4 p-4 shadow-lg position-relative">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary-subtle">
+                        <span class="font-monospace text-warning small fw-bold">
+                            <i class="bi bi-terminal-fill me-1"></i> ESTADO DE NAVEGACIÓN
+                        </span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace small px-2 py-1">
+                            ONLINE
+                        </span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded-2 glass-panel border border-secondary-subtle">
+                            <span class="text-light-silver small"><i class="bi bi-laptop text-warning me-2"></i>Catálogo</span>
+                            <span class="font-monospace text-warning small">01 / DISPONIBLE</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded-2 glass-panel border border-secondary-subtle">
+                            <span class="text-light-silver small"><i class="bi bi-cpu text-warning me-2"></i>Setup PC</span>
+                            <span class="font-monospace text-warning small">02 / CONFIG</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded-2 glass-panel border border-secondary-subtle">
+                            <span class="text-light-silver small"><i class="bi bi-controller text-warning me-2"></i>Biblioteca</span>
+                            <span class="font-monospace text-warning small">03 / REGISTRO</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 d-flex align-items-center justify-content-between border-top border-secondary-subtle">
+                        <span class="font-monospace text-secondary small">
+                            <i class="status-indicator me-1"></i> BITÁCORA PERSONAL
+                        </span>
+                        <span class="font-monospace text-warning small fw-bold">KM-001</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </div>
+
+

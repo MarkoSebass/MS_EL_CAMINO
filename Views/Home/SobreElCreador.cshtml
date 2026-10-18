@@ -1,132 +1,409 @@
-﻿@{
+@{
     ViewData["Title"] = "Sobre el creador";
 }
 
 <div class="home-page creator-page">
-    <div class="creator-breadcrumb" aria-label="Ruta de navegación">
-        <a asp-controller="Home" asp-action="Index">Inicio</a>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">Sobre el creador</span>
-    </div>
-
-    <section class="creator-hero" aria-labelledby="creator-title">
+    <!-- CREATOR HERO SECTION -->
+    <section class="creator-hero py-5" aria-labelledby="creator-title">
         <div class="creator-hero__copy">
-            <span class="hero-kicker">AUTOR / BITÁCORA PERSONAL / KM-001</span>
-            <p class="creator-overline">HOLA, SOY MARKO</p>
-            <h1 id="creator-title">La tecnología<br />también cuenta<br /><span>quiénes somos.</span></h1>
-            <p class="creator-intro">
-                Soy <strong>Marko Sebastian Orihuela Carrasco</strong>, creador de EL CAMINO.
-                Aquí documento las decisiones, los equipos y las experiencias que van dando forma
-                a mi historia tecnológica.
+            <div class="d-inline-flex align-items-center gap-2 mb-3">
+                <span class="badge rounded-pill bg-dark border border-warning-subtle text-warning px-3 py-2 fs-7 fw-semibold shadow-sm">
+                    <i class="bi bi-person-workspace me-1"></i> AUTOR · BITÁCORA PERSONAL · KM-001
+                </span>
+                <span class="badge rounded-pill bg-warning text-dark font-monospace fw-bold px-3 py-2 fs-7">
+                    HOLA, SOY MARKO
+                </span>
+            </div>
+
+            <h1 id="creator-title" class="display-3 fw-bolder lh-1 text-white mb-4">
+                La tecnología<br />
+                también cuenta<br />
+                <span class="text-gradient-gold">quiénes somos.</span>
+            </h1>
+
+            <p class="hero-lede fs-5 hero-lead-bright mb-4 lh-base">
+                Soy <strong class="text-white">Marko Sebastian Orihuela Carrasco</strong>, creador de EL CAMINO. 
+                Aquí documento las decisiones estratégicas, los equipos de cómputo y las experiencias interactivas que van esculpiendo mi historia tecnológica.
             </p>
 
-            <div class="creator-socials" aria-label="Perfiles de Marko">
-                <a class="creator-socials__primary" href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer"
-                   aria-label="Visitar perfil de LinkedIn de Marko Sebastian (abre en una pestaña nueva)">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M5 9v10M5 5.5v.1M10 19v-6a4 4 0 0 1 8 0v6M10 9v10" />
-                    </svg>
-                    Conecta en LinkedIn <span aria-hidden="true">↗</span>
+            <div class="creator-socials d-flex flex-wrap align-items-center gap-2 pt-2">
+                <a class="btn btn-social-pill fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 rounded-3" 
+                   href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-linkedin fs-6 text-warning"></i>
+                    <span class="text-white fw-semibold">LinkedIn</span>
+                    <i class="bi bi-arrow-up-right-short text-light-silver"></i>
                 </a>
-                <a class="creator-socials__secondary" href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer"
-                   aria-label="Visitar Instagram de Marko Sebastian (abre en una pestaña nueva)">
-                    Instagram <span aria-hidden="true">↗</span>
+                <a class="btn btn-social-pill fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 rounded-3" 
+                   href="https://github.com/MarkoSebass" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-github fs-6 text-warning"></i>
+                    <span class="text-white fw-semibold">GitHub</span>
+                    <i class="bi bi-arrow-up-right-short text-light-silver"></i>
+                </a>
+                <a class="btn btn-social-pill fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 rounded-3" 
+                   href="https://x.com/marko_sebas" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-twitter-x fs-6 text-warning"></i>
+                    <span class="text-white fw-semibold">X</span>
+                    <i class="bi bi-arrow-up-right-short text-light-silver"></i>
+                </a>
+                <a class="btn btn-social-pill fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 rounded-3" 
+                   href="https://www.instagram.com/marko_sebass/" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-instagram fs-6 text-warning"></i>
+                    <span class="text-white fw-semibold">Instagram</span>
+                    <i class="bi bi-arrow-up-right-short text-light-silver"></i>
+                </a>
+                <a class="btn btn-social-pill fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 rounded-3" 
+                   href="https://wa.me/51926495952" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-whatsapp fs-6 text-success"></i>
+                    <span class="text-white fw-semibold">+51 926 495 952</span>
+                </a>
+                <a class="btn btn-social-pill fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 rounded-3" 
+                   href="mailto:ms.orihuelac@gmail.com">
+                    <i class="bi bi-envelope-at-fill fs-6 text-warning"></i>
+                    <span class="text-white fw-semibold">ms.orihuelac@gmail.com</span>
                 </a>
             </div>
 
-            <div class="creator-byline">
-                <span class="creator-byline__rule" aria-hidden="true"></span>
-                <span>Una historia personal. Un paso a la vez.</span>
+            <!-- QUICK STATS CHIPS -->
+            <div class="row g-3 mt-4 pt-3 border-top border-secondary">
+                <div class="col-6 col-md-4">
+                    <div class="stat-pill p-2 px-3 rounded-3">
+                        <div class="stat-number fs-4 fw-bold text-white">Full Stack</div>
+                        <div class="stat-desc text-light-silver small">Desarrollo y Enfoque</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="stat-pill p-2 px-3 rounded-3">
+                        <div class="stat-number fs-4 fw-bold text-warning">Perú</div>
+                        <div class="stat-desc text-light-silver small">Ubicación y Origen</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="stat-pill p-2 px-3 rounded-3">
+                        <div class="stat-number fs-4 fw-bold text-white">En Curso</div>
+                        <div class="stat-desc text-light-silver small">Trayectoria Continua</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <figure class="creator-portrait">
-            <img src="~/images/creator-sample.jpg"
-                 alt="Retrato de muestra temporal; se reemplazará por una fotografía de Marko." />
-            <span class="creator-portrait__badge">FOTO DE MUESTRA</span>
-            <figcaption>
-                <span class="creator-portrait__caption-label">EL AUTOR</span>
-                <span>Marko Sebastian Orihuela Carrasco</span>
-            </figcaption>
-        </figure>
+        <!-- PORTRAIT CARD -->
+        <div class="creator-portrait-wrapper">
+            <figure class="creator-portrait shadow-2xl position-relative overflow-hidden rounded-4 border border-secondary">
+                <img src="~/images/creator-sample.jpg"
+                     alt="Retrato del creador Marko Sebastian Orihuela Carrasco" />
+                <span class="badge bg-dark bg-opacity-75 text-warning border border-warning-subtle font-monospace position-absolute top-0 start-0 m-3 px-3 py-2">
+                    <i class="bi bi-camera-fill me-1"></i> FOTO DE MUESTRA
+                </span>
+                <figcaption class="p-4 rounded-3 glass-panel position-absolute bottom-0 start-0 end-0 m-3">
+                    <span class="badge bg-warning text-dark font-monospace fw-bold mb-1 px-2 py-1">AUTOR Y CREADOR</span>
+                    <span class="d-block text-white fs-5 fw-bold">Marko Sebastian Orihuela Carrasco</span>
+                    <span class="text-light-silver small">Apasionado por la tecnología, arquitectura y evolución de software.</span>
+                </figcaption>
+            </figure>
+        </div>
     </section>
 
-    <section class="creator-story" aria-labelledby="creator-story-title">
-        <div class="creator-section-label">
-            <span class="eyebrow">01 — POR QUÉ EXISTE</span>
-            <span class="creator-section-label__line" aria-hidden="true"></span>
-        </div>
-        <div class="row g-4 g-lg-5">
+    <!-- MANIFESTO / STORY SECTION (SAME STYLE AS 01 - LA FILOSOFIA) -->
+    <section class="manifesto-wrapper my-5 p-4 p-lg-5 rounded-4 position-relative overflow-hidden shadow-2xl" id="historia" aria-labelledby="creator-story-title">
+        <div class="row align-items-center g-4 position-relative z-1">
             <div class="col-12 col-lg-5">
-                <h2 id="creator-story-title">No quería olvidar el camino.</h2>
-                <p class="creator-story__dek">Así empezó EL CAMINO: como una forma de dar contexto a las cosas que forman parte de mi vida tecnológica.</p>
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-3">
+                    <i class="bi bi-lightbulb-fill me-1"></i> 01 — POR QUÉ EXISTE
+                </span>
+                <h2 id="creator-story-title" class="display-5 fw-bold text-white mt-2 lh-tight">
+                    No quería olvidar <span class="text-gradient-gold">el camino.</span>
+                </h2>
+                <p class="text-light-silver mt-3 mb-0 fs-6">
+                    Así nació EL CAMINO: como una forma de dar contexto real y memoria a las decisiones que marcan mi vida tecnológica.
+                </p>
             </div>
             <div class="col-12 col-lg-7">
-                <div class="creator-prose">
-                    <p>
-                        Con el tiempo, un dispositivo deja de ser solo un objeto. Puede recordarte
-                        una meta, una etapa o el momento en que aprendiste algo nuevo. Quería un
-                        espacio propio donde esas historias no quedaran reducidas a una lista.
+                <div class="manifesto-box p-4 rounded-4">
+                    <p class="fs-5 text-white mb-3 lh-base">
+                        Con el tiempo, un dispositivo deja de ser solo una caja con circuitos. Puede recordarte una meta superada, una etapa de formación o el instante exacto en que resolviste un gran reto. Quería un espacio donde esas vivencias no quedaran reducidas a un simple inventario frío.
                     </p>
-                    <p>
-                        Por eso reúno aquí mis adquisiciones, la evolución de mi setup, los juegos
-                        que me acompañan y las ideas que tengo por delante. No para medir cuánto
-                        tengo, sino para reconocer todo lo que hay detrás de cada paso.
+                    <p class="text-light-silver mb-3 fs-6">
+                        Por eso reúno aquí mis adquisiciones, la evolución progresiva de mi setup, los videojuegos que inspiraron mi creatividad y las ideas que proyecto hacia el futuro.
                     </p>
-                    <p class="creator-manifesto">Cada adquisición cuenta una parte de mi historia tecnológica</p>
+                    <div class="quote-callout p-3 my-3 rounded-3 d-flex align-items-center gap-3">
+                        <i class="bi bi-quote fs-1 text-warning lh-1"></i>
+                        <p class="mb-0 text-white fw-semibold fst-italic fs-5">
+                            "Cada adquisición cuenta una parte de mi historia tecnológica."
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="creator-focus" aria-labelledby="creator-focus-title">
-        <div class="section-heading">
+    <!-- FOCUS / PERSPECTIVE PILLARS -->
+    <section class="creator-focus py-5" aria-labelledby="creator-focus-title">
+        <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
             <div>
-                <span class="eyebrow">02 — MI PUNTO DE VISTA</span>
-                <h2 id="creator-focus-title">Más que objetos: memoria, criterio y evolución.</h2>
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-2">
+                    <i class="bi bi-eye-fill me-1"></i> 02 — MI PUNTO DE VISTA
+                </span>
+                <h2 id="creator-focus-title" class="display-6 fw-bold text-white mb-0">Más que objetos: memoria, criterio y evolución.</h2>
             </div>
-            <p>Esta es la mirada con la que construyo el proyecto y comparto mi recorrido.</p>
+            <p class="text-light-silver mb-0 max-w-md fs-6">Esta es la filosofía con la que construyo este proyecto y comparto mi recorrido personal.</p>
         </div>
 
-        <div class="row g-3 creator-focus-grid">
+        <div class="row g-4">
             <div class="col-12 col-md-4">
-                <article class="creator-focus-card card h-100">
-                    <div class="card-body">
-                        <span class="creator-focus-card__index">01 / CONTEXTO</span>
-                        <h3>Detrás de cada elección</h3>
-                        <p>Me interesa conservar no solo qué tecnología llegó, sino qué significó en el momento de elegirla.</p>
+                <article class="value-card card h-100 border-0 shadow-sm feature-box">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="feature-icon mb-4">
+                            <i class="bi bi-bookmark-star fs-3 text-warning"></i>
+                        </div>
+                        <span class="value-card__index font-monospace text-warning fw-bold mb-2">01 / CONTEXTO</span>
+                        <h3 class="fs-4 fw-bold text-white mb-3">Detrás de cada elección</h3>
+                        <p class="text-light-silver mb-0 fs-6">Me interesa conservar no solo qué tecnología llegó, sino el propósito y los desafíos que resolvió en ese momento exacto.</p>
                     </div>
                 </article>
             </div>
             <div class="col-12 col-md-4">
-                <article class="creator-focus-card card h-100">
-                    <div class="card-body">
-                        <span class="creator-focus-card__index">02 / EVOLUCIÓN</span>
-                        <h3>El progreso toma tiempo</h3>
-                        <p>Un setup y una colección cambian con cada etapa: aprender a mirar ese cambio también es parte del camino.</p>
+                <article class="value-card card h-100 border-0 shadow-sm feature-box">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="feature-icon mb-4">
+                            <i class="bi bi-hourglass-split fs-3 text-warning"></i>
+                        </div>
+                        <span class="value-card__index font-monospace text-warning fw-bold mb-2">02 / EVOLUCIÓN</span>
+                        <h3 class="fs-4 fw-bold text-white mb-3">El progreso toma tiempo</h3>
+                        <p class="text-light-silver mb-0 fs-6">Un setup y un perfil profesional maduran con cada etapa: valorar y contemplar esa metamorfosis es la esencia del camino.</p>
                     </div>
                 </article>
             </div>
             <div class="col-12 col-md-4">
-                <article class="creator-focus-card card h-100">
-                    <div class="card-body">
-                        <span class="creator-focus-card__index">03 / INTENCIÓN</span>
-                        <h3>Elegir lo que sigue</h3>
-                        <p>Las próximas metas también cuentan la historia: una idea guardada puede ser el inicio del siguiente tramo.</p>
+                <article class="value-card card h-100 border-0 shadow-sm feature-box">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="feature-icon mb-4">
+                            <i class="bi bi-flag-fill fs-3 text-warning"></i>
+                        </div>
+                        <span class="value-card__index font-monospace text-warning fw-bold mb-2">03 / INTENCIÓN</span>
+                        <h3 class="fs-4 fw-bold text-white mb-3">Elegir lo que sigue</h3>
+                        <p class="text-light-silver mb-0 fs-6">Las metas futuras completan la narrativa: cada deseo anotado es la semilla de la próxima gran etapa a conquistar.</p>
                     </div>
                 </article>
             </div>
         </div>
     </section>
 
-    <section class="creator-closing" aria-labelledby="creator-closing-title">
-        <div>
-            <span class="eyebrow">SIGAMOS EN CONTACTO</span>
-            <h2 id="creator-closing-title">Toda ruta empieza con una conversación.</h2>
-            <p>Encuéntrame en LinkedIn y conoce más sobre mi recorrido.</p>
+    <!-- NEW SECTION 03: TECH STACK & TOOLS ARSENAL -->
+    <section class="creator-stack py-5 border-top border-secondary-subtle" aria-labelledby="creator-stack-title">
+        <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
+            <div>
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-2">
+                    <i class="bi bi-layers-half me-1"></i> 03 — ARSENAL TÉCNICO
+                </span>
+                <h2 id="creator-stack-title" class="display-6 fw-bold text-white mb-0">Herramientas que impulsan mis ideas.</h2>
+            </div>
+            <p class="text-light-silver mb-0 max-w-md fs-6">Tecnologías, lenguajes y arquitecturas con las que construyo soluciones eficientes y escalables.</p>
         </div>
-        <a class="button-primary" href="https://www.linkedin.com/in/msorihuelac" target="_blank" rel="noopener noreferrer">
-            Visitar mi LinkedIn <span aria-hidden="true">↗</span>
-        </a>
+
+        <div class="row g-4">
+            <!-- BACKEND -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border border-secondary-subtle p-4 glass-card feature-box">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="font-monospace text-warning small fw-bold">01 // BACKEND</span>
+                        <i class="bi bi-hdd-network text-warning fs-4"></i>
+                    </div>
+                    <h4 class="text-white fw-bold fs-5 mb-3">Servidor & Lógica</h4>
+                    <ul class="list-unstyled d-flex flex-wrap gap-2 mb-0">
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">C# / .NET 10</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">ASP.NET MVC & Core</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Entity Framework</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">REST APIs</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FRONTEND -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border border-secondary-subtle p-4 glass-card feature-box">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="font-monospace text-warning small fw-bold">02 // FRONTEND</span>
+                        <i class="bi bi-window-fullscreen text-warning fs-4"></i>
+                    </div>
+                    <h4 class="text-white fw-bold fs-5 mb-3">Interfaz & Experiencia</h4>
+                    <ul class="list-unstyled d-flex flex-wrap gap-2 mb-0">
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Bootstrap 5</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">JavaScript ES6+</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">HTML5 Semántico</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">CSS3 Moderno</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- DATABASE & CLOUD -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border border-secondary-subtle p-4 glass-card feature-box">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="font-monospace text-warning small fw-bold">03 // DATOS & CLOUD</span>
+                        <i class="bi bi-database text-warning fs-4"></i>
+                    </div>
+                    <h4 class="text-white fw-bold fs-5 mb-3">Persistencia & Red</h4>
+                    <ul class="list-unstyled d-flex flex-wrap gap-2 mb-0">
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">PostgreSQL</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Supabase Cloud</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">SQL Server</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Modelado Relacional</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- WORKFLOW & TOOLING -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border border-secondary-subtle p-4 glass-card feature-box">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="font-monospace text-warning small fw-bold">04 // FLUJO & WORKFLOW</span>
+                        <i class="bi bi-git text-warning fs-4"></i>
+                    </div>
+                    <h4 class="text-white fw-bold fs-5 mb-3">Control & Entorno</h4>
+                    <ul class="list-unstyled d-flex flex-wrap gap-2 mb-0">
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Git & GitHub</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">VS Code & Visual Studio</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Terminal Powershell</span></li>
+                        <li><span class="badge bg-dark border border-secondary text-light font-monospace py-2 px-3">Clean Code</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION 04: THE ROAD MILESTONES (HITOS DEL CAMINO) -->
+    <section class="creator-milestones py-5 border-top border-secondary-subtle" aria-labelledby="creator-milestones-title">
+        <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
+            <div>
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-2">
+                    <i class="bi bi-signpost-2 me-1"></i> 04 — HITOS CLAVE
+                </span>
+                <h2 id="creator-milestones-title" class="display-6 fw-bold text-white mb-0">Momentos que definieron mi trayectoria.</h2>
+            </div>
+            <p class="text-light-silver mb-0 max-w-md fs-6">Capítulos esenciales que transformaron el interés en vocación y experiencia práctica.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-md-4">
+                <div class="p-4 rounded-4 glass-panel border border-secondary-subtle h-100 position-relative">
+                    <span class="badge bg-secondary-subtle text-warning font-monospace mb-3">HITO // 01</span>
+                    <h4 class="text-white fw-bold fs-5 mb-2">El primer contacto y curiosidad</h4>
+                    <p class="text-light-silver small mb-0 lh-base">
+                        Desarmar equipos, entender cómo se comunican los componentes y escribir las primeras líneas de código despertaron una fascinación irreversible por la ingeniería de software.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 rounded-4 glass-panel border border-secondary-subtle h-100 position-relative">
+                    <span class="badge bg-secondary-subtle text-warning font-monospace mb-3">HITO // 02</span>
+                    <h4 class="text-white fw-bold fs-5 mb-2">Construcción con propósito</h4>
+                    <p class="text-light-silver small mb-0 lh-base">
+                        Evolución hacia arquitecturas robustas (.NET, bases de datos relacionales, patrones de diseño) entendiendo que cada línea debe solucionar una necesidad real con elegancia técnica.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 rounded-4 glass-panel border border-warning-subtle h-100 position-relative" style="background: radial-gradient(circle at 100% 0%, rgba(242, 177, 52, 0.12), transparent);">
+                    <span class="badge bg-warning text-dark font-monospace fw-bold mb-3">HITO // 03 · ACTUALIDAD</span>
+                    <h4 class="text-white fw-bold fs-5 mb-2">EL CAMINO como bitácora viva</h4>
+                    <p class="text-light-silver small mb-0 lh-base">
+                        Nacimiento de esta plataforma integral: no solo como proyecto tecnológico, sino como testimonio viviente de cómo la constancia y las buenas decisiones forjan un perfil sólido.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INNOVATIVE SECTION: VISIÓN DE FUTURO Y PRÓXIMAS METAS (REPLACES REDUNDANT CONTACT SECTION) -->
+    <section class="future-vision-banner my-5 p-4 p-lg-5 rounded-4 position-relative overflow-hidden shadow-2xl" aria-labelledby="future-vision-title">
+        <div class="row align-items-center g-4 position-relative z-1">
+            <div class="col-12 col-lg-7">
+                <span class="badge bg-warning text-dark font-monospace fw-bold px-3 py-2 mb-3">
+                    <i class="bi bi-rocket-takeoff-fill me-1"></i> HOJA DE RUTA // EL SIGUIENTE TRAMO
+                </span>
+                <h2 id="future-vision-title" class="display-6 fw-bolder text-white mb-3">
+                    Hacia dónde avanza <span class="text-gradient-gold">el proyecto.</span>
+                </h2>
+                <p class="text-light-silver fs-5 mb-4">
+                    EL CAMINO no es un destino estático: es un ecosistema personal que continúa expandiéndose con nuevas capacidades técnicas, visuales e interactivas.
+                </p>
+
+                <!-- ROADMAP OBJECTIVE CARDS -->
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <div class="p-3 rounded-3 glass-panel border border-secondary-subtle h-100">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-warning text-dark font-monospace fw-bold small">EN PLANIFICACIÓN</span>
+                            </div>
+                            <h5 class="text-white fw-bold fs-6 mb-1">Módulo Hardware Telemetry</h5>
+                            <p class="text-light-silver small mb-0">Integración con benchmarks en vivo y métricas de rendimiento para cada componente del setup.</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div class="p-3 rounded-3 glass-panel border border-secondary-subtle h-100">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace fw-semibold small">PRÓXIMO</span>
+                            </div>
+                            <h5 class="text-white fw-bold fs-6 mb-1">Timeline Interactivo 3D</h5>
+                            <p class="text-light-silver small mb-0">Navegación espacial por etapas y años de adquisición con visualización de nodos conectivos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2 d-flex flex-wrap align-items-center gap-3">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-warning fw-bold px-4 py-2 rounded-3 text-dark btn-hover-lift">
+                        <i class="bi bi-compass me-1"></i> Explorar Módulos
+                    </a>
+                    <span class="font-monospace text-secondary small">
+                        <i class="bi bi-clock-history me-1"></i> ACTUALIZADO: @DateTime.Now.Year · KM-001
+                    </span>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: INTERACTIVE CODE LAB STATUS -->
+            <div class="col-12 col-lg-5">
+                <div class="telemetry-terminal card border border-warning-subtle rounded-4 p-4 shadow-2xl position-relative">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary-subtle">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="terminal-dot bg-danger"></span>
+                            <span class="terminal-dot bg-warning"></span>
+                            <span class="terminal-dot bg-success"></span>
+                            <span class="font-monospace text-warning small ms-2 fw-semibold">DEV LOG // FILOSOFÍA DE CÓDIGO</span>
+                        </div>
+                        <span class="badge bg-dark border border-warning-subtle text-warning font-monospace small px-2 py-1">
+                            <i class="bi bi-terminal-fill me-1"></i> v2.0
+                        </span>
+                    </div>
+
+                    <div class="terminal-code-block p-3 rounded-3 mb-3 font-monospace small">
+                        <span class="text-secondary">// Filosofía del autor</span><br />
+                        <span class="text-warning">class</span> <span class="text-white">Desarrollador</span> {<br />
+                        &nbsp;&nbsp;<span class="text-warning">readonly string</span> Meta = <span class="text-success">"Aprender, Construir, Trascender"</span>;<br />
+                        &nbsp;&nbsp;<span class="text-warning">public bool</span> EnRuta() => <span class="text-warning">true</span>;<br />
+                        }
+                    </div>
+
+                    <div class="p-3 rounded-3 glass-panel border border-secondary-subtle mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="font-monospace text-secondary small">PROGRESO DEL PROYECTO</span>
+                            <span class="text-warning font-monospace fw-bold small">ETAPA 1 // 100%</span>
+                        </div>
+                        <div class="progress bg-dark border border-secondary" style="height: 6px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between pt-1">
+                        <span class="font-monospace text-secondary small">
+                            <i class="status-indicator me-1"></i> ESTADO: ACTIVO
+                        </span>
+                        <a asp-controller="Home" asp-action="Index" class="text-warning text-decoration-none small fw-semibold">
+                            Ver bitácora completa <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
+
