@@ -10,12 +10,13 @@ public class HomeController : Controller
     [AllowAnonymous]
     public IActionResult Index()
     {
-        if (User.Identity != null && User.Identity.IsAuthenticated)
-        {
-            return RedirectToAction("Index", "Dashboard");
-        }
+        return View();
+    }
 
-        return RedirectToAction("Index", "Login");
+    [AllowAnonymous]
+    public IActionResult SobreElCreador()
+    {
+        return View();
     }
 
     [Authorize]
