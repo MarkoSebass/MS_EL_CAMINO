@@ -137,6 +137,9 @@
                     </article>
                 }
             </div>
+            <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden>
+                <ul class="catalog-pagination__list" id="catalog-pagination-list"></ul>
+            </nav>
             <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
                 <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
                 <h3>No encontramos coincidencias.</h3>
@@ -156,7 +159,11 @@
                 const items = Array.from(document.querySelectorAll("[data-catalog-item]"));
                 const resultsLabel = document.getElementById("catalog-results");
                 const noResults = document.getElementById("catalog-no-results");
+                const pagination = document.getElementById("catalog-pagination");
+                const paginationList = document.getElementById("catalog-pagination-list");
+                const pageSize = 9;
                 let activeFilter = "TODOS";
+                let currentPage = 1;
 
                 document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
                     image.addEventListener("error", () => {
@@ -168,25 +175,108 @@
                     });
                 });
 
-                const updateCatalog = () => {
-                    const query = searchInput.value.trim().toLocaleLowerCase("es");
-                    let visibleCount = 0;
+                const createPageButton = (label, page, options = {}) => {
+                    const item = document.createElement("li");
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "catalog-page-button";
+                    button.textContent = label;
+                    button.dataset.page = String(page);
+                    button.setAttribute("aria-label", options.ariaLabel || `Ir a la página ${page}`);
+                    if (options.current) {
+                        button.setAttribute("aria-current", "page");
+                    }
+                    if (options.disabled) {
+                        button.disabled = true;
+                    }
+                    item.append(button);
+                    return item;
+                };
 
-                    items.forEach((item) => {
-                        const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
-                        const matchesQuery = (item.dataset.search || "").toLocaleLowerCase("es").includes(query);
-                        const isVisible = matchesType && matchesQuery;
-                        item.hidden = !isVisible;
-                        visibleCount += isVisible ? 1 : 0;
+                const renderPagination = (pageCount) => {
+                    paginationList.replaceChildren();
+                    pagination.hidden = pageCount <= 1;
+                    if (pagination.hidden) {
+                        return;
+                    }
+
+                    paginationList.append(createPageButton("‹", currentPage - 1, {
+                        ariaLabel: "Página anterior",
+                        disabled: currentPage === 1
+                    }));
+
+                    const pages = new Set([1, pageCount]);
+                    for (let page = Math.max(1, currentPage - 1); page <= Math.min(pageCount, currentPage + 1); page += 1) {
+                        pages.add(page);
+                    }
+
+                    let previousPage = 0;
+                    [...pages].sort((first, second) => first - second).forEach((page) => {
+                        if (previousPage && page - previousPage > 1) {
+                            const ellipsis = document.createElement("li");
+                            ellipsis.className = "catalog-pagination__ellipsis";
+                            ellipsis.textContent = "…";
+                            paginationList.append(ellipsis);
+                        }
+
+                        paginationList.append(createPageButton(String(page), page, {
+                            current: page === currentPage
+                        }));
+                        previousPage = page;
                     });
 
-                    resultsLabel.textContent = `${visibleCount} ${visibleCount === 1 ? "producto" : "productos"}`;
-                    noResults.hidden = visibleCount > 0;
+                    paginationList.append(createPageButton("›", currentPage + 1, {
+                        ariaLabel: "Página siguiente",
+                        disabled: currentPage === pageCount
+                    }));
                 };
+
+                const updateCatalog = (focusPage = false) => {
+                    const query = searchInput.value.trim().toLocaleLowerCase("es");
+                    const matchingItems = items.filter((item) => {
+                        const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
+                        const matchesQuery = (item.dataset.search || "").toLocaleLowerCase("es").includes(query);
+                        return matchesType && matchesQuery;
+                    });
+
+                    const pageCount = Math.ceil(matchingItems.length / pageSize);
+                    currentPage = Math.min(currentPage, Math.max(pageCount, 1));
+                    const firstItemIndex = (currentPage - 1) * pageSize;
+                    const visibleItems = new Set(matchingItems.slice(firstItemIndex, firstItemIndex + pageSize));
+
+                    items.forEach((item) => {
+                        item.hidden = !visibleItems.has(item);
+                    });
+
+                    noResults.hidden = matchingItems.length > 0;
+                    resultsLabel.textContent = matchingItems.length === 0
+                        ? "0 productos"
+                        : `Mostrando ${firstItemIndex + 1}–${Math.min(firstItemIndex + pageSize, matchingItems.length)} de ${matchingItems.length} productos`;
+                    renderPagination(pageCount);
+
+                    if (focusPage) {
+                        paginationList.querySelector(`[data-page="${currentPage}"]`)?.focus();
+                        document.getElementById("collection-title").scrollIntoView({
+                            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                            block: "start"
+                        });
+                    }
+                };
+
+                paginationList.addEventListener("click", (event) => {
+                    const button = event.target.closest("button[data-page]");
+                    if (!button || button.disabled) {
+                        return;
+                    }
+
+                    currentPage = Number(button.dataset.page);
+                    updateCatalog(true);
+                });
 
                 filterButtons.forEach((button) => {
                     button.addEventListener("click", () => {
                         activeFilter = button.dataset.catalogFilter;
+                        currentPage = 1;
                         filterButtons.forEach((filter) => {
                             const isActive = filter === button;
                             filter.classList.toggle("is-active", isActive);
@@ -196,7 +286,12 @@
                     });
                 });
 
-                searchInput.addEventListener("input", updateCatalog);
+                searchInput.addEventListener("input", () => {
+                    currentPage = 1;
+                    updateCatalog();
+                });
+
+                updateCatalog();
             })();
         </script>
     }
