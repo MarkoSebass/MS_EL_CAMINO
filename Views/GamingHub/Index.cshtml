@@ -2,10 +2,9 @@
 @model MS_EL_CAMINO.ViewModels.GamingHubViewModel
 @{
     ViewData["Title"] = "Gaming Hub";
-    var timelineGames = Model.Timeline.SelectMany(year => year.Juegos).ToList();
 }
 
-<div class="gaming-hub">
+<div class="gaming-hub container-xxl">
     <header class="gaming-hero">
         <div class="gaming-hero__texture" aria-hidden="true"></div>
         <div class="gaming-hero__copy">
@@ -13,7 +12,7 @@
             <h1>Mi historia<br />en <span>modo juego.</span></h1>
             <p class="gaming-hero__lead">Mi recorrido a través de los videojuegos.</p>
             <p class="gaming-hero__description">Un espacio donde se registran experiencias, aventuras y recuerdos construidos a través de los videojuegos.</p>
-            <a class="gaming-hero__action" href="#gaming-library">Explorar mi recorrido <i class="bi bi-arrow-down-right" aria-hidden="true"></i></a>
+            <a class="gaming-hero__action" href="#gaming-timeline">Explorar mi recorrido <i class="bi bi-arrow-down-right" aria-hidden="true"></i></a>
         </div>
         <div class="gaming-hero__emblem" aria-hidden="true">
             <span class="gaming-hero__emblem-ring"></span>
@@ -26,43 +25,42 @@
         </div>
     </header>
 
-    <nav class="gaming-anchor-nav" aria-label="Secciones del Gaming Hub">
-        <a href="#gaming-now"><i class="bi bi-play-circle" aria-hidden="true"></i> Ahora</a>
-        <a href="#gaming-timeline"><i class="bi bi-signpost-split" aria-hidden="true"></i> Mi timeline</a>
-        <a href="#gaming-library"><i class="bi bi-collection-play" aria-hidden="true"></i> Biblioteca</a>
-        <a href="#gaming-hall"><i class="bi bi-award" aria-hidden="true"></i> Hall of Fame</a>
-        <a href="#gaming-future"><i class="bi bi-stars" aria-hidden="true"></i> Próximas aventuras</a>
+    <nav class="gaming-anchor-nav nav nav-pills flex-nowrap" aria-label="Secciones del Gaming Hub">
+        <a class="nav-link" href="#gaming-now"><i class="bi bi-play-circle" aria-hidden="true"></i> Ahora</a>
+        <a class="nav-link" href="#gaming-timeline"><i class="bi bi-signpost-split" aria-hidden="true"></i> Mi timeline</a>
+        <a class="nav-link" href="#gaming-hall"><i class="bi bi-award" aria-hidden="true"></i> Hall of Fame</a>
+        <a class="nav-link" href="#gaming-future"><i class="bi bi-stars" aria-hidden="true"></i> Próximas aventuras</a>
     </nav>
 
-    <section class="gaming-summary" aria-label="Resumen gamer">
-        <article class="gaming-summary-card gaming-summary-card--total">
+    <section class="gaming-summary row row-cols-2 row-cols-lg-4 g-3" aria-label="Resumen gamer">
+        <div class="col"><article class="gaming-summary-card card gaming-summary-card--total">
             <span class="gaming-summary-card__icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
             <span class="gaming-summary-card__label">JUEGOS TOTALES</span>
             <strong>@Model.TotalJuegos</strong>
             <span class="gaming-summary-card__detail">parte de mi recorrido</span>
-        </article>
-        <article class="gaming-summary-card gaming-summary-card--completed">
+        </article></div>
+        <div class="col"><article class="gaming-summary-card card gaming-summary-card--completed">
             <span class="gaming-summary-card__icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span>
             <span class="gaming-summary-card__label">COMPLETADOS</span>
             <strong>@Model.TotalCompletados</strong>
             <span class="gaming-summary-card__detail">aventuras concluidas</span>
-        </article>
-        <article class="gaming-summary-card gaming-summary-card--playing">
+        </article></div>
+        <div class="col"><article class="gaming-summary-card card gaming-summary-card--playing">
             <span class="gaming-summary-card__icon"><i class="bi bi-play-circle" aria-hidden="true"></i></span>
             <span class="gaming-summary-card__label">JUGANDO</span>
             <strong>@Model.TotalJugando</strong>
             <span class="gaming-summary-card__detail">en curso ahora</span>
-        </article>
-        <article class="gaming-summary-card gaming-summary-card--pending">
+        </article></div>
+        <div class="col"><article class="gaming-summary-card card gaming-summary-card--pending">
             <span class="gaming-summary-card__icon"><i class="bi bi-bookmark-star" aria-hidden="true"></i></span>
             <span class="gaming-summary-card__label">PENDIENTES</span>
             <strong>@Model.TotalPendientes</strong>
             <span class="gaming-summary-card__detail">historias por comenzar</span>
-        </article>
+        </article></div>
     </section>
 
-    <section class="gaming-feature-row" id="gaming-now">
-        <article class="gaming-panel gaming-now">
+    <section class="gaming-feature-row row g-3" id="gaming-now">
+        <div class="col-12 col-xl-7"><article class="gaming-panel card gaming-now">
             <div class="gaming-section-heading">
                 <div>
                     <span class="gaming-eyebrow">EN ESTE MOMENTO</span>
@@ -102,12 +100,12 @@
                     <span><i class="bi bi-moon-stars" aria-hidden="true"></i></span>
                     <h3>Tu próxima sesión aún no tiene protagonista.</h3>
                     <p>Cuando marques un juego como “Jugando”, aparecerá aquí para continuar tu historia.</p>
-                    <a href="#gaming-library">Ver mi biblioteca <i class="bi bi-arrow-down-right" aria-hidden="true"></i></a>
+                    <a href="#gaming-timeline">Explorar mi recorrido <i class="bi bi-arrow-down-right" aria-hidden="true"></i></a>
                 </div>
             }
-        </article>
+        </article></div>
 
-        <aside class="gaming-panel gaming-profile">
+        <div class="col-12 col-xl-5"><aside class="gaming-panel card gaming-profile">
             <div class="gaming-section-heading">
                 <div>
                     <span class="gaming-eyebrow">QUIÉN SOY CUANDO JUEGO</span>
@@ -124,7 +122,7 @@
                 <div><dt>Universo favorito</dt><dd>Por definir</dd></div>
             </dl>
             <p class="gaming-profile__note"><i class="bi bi-info-circle" aria-hidden="true"></i> Este perfil se podrá personalizar cuando registremos tus preferencias.</p>
-        </aside>
+        </aside></div>
     </section>
 
     <section class="gaming-section" id="gaming-timeline">
@@ -157,11 +155,10 @@
                         <div class="gaming-timeline__games">
                             @foreach (var juego in etapa.Juegos)
                             {
-                                <a href="#gaming-library" class="gaming-timeline-game">
+                                <div class="gaming-timeline-game">
                                     <span class="gaming-timeline-game__icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
                                     <span><strong>@juego.Titulo</strong><small>@juego.Plataforma · @juego.Estado</small></span>
-                                    <i class="bi bi-arrow-up-right gaming-timeline-game__arrow" aria-hidden="true"></i>
-                                </a>
+                                </div>
                             }
                         </div>
                     </article>
@@ -171,70 +168,8 @@
         <p class="gaming-section-footnote"><i class="bi bi-info-circle" aria-hidden="true"></i> La fecha disponible corresponde al registro o compra, no necesariamente al año en que jugaste.</p>
     </section>
 
-    <section class="gaming-section" id="gaming-library">
-        <div class="gaming-section-heading gaming-section-heading--large">
-            <div>
-                <span class="gaming-eyebrow">MUNDOS QUE YA SON PARTE DE MÍ</span>
-                <h2>Mi biblioteca</h2>
-                <p>No son solo títulos: son aventuras que tienen un lugar en mi historia.</p>
-            </div>
-            <label class="gaming-library-search">
-                <span class="visually-hidden">Buscar un juego por título</span>
-                <i class="bi bi-search" aria-hidden="true"></i>
-                <input id="gaming-search" type="search" placeholder="Buscar en mi recorrido..." autocomplete="off" />
-            </label>
-        </div>
-        <div class="gaming-library-filters" role="group" aria-label="Filtrar juegos por estado">
-            <button type="button" class="gaming-filter is-active" data-status-filter="TODOS" aria-pressed="true">Todos <span>@Model.TotalJuegos</span></button>
-            <button type="button" class="gaming-filter" data-status-filter="JUGANDO" aria-pressed="false">Jugando <span>@Model.TotalJugando</span></button>
-            <button type="button" class="gaming-filter" data-status-filter="COMPLETADO" aria-pressed="false">Completados <span>@Model.TotalCompletados</span></button>
-            <button type="button" class="gaming-filter" data-status-filter="PENDIENTE" aria-pressed="false">Pendientes <span>@Model.TotalPendientes</span></button>
-            <button type="button" class="gaming-filter" data-status-filter="ABANDONADO" aria-pressed="false">Abandonados <span>@Model.Juegos.Count(juego => juego.EstadoKey == "ABANDONADO")</span></button>
-        </div>
-        @if (Model.Juegos.Count == 0)
-        {
-            <div class="gaming-library-empty">
-                <span><i class="bi bi-journal-richtext" aria-hidden="true"></i></span>
-                <h3>Tu historia gamer empieza con una aventura.</h3>
-                <p>Aún no hay juegos asociados a tu cuenta. Cuando registres alguno, aparecerá aquí con su plataforma, género y estado.</p>
-            </div>
-        }
-        else
-        {
-            <div class="gaming-library-grid" id="gaming-library-grid">
-                @foreach (var juego in Model.Juegos)
-                {
-                    <article class="gaming-game-card" data-game-card data-title="@juego.Titulo" data-state="@juego.EstadoKey"
-                             data-platform="@juego.Plataforma" data-genre="@(juego.Genero ?? string.Empty)"
-                             data-registered="@(juego.FechaRegistro?.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-PE")) ?? string.Empty)">
-                        <div class="gaming-game-card__cover">
-                            @if (!string.IsNullOrWhiteSpace(juego.ImagenUrl))
-                            {
-                                <img src="@juego.ImagenUrl" alt="Portada de @juego.Titulo" loading="lazy" />
-                            }
-                            else
-                            {
-                                <span class="gaming-game-card__cover-placeholder"><i class="bi bi-controller" aria-hidden="true"></i></span>
-                            }
-                            <span class="gaming-status gaming-status--@juego.EstadoKey.ToLowerInvariant()"><i aria-hidden="true"></i>@juego.Estado</span>
-                        </div>
-                        <div class="gaming-game-card__body">
-                            <span class="gaming-game-card__platform">@juego.Plataforma</span>
-                            <h3>@juego.Titulo</h3>
-                            <p>@(string.IsNullOrWhiteSpace(juego.Genero) ? "Género por definir" : juego.Genero)</p>
-                        </div>
-                    </article>
-                }
-            </div>
-            <div class="gaming-library-empty" id="gaming-no-results" hidden>
-                <i class="bi bi-search" aria-hidden="true"></i>
-                <p>No encontramos juegos con ese nombre y estado.</p>
-            </div>
-        }
-    </section>
-
-    <section class="gaming-feature-row gaming-feature-row--lower" id="gaming-hall">
-        <article class="gaming-panel gaming-hall">
+    <section class="gaming-feature-row gaming-feature-row--lower row g-3" id="gaming-hall">
+        <div class="col-12 col-lg-6"><article class="gaming-panel card gaming-hall">
             <div class="gaming-section-heading">
                 <div>
                     <span class="gaming-eyebrow">MIS FAVORITOS, MIS REGLAS</span>
@@ -255,9 +190,9 @@
                 }
             </div>
             <p class="gaming-panel-note">Una selección personal: estos lugares no se calculan, los eliges tú.</p>
-        </article>
+        </article></div>
 
-        <article class="gaming-panel gaming-milestones">
+        <div class="col-12 col-lg-6"><article class="gaming-panel card gaming-milestones">
             <div class="gaming-section-heading">
                 <div>
                     <span class="gaming-eyebrow">MOMENTOS QUE RECUERDO</span>
@@ -273,7 +208,7 @@
                 <div><i class="bi bi-trophy" aria-hidden="true"></i><span><strong>Primer platino conseguido</strong><small>Un recuerdo por registrar</small></span></div>
             </div>
             <p class="gaming-panel-note">Hitos personales, no trofeos conectados a una plataforma.</p>
-        </article>
+        </article></div>
     </section>
 
     <section class="gaming-section gaming-universes" id="gaming-universes">
@@ -284,12 +219,12 @@
                 <p>Mundos que dejaron una huella más allá de los créditos.</p>
             </div>
         </div>
-        <div class="gaming-universe-grid">
-            <article class="gaming-universe-card gaming-universe-card--cyberpunk"><span>01 / NEÓN</span><h3>Cyberpunk</h3><i class="bi bi-buildings" aria-hidden="true"></i></article>
-            <article class="gaming-universe-card gaming-universe-card--witcher"><span>02 / FANTASÍA</span><h3>The Witcher</h3><i class="bi bi-moon-stars" aria-hidden="true"></i></article>
-            <article class="gaming-universe-card gaming-universe-card--god"><span>03 / MITO</span><h3>God of War</h3><i class="bi bi-lightning-charge" aria-hidden="true"></i></article>
-            <article class="gaming-universe-card gaming-universe-card--reddead"><span>04 / FRONTERA</span><h3>Red Dead<br />Redemption</h3><i class="bi bi-sunset" aria-hidden="true"></i></article>
-            <article class="gaming-universe-card gaming-universe-card--elder"><span>05 / AVENTURA</span><h3>The Elder<br />Scrolls</h3><i class="bi bi-mountains" aria-hidden="true"></i></article>
+        <div class="gaming-universe-grid row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
+            <div class="col"><article class="gaming-universe-card gaming-universe-card--cyberpunk"><span>01 / NEÓN</span><h3>Cyberpunk</h3><i class="bi bi-buildings" aria-hidden="true"></i></article></div>
+            <div class="col"><article class="gaming-universe-card gaming-universe-card--witcher"><span>02 / FANTASÍA</span><h3>The Witcher</h3><i class="bi bi-moon-stars" aria-hidden="true"></i></article></div>
+            <div class="col"><article class="gaming-universe-card gaming-universe-card--god"><span>03 / MITO</span><h3>God of War</h3><i class="bi bi-lightning-charge" aria-hidden="true"></i></article></div>
+            <div class="col"><article class="gaming-universe-card gaming-universe-card--reddead"><span>04 / FRONTERA</span><h3>Red Dead<br />Redemption</h3><i class="bi bi-sunset" aria-hidden="true"></i></article></div>
+            <div class="col"><article class="gaming-universe-card gaming-universe-card--elder"><span>05 / AVENTURA</span><h3>The Elder<br />Scrolls</h3><i class="bi bi-mountains" aria-hidden="true"></i></article></div>
         </div>
     </section>
 
@@ -302,92 +237,12 @@
             </div>
             <span class="gaming-upcoming__stamp"><i class="bi bi-stars" aria-hidden="true"></i> EN EL HORIZONTE</span>
         </div>
-        <div class="gaming-upcoming__grid">
-            <article><span>01 / MUNDO ABIERTO</span><i class="bi bi-eye" aria-hidden="true"></i><h3>Grand Theft Auto VI</h3><p>Una nueva ciudad por descubrir.</p></article>
-            <article><span>02 / FANTASÍA</span><i class="bi bi-moon-stars" aria-hidden="true"></i><h3>The Witcher 4</h3><p>Un nuevo viaje por el Continente.</p></article>
-            <article><span>03 / AVENTURA</span><i class="bi bi-signpost-2" aria-hidden="true"></i><h3>Death Stranding 2</h3><p>Una conexión que continúa.</p></article>
-            <article><span>04 / EXPLORACIÓN</span><i class="bi bi-wind" aria-hidden="true"></i><h3>Ghost of Yōtei</h3><p>Una historia en tierras lejanas.</p></article>
+        <div class="gaming-upcoming__grid row row-cols-2 row-cols-lg-4 g-3">
+            <div class="col"><article><span>01 / MUNDO ABIERTO</span><i class="bi bi-eye" aria-hidden="true"></i><h3>Grand Theft Auto VI</h3><p>Una nueva ciudad por descubrir.</p></article></div>
+            <div class="col"><article><span>02 / FANTASÍA</span><i class="bi bi-moon-stars" aria-hidden="true"></i><h3>The Witcher 4</h3><p>Un nuevo viaje por el Continente.</p></article></div>
+            <div class="col"><article><span>03 / AVENTURA</span><i class="bi bi-signpost-2" aria-hidden="true"></i><h3>Death Stranding 2</h3><p>Una conexión que continúa.</p></article></div>
+            <div class="col"><article><span>04 / EXPLORACIÓN</span><i class="bi bi-wind" aria-hidden="true"></i><h3>Ghost of Yōtei</h3><p>Una historia en tierras lejanas.</p></article></div>
         </div>
     </section>
 
-    @if (timelineGames.Count > 0)
-    {
-        <div class="modal fade gaming-game-modal" id="gaming-game-modal" tabindex="-1" aria-labelledby="gaming-game-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div><span class="gaming-eyebrow">UNA HISTORIA DE MI RECORRIDO</span><h2 class="modal-title" id="gaming-game-modal-title"></h2></div>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <span class="gaming-game-modal__status" id="gaming-game-modal-status"></span>
-                        <dl><div><dt>Plataforma</dt><dd id="gaming-game-modal-platform"></dd></div><div><dt>Género</dt><dd id="gaming-game-modal-genre"></dd></div><div><dt>Registrado</dt><dd id="gaming-game-modal-date"></dd></div></dl>
-                        <p>Los recuerdos y momentos de esta aventura podrán añadirse aquí en una próxima etapa.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
 </div>
-
-@section Scripts {
-    @if (Model.Juegos.Count > 0)
-    {
-        <script>
-            (() => {
-                const cards = Array.from(document.querySelectorAll("[data-game-card]"));
-                const filters = Array.from(document.querySelectorAll("[data-status-filter]"));
-                const search = document.getElementById("gaming-search");
-                const noResults = document.getElementById("gaming-no-results");
-                const modalElement = document.getElementById("gaming-game-modal");
-                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-                let activeStatus = "TODOS";
-
-                const updateLibrary = () => {
-                    const query = search.value.trim().toLocaleLowerCase("es");
-                    let visibleCount = 0;
-                    cards.forEach((card) => {
-                        const matchesStatus = activeStatus === "TODOS" || card.dataset.state === activeStatus;
-                        const matchesTitle = card.dataset.title.toLocaleLowerCase("es").includes(query);
-                        card.hidden = !(matchesStatus && matchesTitle);
-                        visibleCount += Number(!card.hidden);
-                    });
-                    noResults.hidden = visibleCount > 0;
-                };
-
-                filters.forEach((filter) => filter.addEventListener("click", () => {
-                    activeStatus = filter.dataset.statusFilter;
-                    filters.forEach((candidate) => {
-                        const selected = candidate === filter;
-                        candidate.classList.toggle("is-active", selected);
-                        candidate.setAttribute("aria-pressed", String(selected));
-                    });
-                    updateLibrary();
-                }));
-                search.addEventListener("input", updateLibrary);
-
-                cards.forEach((card) => {
-                    const openDetails = () => {
-                        modalElement.querySelector("#gaming-game-modal-title").textContent = card.dataset.title;
-                        modalElement.querySelector("#gaming-game-modal-status").textContent = card.querySelector(".gaming-status").textContent.trim();
-                        modalElement.querySelector("#gaming-game-modal-platform").textContent = card.dataset.platform;
-                        modalElement.querySelector("#gaming-game-modal-genre").textContent = card.dataset.genre || "Por definir";
-                        modalElement.querySelector("#gaming-game-modal-date").textContent = card.dataset.registered || "Sin fecha";
-                        modal.show();
-                    };
-                    card.tabIndex = 0;
-                    card.setAttribute("role", "button");
-                    card.setAttribute("aria-haspopup", "dialog");
-                    card.setAttribute("aria-label", `Ver detalles de ${card.dataset.title}`);
-                    card.addEventListener("click", openDetails);
-                    card.addEventListener("keydown", (event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            openDetails();
-                        }
-                    });
-                });
-            })();
-        </script>
-    }
-}
