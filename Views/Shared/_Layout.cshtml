@@ -5,6 +5,7 @@
     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
     var isHomePage = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
         && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
+    var isGamingHubPage = string.Equals(currentController, "GamingHub", StringComparison.OrdinalIgnoreCase);
     var isLoginPage = string.Equals(currentController, "Login", StringComparison.OrdinalIgnoreCase)
         && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
     var loginUrl = Url.Action("Index", "Login") ?? "/Login";
@@ -27,6 +28,10 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (isGamingHubPage)
+    {
+        <link rel="stylesheet" href="~/css/gaming-hub.css" asp-append-version="true" />
+    }
 </head>
 <body class="d-flex flex-column min-vh-100 @(isLoginPage ? "login-shell" : "")">
     <a class="skip-link" href="#main-content">Saltar al contenido</a>
@@ -86,12 +91,13 @@
                         <li>
                             @if (isAuthenticated)
                             {
-                                <a class="module-link" href="#biblioteca">Biblioteca de Juegos</a>
+                                <a class="module-link @(isGamingHubPage ? "is-current" : "")" asp-controller="GamingHub" asp-action="Index"
+                                   aria-current="@(isGamingHubPage ? "page" : null)">Gaming Hub</a>
                             }
                             else
                             {
-                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
-                                    Biblioteca de Juegos<span class="lock-mark" aria-label="Bloqueado">↗</span>
+                                <button class="module-link module-link--locked" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Gaming Hub">
+                                    Gaming Hub<span class="lock-mark" aria-label="Bloqueado">↗</span>
                                 </button>
                             }
                         </li>
@@ -229,8 +235,8 @@
                     <a href="@Url.Action("Index", "Home")#setup" class="footer-link">
                         <i class="bi bi-cpu me-1 text-warning"></i> Mi Setup PC
                     </a>
-                    <a href="@Url.Action("Index", "Home")#biblioteca" class="footer-link">
-                        <i class="bi bi-controller me-1 text-warning"></i> Biblioteca de juegos
+                    <a asp-controller="GamingHub" asp-action="Index" class="footer-link">
+                        <i class="bi bi-controller me-1 text-warning"></i> Gaming Hub
                     </a>
                     <span class="footer-destinations-note text-success small mt-2 d-block">
                         <i class="bi bi-shield-check me-1"></i> Sesión iniciada
@@ -244,8 +250,8 @@
                     <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Mi Setup PC">
                         <i class="bi bi-lock-fill me-1 text-warning"></i> Mi Setup PC
                     </button>
-                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos">
-                        <i class="bi bi-lock-fill me-1 text-warning"></i> Biblioteca de juegos
+                    <button class="footer-locked-link" type="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Gaming Hub">
+                        <i class="bi bi-lock-fill me-1 text-warning"></i> Gaming Hub
                     </button>
                     <span class="footer-destinations-note text-secondary small mt-2 d-block">
                         <i class="bi bi-shield-lock me-1"></i> Módulos protegidos con inicio de sesión.

@@ -330,18 +330,18 @@
                 <div class="module-card-wrapper h-100">
                     @if (isAuthenticated)
                     {
-                        <a href="#biblioteca" class="text-decoration-none h-100 d-block">
-                            <article class="module-card card h-100 border-0 p-4" id="biblioteca">
+                        <a asp-controller="GamingHub" asp-action="Index" class="text-decoration-none h-100 d-block">
+                            <article class="module-card card h-100 border-0 p-4">
                                 <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
                                     <span class="module-card__number font-monospace text-light-silver">03 / EXPERIENCIAS</span>
                                     <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
                                         <i class="bi bi-controller fs-4"></i>
                                     </span>
                                 </div>
-                                <h3 class="fs-4 fw-bold text-white mb-2">Biblioteca de Juegos</h3>
-                                <p class="text-light-silver small mb-4 flex-grow-1">Un registro de mundos recorridos, anécdotas y las historias que esperan su turno.</p>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Gaming Hub</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Mi historia gamer: mundos recorridos, aventuras actuales y las que esperan su turno.</p>
                                 <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-warning">
-                                    <span class="small fw-bold">Ver colección</span>
+                                    <span class="small fw-bold">Explorar Gaming Hub</span>
                                     <i class="bi bi-arrow-up-right-circle-fill fs-5"></i>
                                 </div>
                             </article>
@@ -349,16 +349,16 @@
                     }
                     else
                     {
-                        <div role="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Biblioteca de Juegos" class="h-100">
-                            <article class="module-card card h-100 border-0 p-4 module-locked" id="biblioteca">
+                        <div role="button" data-bs-toggle="modal" data-bs-target="#access-modal" data-module="Gaming Hub" class="h-100">
+                            <article class="module-card card h-100 border-0 p-4 module-locked">
                                 <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
                                     <span class="module-card__number font-monospace text-light-silver">03 / EXPERIENCIAS</span>
                                     <span class="module-icon-circle bg-dark-subtle text-warning p-2 rounded-3 border border-secondary">
                                         <i class="bi bi-controller fs-4"></i>
                                     </span>
                                 </div>
-                                <h3 class="fs-4 fw-bold text-white mb-2">Biblioteca de Juegos</h3>
-                                <p class="text-light-silver small mb-4 flex-grow-1">Un registro de mundos recorridos, anécdotas y las historias que esperan su turno.</p>
+                                <h3 class="fs-4 fw-bold text-white mb-2">Gaming Hub</h3>
+                                <p class="text-light-silver small mb-4 flex-grow-1">Mi historia gamer: mundos recorridos, aventuras actuales y las que esperan su turno.</p>
                                 <div class="module-card__action d-flex align-items-center justify-content-between pt-3 border-top border-secondary text-light">
                                     <span class="small fw-semibold"><i class="bi bi-lock-fill text-warning me-1"></i> Requiere acceso</span>
                                     <i class="bi bi-box-arrow-in-right fs-5 text-warning"></i>
