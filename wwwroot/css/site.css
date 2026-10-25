@@ -2245,6 +2245,179 @@ a:focus-visible {
     }
 }
 
+.hero {
+    isolation: isolate;
+}
+
+.hero::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+    background-size: 52px 52px;
+    content: "";
+    mask-image: linear-gradient(to bottom, black, transparent 92%);
+    pointer-events: none;
+}
+
+.hero-kicker {
+    gap: 12px;
+    color: var(--ray);
+}
+
+.hero-kicker__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 9px;
+    border: 1px solid rgba(242, 177, 52, .22);
+    border-radius: 999px;
+    background: rgba(242, 177, 52, .07);
+    color: var(--lime);
+    font-size: 9px;
+    letter-spacing: .08em;
+}
+
+.hero-kicker__status i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #a9dc75;
+    box-shadow: 0 0 10px rgba(169, 220, 117, .7);
+}
+
+.hero h1 span {
+    background: linear-gradient(105deg, #ffe6a4 5%, var(--ray) 48%, #ff8d36 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-copy {
+    position: relative;
+}
+
+.hero-copy::before {
+    position: absolute;
+    z-index: -1;
+    top: 4%;
+    left: -8%;
+    width: 72%;
+    height: 65%;
+    border-radius: 50%;
+    background: rgba(242, 177, 52, .08);
+    content: "";
+    filter: blur(70px);
+    pointer-events: none;
+}
+
+.road-card {
+    border-color: rgba(242, 177, 52, .2);
+    background:
+        radial-gradient(ellipse at 80% 35%, rgba(242, 177, 52, .1), transparent 48%),
+        linear-gradient(145deg, rgba(255, 255, 255, .045), transparent 58%),
+        var(--asphalt);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, .42), 0 0 42px rgba(242, 177, 52, .055);
+    transition: border-color .3s ease, box-shadow .3s ease, transform .2s ease;
+}
+
+.road-card::before {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+    background-size: 32px 32px;
+    content: "";
+    mask-image: linear-gradient(to bottom, black, transparent 82%);
+    pointer-events: none;
+}
+
+.road-card::after {
+    position: absolute;
+    top: 0;
+    right: 12%;
+    left: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(242, 177, 52, .8), transparent);
+    content: "";
+    pointer-events: none;
+}
+
+.road-card--interactive {
+    transform: perspective(1200px) rotateX(var(--road-tilt-y, 0deg)) rotateY(var(--road-tilt-x, 0deg));
+    transform-style: preserve-3d;
+}
+
+.road-card--interactive:hover {
+    border-color: rgba(242, 177, 52, .42);
+    box-shadow: 0 32px 78px rgba(0, 0, 0, .5), 0 0 48px rgba(242, 177, 52, .1);
+}
+
+.road-card__head,
+.road-card__caption {
+    z-index: 1;
+}
+
+.road-card__caption {
+    border-color: rgba(242, 177, 52, .14);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
+}
+
+.stat-pill {
+    border-color: rgba(255, 255, 255, .1);
+    background: linear-gradient(145deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015));
+    backdrop-filter: blur(10px);
+}
+
+.manifesto-wrapper {
+    position: relative;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .045);
+}
+
+.value-card.card,
+.module-card {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .18);
+}
+
+.value-card.card:hover,
+.module-card:hover {
+    box-shadow: 0 20px 42px rgba(0, 0, 0, .38), 0 0 26px rgba(242, 177, 52, .12);
+}
+
+.home-page [data-reveal] {
+    opacity: 0;
+    translate: 0 18px;
+    transition: opacity .65s ease var(--reveal-delay, 0ms), translate .65s cubic-bezier(.2, .7, .2, 1) var(--reveal-delay, 0ms);
+}
+
+.home-page [data-reveal].is-revealed {
+    opacity: 1;
+    translate: 0 0;
+}
+
+@media (max-width: 640px) {
+    .hero::after {
+        background-size: 38px 38px;
+    }
+
+    .road-card--interactive {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-page [data-reveal] {
+        opacity: 1;
+        translate: none;
+    }
+
+    .road-card--interactive {
+        transform: none;
+    }
+}
+
 .footer-link {
     display: inline-flex;
     align-items: center;
