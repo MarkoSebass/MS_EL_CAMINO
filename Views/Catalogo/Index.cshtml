@@ -19,36 +19,58 @@
         </div>
     </header>
 
-    <section class="catalog-overview" aria-label="Resumen de la colección">
-        <article class="catalog-stat catalog-stat--featured">
-            <span class="catalog-stat__label">PIEZAS EN TU RECORRIDO</span>
-            <strong>@Model.Productos.Count</strong>
-            <span class="catalog-stat__detail">registros personales</span>
-        </article>
-        <article class="catalog-stat">
-            <span class="catalog-stat__icon"><i class="bi bi-laptop" aria-hidden="true"></i></span>
-            <span class="catalog-stat__label">DISPOSITIVOS</span>
-            <strong>@Model.TotalDispositivos</strong>
-            <span class="catalog-stat__detail">equipos registrados</span>
-        </article>
-        <article class="catalog-stat">
-            <span class="catalog-stat__icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
-            <span class="catalog-stat__label">COMPONENTES</span>
-            <strong>@Model.TotalComponentes</strong>
-            <span class="catalog-stat__detail">piezas del setup</span>
-        </article>
-        <article class="catalog-stat">
-            <span class="catalog-stat__icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
-            <span class="catalog-stat__label">VIDEOJUEGOS</span>
-            <strong>@Model.TotalJuegos</strong>
-            <span class="catalog-stat__detail">mundos recorridos</span>
-        </article>
-        <article class="catalog-stat catalog-stat--investment">
-            <span class="catalog-stat__label">INVERSIÓN REGISTRADA</span>
-            <strong>@Model.InversionTotal.ToString("C", currencyCulture)</strong>
-            <span class="catalog-stat__detail">suma de los importes disponibles</span>
-        </article>
-    </section>
+    <nav class="catalog-section-nav" aria-label="Secciones del catálogo" role="tablist">
+        <button class="catalog-section-nav__link" id="catalog-tab-current" type="button"
+                role="tab" aria-selected="true" aria-controls="my-collection" data-catalog-section="my-collection">
+            <span class="catalog-section-nav__icon"><i class="bi bi-collection" aria-hidden="true"></i></span>
+            <span class="catalog-section-nav__copy">
+                <strong>Mi colección</strong>
+                <span>Lo que ya tienes</span>
+            </span>
+            <span class="catalog-section-nav__count" id="catalog-tab-count">@Model.Productos.Count</span>
+        </button>
+        <button class="catalog-section-nav__link" id="catalog-tab-future" type="button"
+                role="tab" aria-selected="false" aria-controls="future-collections" data-catalog-section="future-collections">
+            <span class="catalog-section-nav__icon catalog-section-nav__icon--future"><i class="bi bi-stars" aria-hidden="true"></i></span>
+            <span class="catalog-section-nav__copy">
+                <strong>Futuras colecciones</strong>
+                <span>Lo que viene en el camino</span>
+            </span>
+            <span class="catalog-section-nav__status">EN PREPARACIÓN</span>
+        </button>
+    </nav>
+
+    <div id="my-collection" role="tabpanel" aria-labelledby="catalog-tab-current">
+        <section class="catalog-overview" aria-label="Resumen de la colección">
+            <article class="catalog-stat catalog-stat--featured">
+                <span class="catalog-stat__label">PIEZAS EN TU RECORRIDO</span>
+                <strong id="catalog-owned-total">@Model.Productos.Count</strong>
+                <span class="catalog-stat__detail">registros personales</span>
+            </article>
+            <article class="catalog-stat">
+                <span class="catalog-stat__icon"><i class="bi bi-laptop" aria-hidden="true"></i></span>
+                <span class="catalog-stat__label">DISPOSITIVOS</span>
+                <strong id="catalog-owned-devices">@Model.TotalDispositivos</strong>
+                <span class="catalog-stat__detail">equipos registrados</span>
+            </article>
+            <article class="catalog-stat">
+                <span class="catalog-stat__icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                <span class="catalog-stat__label">COMPONENTES</span>
+                <strong>@Model.TotalComponentes</strong>
+                <span class="catalog-stat__detail">piezas del setup</span>
+            </article>
+            <article class="catalog-stat">
+                <span class="catalog-stat__icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+                <span class="catalog-stat__label">VIDEOJUEGOS</span>
+                <strong>@Model.TotalJuegos</strong>
+                <span class="catalog-stat__detail">mundos recorridos</span>
+            </article>
+            <article class="catalog-stat catalog-stat--investment">
+                <span class="catalog-stat__label">INVERSIÓN REGISTRADA</span>
+                <strong>@Model.InversionTotal.ToString("C", currencyCulture)</strong>
+                <span class="catalog-stat__detail">suma de los importes disponibles</span>
+            </article>
+        </section>
 
     <section class="catalog-collection" aria-labelledby="collection-title">
         <div class="catalog-collection__heading">
@@ -75,13 +97,13 @@
                                     data-type="TODOS" data-label="Todos los productos" aria-pressed="true">
                                 <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
                                 <span class="catalog-type-filter__option-label">Todos los productos</span>
-                                <span class="catalog-type-filter__count">@Model.Productos.Count</span>
+                                <span class="catalog-type-filter__count" id="catalog-filter-total">@Model.Productos.Count</span>
                             </button>
                             <button class="dropdown-item catalog-type-filter__option" type="button"
                                     data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
                                 <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
                                 <span class="catalog-type-filter__option-label">Dispositivos</span>
-                                <span class="catalog-type-filter__count">@Model.TotalDispositivos</span>
+                                <span class="catalog-type-filter__count" id="catalog-filter-devices">@Model.TotalDispositivos</span>
                             </button>
                             <button class="dropdown-item catalog-type-filter__option" type="button"
                                     data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
@@ -194,7 +216,7 @@
                 <p>Prueba con otro nombre, categoría o tipo de producto.</p>
             </div>
             <div class="modal fade catalog-detail-modal" id="catalog-detail-modal" tabindex="-1" aria-labelledby="catalog-detail-title" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <div>
@@ -206,6 +228,8 @@
                         <div class="modal-body">
                             <div class="catalog-detail-modal__layout">
                                 <div class="catalog-detail-modal__visual">
+                                    <span class="catalog-detail-modal__visual-label"><i class="bi bi-box-seam" aria-hidden="true"></i> PIEZA DE TU RECORRIDO</span>
+                                    <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
                                     <img id="catalog-detail-image" alt="" hidden />
                                     <div class="catalog-detail-modal__placeholder" id="catalog-detail-placeholder" aria-hidden="true">
                                         <i class="bi bi-box-seam"></i>
@@ -213,6 +237,7 @@
                                 </div>
                                 <div class="catalog-detail-modal__information">
                                     <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
+                                    <span class="catalog-detail-modal__section-label">DETALLES DEL PRODUCTO</span>
                                     <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
                                 </div>
                             </div>
@@ -227,9 +252,265 @@
             </div>
         }
     </section>
+    </div>
+
+    <section class="catalog-future" id="future-collections" role="tabpanel" aria-labelledby="catalog-tab-future" hidden>
+        <div class="catalog-collection__heading catalog-future__heading">
+            <div>
+                <span class="catalog-kicker"><i class="bi bi-stars" aria-hidden="true"></i> PRÓXIMOS OBJETIVOS</span>
+                <h2 id="future-collections-title">Futuras colecciones</h2>
+                <p>Un espacio para las piezas que quieres sumar más adelante.</p>
+            </div>
+            <span class="catalog-future__badge"><i class="bi bi-hourglass-split" aria-hidden="true"></i> EN PREPARACIÓN</span>
+        </div>
+        <div class="catalog-future__empty">
+            <div class="catalog-future__mark" aria-hidden="true">
+                <span>02</span>
+                <i class="bi bi-stars"></i>
+            </div>
+            <div class="catalog-future__copy">
+                <span class="catalog-future__eyebrow">EL SIGUIENTE CAPÍTULO</span>
+                <h3>Tus próximas piezas empiezan con una idea.</h3>
+                <p>Cuando quieras planear nuevas adquisiciones, este será su lugar. Por ahora, tu colección actual y tus futuras metas están separadas para que cada etapa tenga su propio espacio.</p>
+            </div>
+            <span class="catalog-future__spark catalog-future__spark--one" aria-hidden="true"></span>
+            <span class="catalog-future__spark catalog-future__spark--two" aria-hidden="true"></span>
+        </div>
+        <div class="catalog-future__products">
+            <div class="catalog-future__products-heading">
+                <div>
+                    <span class="catalog-future__eyebrow">EJEMPLO DE PLANIFICACIÓN</span>
+                    <h3>Una pieza en la mira</h3>
+                </div>
+                <span class="catalog-future__sample-label"><i class="bi bi-pencil-square" aria-hidden="true"></i> PRODUCTO DE PRUEBA</span>
+            </div>
+            <article class="catalog-card catalog-future-product"
+                     id="future-sample-product"
+                     data-type="DISPOSITIVO"
+                     data-name="Nintendo Switch 2"
+                     data-category="CONSOLA"
+                     data-brand="Nintendo"
+                     data-model="Switch 2"
+                     data-platform="Nintendo Switch 2"
+                     data-detail="Consola portátil"
+                     data-status="En la lista"
+                     data-future-product
+                     role="button"
+                     tabindex="0"
+                     aria-haspopup="dialog"
+                     aria-label="Ver detalles de Nintendo Switch 2">
+                <div class="catalog-card__visual catalog-future-product__visual" aria-hidden="true">
+                    <span class="catalog-future-product__visual-orbit"></span>
+                    <i class="bi bi-controller"></i>
+                    <span class="catalog-future-product__number">01</span>
+                </div>
+                <div class="catalog-card__body catalog-future-product__body">
+                    <div class="catalog-future-product__topline">
+                        <span class="catalog-card__category catalog-future-product__category">CONSOLA</span>
+                        <span class="catalog-future-product__status"><i aria-hidden="true"></i> EN LA LISTA</span>
+                    </div>
+                    <h3>Nintendo Switch 2</h3>
+                    <p class="catalog-card__detail">Consola portátil</p>
+                    <div class="catalog-future-product__footer">
+                        <span><i class="bi bi-bookmark-star" aria-hidden="true"></i> Próxima adquisición</span>
+                        <span class="catalog-future-product__sample">EJEMPLO</span>
+                    </div>
+                </div>
+            </article>
+            <div class="catalog-future__moved-notice" id="catalog-future-moved-notice" role="status" hidden>
+                <i class="bi bi-check-circle" aria-hidden="true"></i>
+                <span><strong>Nintendo Switch 2</strong> ahora está en Mi colección.</span>
+            </div>
+        </div>
+    </section>
 </div>
 
 @section Scripts {
+    <div class="modal fade catalog-detail-modal catalog-future-detail-modal" id="future-product-modal" tabindex="-1" aria-labelledby="future-product-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="catalog-detail-modal__kicker" id="future-product-kicker"><i class="bi bi-stars" aria-hidden="true"></i> PRÓXIMA ADQUISICIÓN</span>
+                        <h2 class="modal-title" id="future-product-title">Nintendo Switch 2</h2>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="catalog-detail-modal__layout">
+                        <div class="catalog-detail-modal__visual">
+                            <span class="catalog-detail-modal__visual-label" id="future-product-visual-label"><i class="bi bi-bookmark-star" aria-hidden="true"></i> EN TU LISTA DE DESEOS</span>
+                            <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
+                            <div class="catalog-detail-modal__placeholder" aria-hidden="true">
+                                <i class="bi bi-controller"></i>
+                            </div>
+                        </div>
+                        <div class="catalog-detail-modal__information">
+                            <span class="catalog-detail-modal__type" id="future-product-type">CONSOLA · FUTURA COLECCIÓN</span>
+                            <span class="catalog-detail-modal__section-label">DETALLES DEL PRODUCTO</span>
+                            <dl class="catalog-detail-modal__list">
+                                <div class="catalog-detail-modal__field">
+                                    <dt>Marca</dt>
+                                    <dd>Nintendo</dd>
+                                </div>
+                                <div class="catalog-detail-modal__field">
+                                    <dt>Modelo</dt>
+                                    <dd>Switch 2</dd>
+                                </div>
+                                <div class="catalog-detail-modal__field">
+                                    <dt>Tipo</dt>
+                                    <dd>Consola portátil</dd>
+                                </div>
+                                <div class="catalog-detail-modal__field">
+                                    <dt>Estado</dt>
+                                    <dd id="future-product-status">Pendiente de compra</dd>
+                                </div>
+                            </dl>
+                            <p class="catalog-future-detail-modal__note" id="future-product-note">Cuando la compres, márcala como adquirida para pasarla a Mi colección.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer catalog-detail-modal__footer catalog-future-detail-modal__footer">
+                    <span class="catalog-future-detail-modal__session-note">Prototipo: el cambio no se guarda en la base de datos.</span>
+                    <button type="button" class="btn catalog-detail-modal__move-action" id="catalog-move-to-owned">
+                        <i class="bi bi-bag-check me-2" aria-hidden="true"></i>Ya lo compré · pasar a Mi colección
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const tabs = Array.from(document.querySelectorAll("[data-catalog-section]"));
+            const panels = tabs.map((tab) => document.getElementById(tab.dataset.catalogSection));
+
+            const activateTab = (selectedTab, focusTab = false) => {
+                tabs.forEach((tab, index) => {
+                    const isSelected = tab === selectedTab;
+                    tab.setAttribute("aria-selected", String(isSelected));
+                    tab.tabIndex = isSelected ? 0 : -1;
+                    panels[index].hidden = !isSelected;
+                });
+
+                if (focusTab) {
+                    selectedTab.focus();
+                }
+            };
+
+            tabs.forEach((tab, index) => {
+                tab.addEventListener("click", () => activateTab(tab));
+                tab.addEventListener("keydown", (event) => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const direction = event.key === "ArrowRight" ? 1 : -1;
+                    const nextIndex = (index + direction + tabs.length) % tabs.length;
+                    activateTab(tabs[nextIndex], true);
+                });
+            });
+
+            activateTab(tabs[0]);
+        })();
+    </script>
+    <script>
+        (() => {
+            const productCard = document.getElementById("future-sample-product");
+            const productModalElement = document.getElementById("future-product-modal");
+            const moveButton = document.getElementById("catalog-move-to-owned");
+            const status = document.getElementById("future-product-status");
+            const note = document.getElementById("future-product-note");
+            const kicker = document.getElementById("future-product-kicker");
+            const visualLabel = document.getElementById("future-product-visual-label");
+            const productType = document.getElementById("future-product-type");
+            const sampleLabel = document.querySelector(".catalog-future__sample-label");
+            const movedNotice = document.getElementById("catalog-future-moved-notice");
+            const ownedTab = document.getElementById("catalog-tab-current");
+            const futureProductsTitle = document.querySelector(".catalog-future__products-heading h3");
+            let isOwned = false;
+
+            const showProductModal = () => {
+                bootstrap.Modal.getOrCreateInstance(productModalElement).show();
+            };
+
+            const openProductDetails = () => {
+                if (!productCard.hasAttribute("data-catalog-item")
+                    || !document.getElementById("catalog-detail-modal")) {
+                    showProductModal();
+                }
+            };
+
+            productCard.addEventListener("click", openProductDetails);
+            productCard.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openProductDetails();
+                }
+            });
+
+            moveButton.addEventListener("click", () => {
+                if (isOwned) {
+                    return;
+                }
+
+                isOwned = true;
+                const collection = document.getElementById("my-collection");
+                const emptyState = collection.querySelector(".catalog-empty");
+                let grid = collection.querySelector("#catalog-grid");
+
+                if (!grid) {
+                    grid = document.createElement("div");
+                    grid.className = "catalog-grid";
+                    grid.id = "catalog-grid";
+                    if (emptyState) {
+                        emptyState.before(grid);
+                    } else {
+                        collection.append(grid);
+                    }
+                }
+
+                productCard.dataset.status = "Comprado";
+                productCard.dataset.purchaseDate = "";
+                productCard.setAttribute("data-catalog-item", "");
+                productCard.setAttribute("aria-label", "Ver detalles de Nintendo Switch 2, en Mi colección");
+                productCard.classList.add("catalog-future-product--owned");
+                productCard.querySelector(".catalog-future-product__status").textContent = "EN MI COLECCIÓN";
+                productCard.querySelector(".catalog-future-product__footer > span:first-child").textContent = "Producto adquirido";
+                grid.append(productCard);
+
+                if (emptyState) {
+                    emptyState.hidden = true;
+                }
+
+                sampleLabel.hidden = true;
+                futureProductsTitle.textContent = "Producto adquirido";
+                movedNotice.hidden = false;
+                status.textContent = "En Mi colección";
+                note.textContent = "Nintendo Switch 2 se añadió a Mi colección durante esta sesión.";
+                kicker.textContent = "PRODUCTO ADQUIRIDO";
+                visualLabel.textContent = "EN TU COLECCIÓN";
+                productType.textContent = "CONSOLA · MI COLECCIÓN";
+                moveButton.disabled = true;
+                moveButton.textContent = "Añadido a Mi colección";
+
+                ["catalog-owned-total", "catalog-filter-total", "catalog-tab-count", "catalog-filter-devices"].forEach((id) => {
+                    const counter = document.getElementById(id);
+                    counter.textContent = String(Number(counter.textContent) + 1);
+                });
+                const deviceCount = document.getElementById("catalog-owned-devices");
+                deviceCount.textContent = String(Number(deviceCount.textContent) + 1);
+
+                const resultsLabel = document.getElementById("catalog-results");
+                resultsLabel.textContent = `${Number(document.getElementById("catalog-owned-total").textContent)} productos`;
+
+                document.dispatchEvent(new CustomEvent("catalog:product-transferred", { detail: { item: productCard } }));
+                bootstrap.Modal.getInstance(productModalElement).hide();
+                ownedTab.click();
+            });
+        })();
+    </script>
     @if (Model.Productos.Count > 0)
     {
         <script>
@@ -237,7 +518,7 @@
                 const searchInput = document.getElementById("catalog-search");
                 const typeFilter = document.getElementById("catalog-type-filter");
                 const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
-                const items = Array.from(document.querySelectorAll("[data-catalog-item]"));
+                let items = Array.from(document.querySelectorAll("[data-catalog-item]"));
                 const resultsLabel = document.getElementById("catalog-results");
                 const noResults = document.getElementById("catalog-no-results");
                 const pagination = document.getElementById("catalog-pagination");
@@ -262,6 +543,7 @@
                         ["Categoría", product.category],
                         ["Marca", product.brand],
                         ["Modelo", product.model],
+                        ["Detalle", product.detail],
                         ["Plataforma", product.platform],
                         ["Género", product.genre],
                         ["Estado", product.status],
@@ -278,13 +560,16 @@
                         const term = document.createElement("dt");
                         const description = document.createElement("dd");
                         row.className = "catalog-detail-modal__field";
+                        if (label === "Valor registrado") {
+                            row.classList.add("catalog-detail-modal__field--price");
+                        }
                         term.textContent = label;
                         description.textContent = value;
                         row.append(term, description);
                         detailList.append(row);
                     });
 
-                    const icon = item.querySelector(".catalog-card__placeholder i");
+                    const icon = item.querySelector(".catalog-card__placeholder i, .catalog-future-product__visual > i");
                     detailPlaceholder.replaceChildren();
                     if (icon) {
                         const placeholderIcon = document.createElement("i");
@@ -311,7 +596,7 @@
                     bootstrap.Modal.getOrCreateInstance(detailModal).show();
                 };
 
-                items.forEach((item) => {
+                const bindCatalogItem = (item) => {
                     item.addEventListener("click", () => showProductDetails(item));
                     item.addEventListener("keydown", (event) => {
                         if (event.key === "Enter" || event.key === " ") {
@@ -319,7 +604,9 @@
                             showProductDetails(item);
                         }
                     });
-                });
+                };
+
+                items.forEach(bindCatalogItem);
 
                 document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
                     image.addEventListener("error", () => {
@@ -418,6 +705,18 @@
                         });
                     }
                 };
+
+                document.addEventListener("catalog:product-transferred", (event) => {
+                    const item = event.detail.item;
+                    if (items.includes(item)) {
+                        return;
+                    }
+
+                    items.push(item);
+                    bindCatalogItem(item);
+                    currentPage = Math.ceil(items.length / pageSize);
+                    updateCatalog();
+                });
 
                 paginationList.addEventListener("click", (event) => {
                     const button = event.target.closest("button[data-page]");
