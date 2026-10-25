@@ -7,47 +7,63 @@
 
 <div class="container py-5 profile-page">
     <header class="profile-page-header">
-        <div>
-            <span class="profile-kicker">CUENTA PERSONAL</span>
-            <h1 class="h2 mb-1">Mi perfil</h1>
-            <p class="text-muted-custom mb-0">Tus datos de acceso e identidad.</p>
+        <div class="profile-page-heading">
+            <span class="profile-kicker"><i class="bi bi-person-badge" aria-hidden="true"></i> ESPACIO PERSONAL</span>
+            <h1 class="h2 mb-1">Tu perfil, <span>tu recorrido.</span></h1>
+            <p class="text-muted-custom mb-0">Consulta la información vinculada a tu cuenta de EL CAMINO.</p>
         </div>
-        <a class="btn btn-outline-light profile-back-link" asp-controller="Dashboard" asp-action="Index">Volver al Dashboard</a>
+        <a class="btn btn-warning profile-back-link" asp-controller="Catalogo" asp-action="Index">
+            <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Volver al catálogo
+        </a>
     </header>
 
     <section class="profile-panel" aria-label="Datos del perfil">
         <div class="profile-identity">
-            <div class="profile-avatar" aria-hidden="true">@inicial</div>
-            <div class="profile-identity-copy">
-                <span class="profile-identity-label">PERFIL DE USUARIO</span>
-                <h2>@nombreCompleto</h2>
-                <p>@Model.UsuLg</p>
+            <div class="profile-avatar" aria-hidden="true">
+                @inicial
+                <span><i class="bi bi-check-lg"></i></span>
             </div>
-            <div class="profile-role">
-                <span>Rol</span>
-                <strong>@Model.Rol</strong>
+            <div class="profile-identity-copy">
+                <span class="profile-identity-label"><i class="bi bi-patch-check-fill me-1" aria-hidden="true"></i>PERFIL DE USUARIO</span>
+                <h2>@nombreCompleto</h2>
+                <p><i class="bi bi-at me-1" aria-hidden="true"></i>@Model.UsuLg</p>
+            </div>
+            <div class="profile-identity-status">
+                <span class="profile-session-badge"><i aria-hidden="true"></i> Sesión activa</span>
+                <div class="profile-role">
+                    <span><i class="bi bi-shield-check me-1" aria-hidden="true"></i>Rol de cuenta</span>
+                    <strong>@Model.Rol</strong>
+                </div>
             </div>
         </div>
 
         <div class="profile-details">
             <div class="profile-section-heading">
-                <h3>Información personal</h3>
-                <p>Datos de solo lectura asociados a tu cuenta.</p>
+                <div class="profile-section-heading__icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></div>
+                <div>
+                    <h3>Información personal</h3>
+                    <p>Datos asociados a tu cuenta.</p>
+                </div>
             </div>
             <dl class="profile-grid mb-0">
                 <div class="profile-field">
-                    <dt>Nombres</dt>
-                    <dd>@Model.Nombres</dd>
+                    <dt><i class="bi bi-person me-2" aria-hidden="true"></i>Nombres</dt>
+                    <dd>@(string.IsNullOrWhiteSpace(Model.Nombres) ? "No especificado" : Model.Nombres)</dd>
                 </div>
                 <div class="profile-field">
-                    <dt>Apellidos</dt>
-                    <dd>@Model.Apellidos</dd>
+                    <dt><i class="bi bi-person me-2" aria-hidden="true"></i>Apellidos</dt>
+                    <dd>@(string.IsNullOrWhiteSpace(Model.Apellidos) ? "No especificado" : Model.Apellidos)</dd>
                 </div>
                 <div class="profile-field profile-field-wide">
-                    <dt>Correo electrónico</dt>
-                    <dd>@Model.Correo</dd>
+                    <dt><i class="bi bi-envelope-at me-2" aria-hidden="true"></i>Correo electrónico</dt>
+                    <dd>@(string.IsNullOrWhiteSpace(Model.Correo) ? "No especificado" : Model.Correo)</dd>
                 </div>
             </dl>
         </div>
+        <footer class="profile-panel-footer">
+            <i class="bi bi-lock-fill" aria-hidden="true"></i>
+            <span>Tu información de perfil está protegida y solo es visible para tu cuenta.</span>
+            <span class="profile-panel-footer__route">EL CAMINO <i class="bi bi-signpost-split" aria-hidden="true"></i></span>
+        </footer>
     </section>
 </div>

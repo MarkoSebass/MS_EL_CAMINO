@@ -9,6 +9,8 @@
         && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
     var loginUrl = Url.Action("Index", "Login") ?? "/Login";
     var nombreVisible = User?.FindFirst("NombreCompleto")?.Value ?? User?.Identity?.Name ?? "Usuario";
+    var inicialCuenta = string.IsNullOrWhiteSpace(nombreVisible) ? "U" : nombreVisible[..1].ToUpperInvariant();
+    var nombreUsuario = User?.Identity?.Name ?? "";
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -39,7 +41,6 @@
                     </span>
                     <span class="brand-copy">
                         <span class="brand-name">EL CAMINO</span>
-                        <span class="brand-meta">KM-001 <i aria-hidden="true"></i> EN RUTA</span>
                     </span>
                 </a>
 
@@ -103,34 +104,48 @@
 
                     @if (isAuthenticated)
                     {
-                        <div class="nav-item dropdown">
-                            <a class="account-action dropdown-toggle d-inline-flex align-items-center gap-2 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="nav-item dropdown account-dropdown">
+                            <button class="account-action" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de cuenta">
                                 <span class="account-action__dot" aria-hidden="true"></span>
                                 <span class="account-action__name" title="@nombreVisible">@nombreVisible</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary mt-2">
-                                <li>
-                                    <h6 class="dropdown-header text-warning font-monospace small">KM-001 · SESIÓN ACTIVA</h6>
+                                <i class="bi bi-chevron-down account-action__chevron" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end account-dropdown__menu">
+                                <li class="account-dropdown__identity">
+                                    <span class="account-dropdown__avatar" aria-hidden="true">@inicialCuenta</span>
+                                    <span class="account-dropdown__identity-copy">
+                                        <strong title="@nombreVisible">@nombreVisible</strong>
+                                        @if (!string.IsNullOrWhiteSpace(nombreUsuario))
+                                        {
+                                            <small>@@@nombreUsuario</small>
+                                        }
+                                    </span>
                                 </li>
+                                <li class="account-dropdown__status">
+                                    <span><i aria-hidden="true"></i> SESIÓN ACTIVA</span>
+                                    <span class="account-dropdown__route">EL CAMINO</span>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Dashboard" asp-action="Index">
-                                        <i class="bi bi-speedometer2 text-warning"></i> Dashboard
+                                    <a class="dropdown-item account-dropdown__item @(string.Equals(currentController, "Login", StringComparison.OrdinalIgnoreCase) && string.Equals(currentAction, "Profile", StringComparison.OrdinalIgnoreCase) ? "is-current" : "")" asp-controller="Login" asp-action="Profile">
+                                        <span class="account-dropdown__icon"><i class="bi bi-person-gear" aria-hidden="true"></i></span>
+                                        <span>Mi perfil</span>
+                                        <i class="bi bi-arrow-up-right account-dropdown__arrow" aria-hidden="true"></i>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Login" asp-action="Profile">
-                                        <i class="bi bi-person-gear text-warning"></i> Mi Perfil
+                                    <a class="dropdown-item account-dropdown__item" href="/swagger" target="_blank" rel="noopener noreferrer">
+                                        <span class="account-dropdown__icon account-dropdown__icon--blue"><i class="bi bi-braces-asterisk" aria-hidden="true"></i></span>
+                                        <span>Documentación API</span>
+                                        <i class="bi bi-box-arrow-up-right account-dropdown__arrow" aria-hidden="true"></i>
                                     </a>
                                 </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/swagger" target="_blank">
-                                        <i class="bi bi-code-slash text-info"></i> Documentación API
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider border-secondary"></li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" data-bs-toggle="modal" data-bs-target="#logoutConfirmationModal">
-                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                    <button class="dropdown-item account-dropdown__item account-dropdown__item--danger" type="button" data-bs-toggle="modal" data-bs-target="#logoutConfirmationModal">
+                                        <span class="account-dropdown__icon"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></span>
+                                        <span>Cerrar sesión</span>
+                                        <i class="bi bi-arrow-up-right account-dropdown__arrow" aria-hidden="true"></i>
                                     </button>
                                 </li>
                             </ul>
@@ -165,7 +180,7 @@
                     </span>
                     <span class="brand-copy">
                         <span class="brand-name text-white fs-5 fw-bold">EL CAMINO</span>
-                        <span class="brand-meta font-monospace text-warning small">KM-001 · BITÁCORA PERSONAL</span>
+                        <span class="brand-meta font-monospace text-warning small">BITÁCORA PERSONAL</span>
                     </span>
                 </a>
                 <div class="d-flex align-items-center gap-2 mb-3">
@@ -292,33 +307,46 @@
     <div class="modal fade access-modal" id="access-modal" tabindex="-1" aria-labelledby="access-modal-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <button class="modal-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar">×</button>
-                <span class="modal-kicker"><span></span> ACCESO RESTRINGIDO</span>
-                <h2 id="access-modal-title">Un tramo más adelante.</h2>
-                <p class="access-modal__message">Módulo bloqueado.<br />Debes iniciar sesión para acceder a esta sección.</p>
+                <button class="btn-close btn-close-white access-modal__close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <div class="access-modal__emblem" aria-hidden="true">
+                    <i class="bi bi-lock-fill"></i>
+                    <span><i class="bi bi-stars"></i></span>
+                </div>
+                <span class="modal-kicker"><span></span> UN NUEVO TRAMO TE ESPERA</span>
+                <h2 id="access-modal-title">Continúa tu recorrido.</h2>
+                <p class="access-modal__message">Inicia sesión para explorar este espacio y seguir construyendo tu historia tecnológica.</p>
                 <p class="access-modal__module" id="access-modal-module"></p>
-                <a class="button-primary access-modal__action" href="@loginUrl">Iniciar Sesión <span aria-hidden="true">↗</span></a>
+                <a class="button-primary access-modal__action" href="@loginUrl">
+                    <span>Iniciar sesión</span>
+                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </a>
+                <span class="access-modal__note"><i class="bi bi-shield-check" aria-hidden="true"></i> Tu cuenta mantiene tus datos protegidos.</span>
             </div>
         </div>
     </div>
 
     <!-- MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN -->
-    <div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal fade logout-confirmation" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-describedby="logoutModalDescription" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-secondary">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title font-monospace text-warning" id="logoutModalLabel">
-                        <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content">
+                <div class="logout-confirmation__top">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <span class="logout-confirmation__icon" aria-hidden="true"><i class="bi bi-box-arrow-right"></i></span>
+                    <span class="logout-confirmation__kicker">FIN DE RECORRIDO</span>
+                    <h2 class="modal-title" id="logoutModalLabel">¿Cerrar sesión?</h2>
                 </div>
-                <div class="modal-body text-light-silver">
-                    ¿Estás seguro de que deseas cerrar tu sesión en <strong>EL CAMINO</strong>?
+                <div class="modal-body" id="logoutModalDescription">
+                    <p>Tu sesión en <strong>EL CAMINO</strong> se cerrará en este dispositivo.</p>
+                    <span class="logout-confirmation__hint"><i class="bi bi-info-circle" aria-hidden="true"></i> Podrás volver cuando quieras iniciando sesión de nuevo.</span>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                    <form class="d-inline" asp-controller="Login" asp-action="Logout" method="post">
-                        <button type="submit" class="btn btn-danger btn-sm">Confirmar y Salir</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn logout-confirmation__cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Seguir aquí
+                    </button>
+                    <form asp-controller="Login" asp-action="Logout" method="post">
+                        <button type="submit" class="btn logout-confirmation__submit">
+                            <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Cerrar sesión
+                        </button>
                     </form>
                 </div>
             </div>

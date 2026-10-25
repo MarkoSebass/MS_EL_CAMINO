@@ -8,7 +8,7 @@
 <div class="catalog-page">
     <header class="catalog-hero">
         <div class="catalog-hero__copy">
-            <span class="catalog-kicker"><i class="bi bi-compass-fill" aria-hidden="true"></i> KM-001 / COLECCIÓN PERSONAL</span>
+            <span class="catalog-kicker"><i class="bi bi-compass-fill" aria-hidden="true"></i> COLECCIÓN PERSONAL</span>
             <h1>Lo que forma<br />parte del <span>camino.</span></h1>
             <p>Un registro vivo de los dispositivos, componentes y juegos que acompañan cada etapa de tu historia tecnológica.</p>
         </div>
@@ -57,19 +57,54 @@
                 <h2 id="collection-title">Tu colección</h2>
                 <p>Todos tus registros, reunidos en un solo lugar.</p>
             </div>
-            <label class="catalog-search">
-                <i class="bi bi-search" aria-hidden="true"></i>
-                <span class="visually-hidden">Buscar en el catálogo</span>
-                <input id="catalog-search" type="search" placeholder="Buscar por nombre, tipo o estado..." autocomplete="off" />
-            </label>
         </div>
 
         <div class="catalog-toolbar">
-            <div class="catalog-filters" role="group" aria-label="Filtrar catálogo por tipo">
-                <button type="button" class="catalog-filter is-active" data-catalog-filter="TODOS" aria-pressed="true">Todo <span>@Model.Productos.Count</span></button>
-                <button type="button" class="catalog-filter" data-catalog-filter="DISPOSITIVO" aria-pressed="false">Dispositivos <span>@Model.TotalDispositivos</span></button>
-                <button type="button" class="catalog-filter" data-catalog-filter="COMPONENTE" aria-pressed="false">Componentes <span>@Model.TotalComponentes</span></button>
-                <button type="button" class="catalog-filter" data-catalog-filter="JUEGO" aria-pressed="false">Videojuegos <span>@Model.TotalJuegos</span></button>
+            <div class="catalog-controls">
+                <div class="catalog-type-filter">
+                    <span class="catalog-control-label">Filtrar por tipo</span>
+                    <div class="dropdown catalog-type-filter__dropdown">
+                        <button class="catalog-type-filter__field" id="catalog-type-filter" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel" aria-hidden="true"></i>
+                            <span class="catalog-type-filter__selection">Todos los productos</span>
+                            <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
+                        </button>
+                        <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-type-filter">
+                            <button class="dropdown-item catalog-type-filter__option is-selected" type="button"
+                                    data-type="TODOS" data-label="Todos los productos" aria-pressed="true">
+                                <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+                                <span class="catalog-type-filter__option-label">Todos los productos</span>
+                                <span class="catalog-type-filter__count">@Model.Productos.Count</span>
+                            </button>
+                            <button class="dropdown-item catalog-type-filter__option" type="button"
+                                    data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
+                                <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
+                                <span class="catalog-type-filter__option-label">Dispositivos</span>
+                                <span class="catalog-type-filter__count">@Model.TotalDispositivos</span>
+                            </button>
+                            <button class="dropdown-item catalog-type-filter__option" type="button"
+                                    data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
+                                <span class="catalog-type-filter__option-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                                <span class="catalog-type-filter__option-label">Componentes</span>
+                                <span class="catalog-type-filter__count">@Model.TotalComponentes</span>
+                            </button>
+                            <button class="dropdown-item catalog-type-filter__option" type="button"
+                                    data-type="JUEGO" data-label="Videojuegos" aria-pressed="false">
+                                <span class="catalog-type-filter__option-icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+                                <span class="catalog-type-filter__option-label">Videojuegos</span>
+                                <span class="catalog-type-filter__count">@Model.TotalJuegos</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <label class="catalog-search">
+                    <span class="catalog-control-label">Buscar por nombre</span>
+                    <span class="catalog-search__field">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <input id="catalog-search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" />
+                    </span>
+                </label>
             </div>
             <span class="catalog-results" id="catalog-results" aria-live="polite">@Model.Productos.Count productos</span>
         </div>
@@ -80,7 +115,7 @@
                 <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
                 <h3>Tu colección empieza aquí.</h3>
                 <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
-                <a asp-controller="Dashboard" asp-action="Index">Volver al Dashboard <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                <a asp-controller="Home" asp-action="Index">Volver al inicio <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
             </div>
         }
         else
@@ -88,12 +123,11 @@
             <div class="catalog-grid" id="catalog-grid">
                 @foreach (var producto in Model.Productos)
                 {
-                    var searchText = $"{producto.Nombre} {producto.Categoria} {producto.Detalle} {producto.Estado} {producto.Tipo}";
                     var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
                     <article class="catalog-card"
                              data-catalog-item
                              data-type="@producto.Tipo"
-                             data-search="@searchText"
+                             data-name="@producto.Nombre"
                              data-category="@producto.Categoria"
                              data-brand="@producto.Marca"
                              data-model="@producto.Modelo"
@@ -183,6 +217,11 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="modal-footer catalog-detail-modal__footer">
+                            <button type="button" class="btn catalog-detail-modal__close-action" data-bs-dismiss="modal">
+                                <i class="bi bi-check2 me-2" aria-hidden="true"></i>Listo
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -196,7 +235,8 @@
         <script>
             (() => {
                 const searchInput = document.getElementById("catalog-search");
-                const filterButtons = document.querySelectorAll("[data-catalog-filter]");
+                const typeFilter = document.getElementById("catalog-type-filter");
+                const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
                 const items = Array.from(document.querySelectorAll("[data-catalog-item]"));
                 const resultsLabel = document.getElementById("catalog-results");
                 const noResults = document.getElementById("catalog-no-results");
@@ -351,7 +391,7 @@
                     const query = searchInput.value.trim().toLocaleLowerCase("es");
                     const matchingItems = items.filter((item) => {
                         const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
-                        const matchesQuery = (item.dataset.search || "").toLocaleLowerCase("es").includes(query);
+                        const matchesQuery = (item.dataset.name || "").toLocaleLowerCase("es").includes(query);
                         return matchesType && matchesQuery;
                     });
 
@@ -389,17 +429,24 @@
                     updateCatalog(true);
                 });
 
-                filterButtons.forEach((button) => {
-                    button.addEventListener("click", () => {
-                        activeFilter = button.dataset.catalogFilter;
-                        currentPage = 1;
-                        filterButtons.forEach((filter) => {
-                            const isActive = filter === button;
-                            filter.classList.toggle("is-active", isActive);
-                            filter.setAttribute("aria-pressed", String(isActive));
+                typeOptions.forEach((option) => {
+                    option.addEventListener("click", () => {
+                        activeFilter = option.dataset.type;
+                        typeFilter.querySelector(".catalog-type-filter__selection").textContent = option.dataset.label;
+                        typeOptions.forEach((candidate) => {
+                            const selected = candidate === option;
+                            candidate.classList.toggle("is-selected", selected);
+                            candidate.setAttribute("aria-pressed", String(selected));
                         });
+                        typeFilter.setAttribute("aria-label", `Filtrar por tipo: ${option.dataset.label}`);
+                        currentPage = 1;
                         updateCatalog();
+                        typeFilter.focus();
                     });
+                });
+
+                typeFilter.addEventListener("shown.bs.dropdown", () => {
+                    typeFilter.closest(".dropdown").querySelector(".catalog-type-filter__option.is-selected")?.focus();
                 });
 
                 searchInput.addEventListener("input", () => {
