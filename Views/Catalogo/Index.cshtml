@@ -93,7 +93,21 @@
                     <article class="catalog-card"
                              data-catalog-item
                              data-type="@producto.Tipo"
-                             data-search="@searchText">
+                             data-search="@searchText"
+                             data-category="@producto.Categoria"
+                             data-brand="@producto.Marca"
+                             data-model="@producto.Modelo"
+                             data-platform="@producto.Plataforma"
+                             data-genre="@producto.Genero"
+                             data-detail="@producto.Detalle"
+                             data-status="@producto.Estado"
+                             data-purchase-date="@(producto.FechaCompra?.ToDateTime(TimeOnly.MinValue).ToString("dd MMM yyyy", currencyCulture))"
+                             data-price="@(producto.Precio?.ToString("C", currencyCulture))"
+                             data-image="@producto.ImagenUrl"
+                             role="button"
+                             tabindex="0"
+                             aria-haspopup="dialog"
+                             aria-label="Ver detalles de @producto.Nombre">
                         <div class="catalog-card__visual">
                             @if (tieneImagen)
                             {
@@ -145,6 +159,33 @@
                 <h3>No encontramos coincidencias.</h3>
                 <p>Prueba con otro nombre, categoría o tipo de producto.</p>
             </div>
+            <div class="modal fade catalog-detail-modal" id="catalog-detail-modal" tabindex="-1" aria-labelledby="catalog-detail-title" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div>
+                                <span class="catalog-detail-modal__kicker"><i class="bi bi-info-circle" aria-hidden="true"></i> FICHA DEL PRODUCTO</span>
+                                <h2 class="modal-title" id="catalog-detail-title"></h2>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="catalog-detail-modal__layout">
+                                <div class="catalog-detail-modal__visual">
+                                    <img id="catalog-detail-image" alt="" hidden />
+                                    <div class="catalog-detail-modal__placeholder" id="catalog-detail-placeholder" aria-hidden="true">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                </div>
+                                <div class="catalog-detail-modal__information">
+                                    <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
+                                    <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
     </section>
 </div>
@@ -161,9 +202,84 @@
                 const noResults = document.getElementById("catalog-no-results");
                 const pagination = document.getElementById("catalog-pagination");
                 const paginationList = document.getElementById("catalog-pagination-list");
+                const detailModal = document.getElementById("catalog-detail-modal");
+                const detailTitle = document.getElementById("catalog-detail-title");
+                const detailType = document.getElementById("catalog-detail-type");
+                const detailImage = document.getElementById("catalog-detail-image");
+                const detailPlaceholder = document.getElementById("catalog-detail-placeholder");
+                const detailList = document.getElementById("catalog-detail-list");
                 const pageSize = 9;
                 let activeFilter = "TODOS";
                 let currentPage = 1;
+
+                const showProductDetails = (item) => {
+                    const product = item.dataset;
+                    detailTitle.textContent = item.querySelector(".catalog-card__body h3").textContent.trim();
+                    detailType.textContent = product.type;
+                    detailList.replaceChildren();
+
+                    const productFields = [
+                        ["Categoría", product.category],
+                        ["Marca", product.brand],
+                        ["Modelo", product.model],
+                        ["Plataforma", product.platform],
+                        ["Género", product.genre],
+                        ["Estado", product.status],
+                        ["Fecha de compra", product.purchaseDate],
+                        ["Valor registrado", product.price]
+                    ];
+
+                    productFields.forEach(([label, value]) => {
+                        if (!value) {
+                            return;
+                        }
+
+                        const row = document.createElement("div");
+                        const term = document.createElement("dt");
+                        const description = document.createElement("dd");
+                        row.className = "catalog-detail-modal__field";
+                        term.textContent = label;
+                        description.textContent = value;
+                        row.append(term, description);
+                        detailList.append(row);
+                    });
+
+                    const icon = item.querySelector(".catalog-card__placeholder i");
+                    detailPlaceholder.replaceChildren();
+                    if (icon) {
+                        const placeholderIcon = document.createElement("i");
+                        placeholderIcon.className = icon.className;
+                        detailPlaceholder.append(placeholderIcon);
+                    }
+
+                    detailImage.hidden = true;
+                    detailImage.removeAttribute("src");
+                    detailPlaceholder.hidden = false;
+                    detailImage.alt = detailTitle.textContent;
+                    if (product.image) {
+                        detailImage.onerror = () => {
+                            detailImage.hidden = true;
+                            detailPlaceholder.hidden = false;
+                        };
+                        detailImage.onload = () => {
+                            detailImage.hidden = false;
+                            detailPlaceholder.hidden = true;
+                        };
+                        detailImage.src = product.image;
+                    }
+
+                    bootstrap.Modal.getOrCreateInstance(detailModal).show();
+                };
+
+                items.forEach((item) => {
+                    item.addEventListener("click", () => showProductDetails(item));
+                    item.addEventListener("keydown", (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            showProductDetails(item);
+                        }
+                    });
+                });
 
                 document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
                     image.addEventListener("error", () => {

@@ -14,6 +14,10 @@ public class CatalogoProductoViewModel
     public string Tipo { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
     public string Nombre { get; set; } = string.Empty;
+    public string? Marca { get; init; }
+    public string? Modelo { get; init; }
+    public string? Plataforma { get; init; }
+    public string? Genero { get; init; }
     public string? Detalle { get; set; }
     public string? Estado { get; init; }
     public string? ImagenUrl { get; set; }
