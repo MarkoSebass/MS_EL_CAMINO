@@ -2,15 +2,16 @@
 @model MS_EL_CAMINO.ViewModels.CatalogoViewModel
 @{
     ViewData["Title"] = "Catálogo tecnológico";
-    var currencyCulture = CultureInfo.GetCultureInfo("es-PE");
+    var esAdmin = Model.EsAdministrador;
+    var dispositivosFuturos = Model.FuturasColecciones;
 }
 
-<div class="catalog-page">
+<div class="catalog-page" data-initial-section="@Model.SeccionInicial">
     <header class="catalog-hero">
         <div class="catalog-hero__copy">
             <span class="catalog-kicker"><i class="bi bi-compass-fill" aria-hidden="true"></i> COLECCIÓN PERSONAL</span>
             <h1>Lo que forma<br />parte del <span>camino.</span></h1>
-            <p>Un registro vivo de los dispositivos, componentes y juegos que acompañan cada etapa de tu historia tecnológica.</p>
+            <p>Dispositivos que acompañan tu historia, y los que todavía esperan su momento.</p>
         </div>
         <div class="catalog-hero__mark" aria-hidden="true">
             <span class="catalog-hero__orbit"></span>
@@ -36,11 +37,11 @@
                 <strong>Futuras colecciones</strong>
                 <span>Lo que viene en el camino</span>
             </span>
-            <span class="catalog-section-nav__status">EN PREPARACIÓN</span>
+            <span class="catalog-section-nav__count">@dispositivosFuturos.Count</span>
         </button>
     </nav>
 
-    <div id="my-collection" role="tabpanel" aria-labelledby="catalog-tab-current">
+    <section id="my-collection" role="tabpanel" aria-labelledby="catalog-tab-current">
         <section class="catalog-overview" aria-label="Resumen de la colección">
             <article class="catalog-stat catalog-stat--featured">
                 <span class="catalog-stat__label">PIEZAS EN TU RECORRIDO</span>
@@ -65,696 +66,658 @@
                 <strong>@Model.TotalJuegos</strong>
                 <span class="catalog-stat__detail">mundos recorridos</span>
             </article>
-            <article class="catalog-stat catalog-stat--investment">
-                <span class="catalog-stat__label">INVERSIÓN REGISTRADA</span>
-                <strong>@Model.InversionTotal.ToString("C", currencyCulture)</strong>
-                <span class="catalog-stat__detail">suma de los importes disponibles</span>
-            </article>
         </section>
 
-    <section class="catalog-collection" aria-labelledby="collection-title">
-        <div class="catalog-collection__heading">
-            <div>
-                <span class="catalog-kicker">ARCHIVO / 01</span>
-                <h2 id="collection-title">Tu colección</h2>
-                <p>Todos tus registros, reunidos en un solo lugar.</p>
-            </div>
-        </div>
-
-        <div class="catalog-toolbar">
-            <div class="catalog-controls">
-                <div class="catalog-type-filter">
-                    <span class="catalog-control-label">Filtrar por tipo</span>
-                    <div class="dropdown catalog-type-filter__dropdown">
-                        <button class="catalog-type-filter__field" id="catalog-type-filter" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-funnel" aria-hidden="true"></i>
-                            <span class="catalog-type-filter__selection">Todos los productos</span>
-                            <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
-                        </button>
-                        <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-type-filter">
-                            <button class="dropdown-item catalog-type-filter__option is-selected" type="button"
-                                    data-type="TODOS" data-label="Todos los productos" aria-pressed="true">
-                                <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
-                                <span class="catalog-type-filter__option-label">Todos los productos</span>
-                                <span class="catalog-type-filter__count" id="catalog-filter-total">@Model.Productos.Count</span>
-                            </button>
-                            <button class="dropdown-item catalog-type-filter__option" type="button"
-                                    data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
-                                <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
-                                <span class="catalog-type-filter__option-label">Dispositivos</span>
-                                <span class="catalog-type-filter__count" id="catalog-filter-devices">@Model.TotalDispositivos</span>
-                            </button>
-                            <button class="dropdown-item catalog-type-filter__option" type="button"
-                                    data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
-                                <span class="catalog-type-filter__option-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
-                                <span class="catalog-type-filter__option-label">Componentes</span>
-                                <span class="catalog-type-filter__count">@Model.TotalComponentes</span>
-                            </button>
-                            <button class="dropdown-item catalog-type-filter__option" type="button"
-                                    data-type="JUEGO" data-label="Videojuegos" aria-pressed="false">
-                                <span class="catalog-type-filter__option-icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
-                                <span class="catalog-type-filter__option-label">Videojuegos</span>
-                                <span class="catalog-type-filter__count">@Model.TotalJuegos</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <label class="catalog-search">
-                    <span class="catalog-control-label">Buscar por nombre</span>
-                    <span class="catalog-search__field">
-                        <i class="bi bi-search" aria-hidden="true"></i>
-                        <input id="catalog-search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" />
-                    </span>
-                </label>
-            </div>
-            <span class="catalog-results" id="catalog-results" aria-live="polite">@Model.Productos.Count productos</span>
-        </div>
-
-        @if (Model.Productos.Count == 0)
-        {
-            <div class="catalog-empty">
-                <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
-                <h3>Tu colección empieza aquí.</h3>
-                <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
-                <a asp-controller="Home" asp-action="Index">Volver al inicio <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
-            </div>
-        }
-        else
-        {
-            <div class="catalog-grid" id="catalog-grid">
-                @foreach (var producto in Model.Productos)
-                {
-                    var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
-                    <article class="catalog-card"
-                             data-catalog-item
-                             data-type="@producto.Tipo"
-                             data-name="@producto.Nombre"
-                             data-category="@producto.Categoria"
-                             data-brand="@producto.Marca"
-                             data-model="@producto.Modelo"
-                             data-platform="@producto.Plataforma"
-                             data-genre="@producto.Genero"
-                             data-detail="@producto.Detalle"
-                             data-status="@producto.Estado"
-                             data-purchase-date="@(producto.FechaCompra?.ToDateTime(TimeOnly.MinValue).ToString("dd MMM yyyy", currencyCulture))"
-                             data-price="@(producto.Precio?.ToString("C", currencyCulture))"
-                             data-image="@producto.ImagenUrl"
-                             role="button"
-                             tabindex="0"
-                             aria-haspopup="dialog"
-                             aria-label="Ver detalles de @producto.Nombre">
-                        <div class="catalog-card__visual">
-                            @if (tieneImagen)
-                            {
-                                <img src="@producto.ImagenUrl" alt="@producto.Nombre" loading="lazy" />
-                            }
-                            <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
-                                <span></span>
-                                <i class="bi @producto.Icono"></i>
-                            </div>
-                            <span class="catalog-card__type">@producto.Tipo</span>
-                        </div>
-                        <div class="catalog-card__body">
-                            <span class="catalog-card__category">@producto.Categoria</span>
-                            <h3>@producto.Nombre</h3>
-                            @if (!string.IsNullOrWhiteSpace(producto.Detalle))
-                            {
-                                <p class="catalog-card__detail">@producto.Detalle</p>
-                            }
-                            <div class="catalog-card__meta">
-                                @if (producto.FechaCompra.HasValue)
-                                {
-                                    <span><i class="bi bi-calendar3" aria-hidden="true"></i> @producto.FechaCompra.Value.ToDateTime(TimeOnly.MinValue).ToString("dd MMM yyyy", currencyCulture)</span>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(producto.Estado))
-                                {
-                                    <span class="catalog-card__status"><i aria-hidden="true"></i>@producto.Estado</span>
-                                }
-                            </div>
-                            <div class="catalog-card__footer">
-                                <span>VALOR REGISTRADO</span>
-                                @if (producto.Precio.HasValue)
-                                {
-                                    <strong>@producto.Precio.Value.ToString("C", currencyCulture)</strong>
-                                }
-                                else
-                                {
-                                    <strong class="catalog-card__no-price">Sin importe</strong>
-                                }
-                            </div>
-                        </div>
-                    </article>
-                }
-            </div>
-            <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden>
-                <ul class="catalog-pagination__list" id="catalog-pagination-list"></ul>
-            </nav>
-            <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
-                <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
-                <h3>No encontramos coincidencias.</h3>
-                <p>Prueba con otro nombre, categoría o tipo de producto.</p>
-            </div>
-            <div class="modal fade catalog-detail-modal" id="catalog-detail-modal" tabindex="-1" aria-labelledby="catalog-detail-title" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <div>
-                                <span class="catalog-detail-modal__kicker"><i class="bi bi-info-circle" aria-hidden="true"></i> FICHA DEL PRODUCTO</span>
-                                <h2 class="modal-title" id="catalog-detail-title"></h2>
-                            </div>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="catalog-detail-modal__layout">
-                                <div class="catalog-detail-modal__visual">
-                                    <span class="catalog-detail-modal__visual-label"><i class="bi bi-box-seam" aria-hidden="true"></i> PIEZA DE TU RECORRIDO</span>
-                                    <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
-                                    <img id="catalog-detail-image" alt="" hidden />
-                                    <div class="catalog-detail-modal__placeholder" id="catalog-detail-placeholder" aria-hidden="true">
-                                        <i class="bi bi-box-seam"></i>
-                                    </div>
-                                </div>
-                                <div class="catalog-detail-modal__information">
-                                    <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
-                                    <span class="catalog-detail-modal__section-label">DETALLES DEL PRODUCTO</span>
-                                    <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer catalog-detail-modal__footer">
-                            <button type="button" class="btn catalog-detail-modal__close-action" data-bs-dismiss="modal">
-                                <i class="bi bi-check2 me-2" aria-hidden="true"></i>Listo
-                            </button>
-                        </div>
-                    </div>
+        <section class="catalog-collection" aria-labelledby="collection-title">
+            <div class="catalog-collection__heading">
+                <div>
+                    <span class="catalog-kicker">ARCHIVO / 01</span>
+                    <h2 id="collection-title">Mi colección</h2>
+                    <p>Equipos, componentes y juegos que ya forman parte de tu historia.</p>
                 </div>
             </div>
-        }
+
+            <div class="catalog-toolbar">
+                <div class="catalog-controls">
+                    <div class="catalog-type-filter">
+                        <span class="catalog-control-label">Filtrar por tipo</span>
+                        <div class="dropdown catalog-type-filter__dropdown">
+                            <button class="catalog-type-filter__field" id="catalog-type-filter" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-funnel" aria-hidden="true"></i>
+                                <span class="catalog-type-filter__selection">Todos los productos</span>
+                                <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-type-filter">
+                                <button class="dropdown-item catalog-type-filter__option is-selected" type="button"
+                                        data-type="TODOS" data-label="Todos los productos" aria-pressed="true">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Todos los productos</span>
+                                    <span class="catalog-type-filter__count">@Model.Productos.Count</span>
+                                </button>
+                                <button class="dropdown-item catalog-type-filter__option" type="button"
+                                        data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Dispositivos</span>
+                                    <span class="catalog-type-filter__count">@Model.TotalDispositivos</span>
+                                </button>
+                                <button class="dropdown-item catalog-type-filter__option" type="button"
+                                        data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Componentes</span>
+                                    <span class="catalog-type-filter__count">@Model.TotalComponentes</span>
+                                </button>
+                                <button class="dropdown-item catalog-type-filter__option" type="button"
+                                        data-type="JUEGO" data-label="Videojuegos" aria-pressed="false">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Videojuegos</span>
+                                    <span class="catalog-type-filter__count">@Model.TotalJuegos</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="catalog-search">
+                        <span class="catalog-control-label">Buscar en la colección</span>
+                        <span class="catalog-search__field">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <input id="catalog-search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" />
+                        </span>
+                    </label>
+                </div>
+                <span class="catalog-results" id="catalog-results" aria-live="polite">@Model.Productos.Count productos</span>
+            </div>
+
+            @if (Model.Productos.Count == 0)
+            {
+                <div class="catalog-empty">
+                    <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                    <h3>Tu colección empieza aquí.</h3>
+                    <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
+                    <a asp-controller="Home" asp-action="Index">Volver al inicio <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                </div>
+            }
+            else
+            {
+                <div class="catalog-grid" id="catalog-grid">
+                    @foreach (var producto in Model.Productos)
+                    {
+                        var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                        <article class="catalog-card"
+                                 data-catalog-item
+                                 data-type="@producto.Tipo"
+                                 data-name="@producto.Nombre"
+                                 data-category="@producto.Categoria"
+                                 data-category-id="@producto.CategoriaId"
+                                 data-brand="@producto.Marca"
+                                 data-model="@producto.Modelo"
+                                 data-platform="@producto.Plataforma"
+                                 data-genre="@producto.Genero"
+                                 data-detail="@producto.Detalle"
+                                 data-status="@producto.Estado"
+                                 data-image="@producto.ImagenUrl"
+                                 data-device-id="@producto.DispositivoId"
+                                 data-game-id="@producto.JuegoId"
+                                 data-collection-state="@producto.EstadoColeccion"
+                                 role="button" tabindex="0" aria-haspopup="dialog"
+                                 aria-label="Ver detalles de @producto.Nombre">
+                            <div class="catalog-card__visual">
+                                @if (tieneImagen)
+                                {
+                                    <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
+                                }
+                                <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                                    <span></span><i class="bi @producto.Icono"></i>
+                                </div>
+                                <span class="catalog-card__type">@producto.Tipo</span>
+                            </div>
+                            <div class="catalog-card__body">
+                                <span class="catalog-card__category">@producto.Categoria</span>
+                                <h3>@producto.Nombre</h3>
+                                @if (!string.IsNullOrWhiteSpace(producto.Detalle))
+                                {
+                                    <p class="catalog-card__detail">@producto.Detalle</p>
+                                }
+                                <div class="catalog-card__meta">
+                                    @if (!string.IsNullOrWhiteSpace(producto.Estado))
+                                    {
+                                        <span class="catalog-card__status"><i aria-hidden="true"></i>@producto.Estado</span>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+                <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden>
+                    <ul class="catalog-pagination__list" id="catalog-pagination-list"></ul>
+                </nav>
+                <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
+                    <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+                    <h3>No encontramos coincidencias.</h3>
+                    <p>Prueba con otro nombre, categoría o tipo de producto.</p>
+                </div>
+            }
+        </section>
     </section>
-    </div>
 
     <section class="catalog-future" id="future-collections" role="tabpanel" aria-labelledby="catalog-tab-future" hidden>
         <div class="catalog-collection__heading catalog-future__heading">
             <div>
                 <span class="catalog-kicker"><i class="bi bi-stars" aria-hidden="true"></i> PRÓXIMOS OBJETIVOS</span>
-                <h2 id="future-collections-title">Futuras colecciones</h2>
-                <p>Un espacio para las piezas que quieres sumar más adelante.</p>
+                <h2>Futuras colecciones</h2>
+                <p>Dispositivos que quieres sumar más adelante.</p>
             </div>
-            <span class="catalog-future__badge"><i class="bi bi-hourglass-split" aria-hidden="true"></i> EN PREPARACIÓN</span>
+            <span class="catalog-future__badge"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @dispositivosFuturos.Count EN LA LISTA</span>
         </div>
-        <div class="catalog-future__empty">
-            <div class="catalog-future__mark" aria-hidden="true">
-                <span>02</span>
-                <i class="bi bi-stars"></i>
-            </div>
-            <div class="catalog-future__copy">
-                <span class="catalog-future__eyebrow">EL SIGUIENTE CAPÍTULO</span>
-                <h3>Tus próximas piezas empiezan con una idea.</h3>
-                <p>Cuando quieras planear nuevas adquisiciones, este será su lugar. Por ahora, tu colección actual y tus futuras metas están separadas para que cada etapa tenga su propio espacio.</p>
-            </div>
-            <span class="catalog-future__spark catalog-future__spark--one" aria-hidden="true"></span>
-            <span class="catalog-future__spark catalog-future__spark--two" aria-hidden="true"></span>
-        </div>
-        <div class="catalog-future__products">
-            <div class="catalog-future__products-heading">
-                <div>
-                    <span class="catalog-future__eyebrow">EJEMPLO DE PLANIFICACIÓN</span>
-                    <h3>Una pieza en la mira</h3>
+        @if (dispositivosFuturos.Count == 0)
+        {
+            <div class="catalog-future__empty">
+                <div class="catalog-future__mark" aria-hidden="true"><span>02</span><i class="bi bi-stars"></i></div>
+                <div class="catalog-future__copy">
+                    <span class="catalog-future__eyebrow">EL SIGUIENTE CAPÍTULO</span>
+                    <h3>Tus próximas piezas empiezan con una idea.</h3>
+                    <p>Los dispositivos que se registren con estado <strong>DESEADO</strong> aparecerán aquí, separados de los que ya forman parte de tu colección.</p>
                 </div>
-                <span class="catalog-future__sample-label"><i class="bi bi-pencil-square" aria-hidden="true"></i> PRODUCTO DE PRUEBA</span>
+                <span class="catalog-future__spark catalog-future__spark--one" aria-hidden="true"></span>
+                <span class="catalog-future__spark catalog-future__spark--two" aria-hidden="true"></span>
             </div>
-            <article class="catalog-card catalog-future-product"
-                     id="future-sample-product"
-                     data-type="DISPOSITIVO"
-                     data-name="Nintendo Switch 2"
-                     data-category="CONSOLA"
-                     data-brand="Nintendo"
-                     data-model="Switch 2"
-                     data-platform="Nintendo Switch 2"
-                     data-detail="Consola portátil"
-                     data-status="En la lista"
-                     data-future-product
-                     role="button"
-                     tabindex="0"
-                     aria-haspopup="dialog"
-                     aria-label="Ver detalles de Nintendo Switch 2">
-                <div class="catalog-card__visual catalog-future-product__visual" aria-hidden="true">
-                    <span class="catalog-future-product__visual-orbit"></span>
-                    <i class="bi bi-controller"></i>
-                    <span class="catalog-future-product__number">01</span>
-                </div>
-                <div class="catalog-card__body catalog-future-product__body">
-                    <div class="catalog-future-product__topline">
-                        <span class="catalog-card__category catalog-future-product__category">CONSOLA</span>
-                        <span class="catalog-future-product__status"><i aria-hidden="true"></i> EN LA LISTA</span>
-                    </div>
-                    <h3>Nintendo Switch 2</h3>
-                    <p class="catalog-card__detail">Consola portátil</p>
-                    <div class="catalog-future-product__footer">
-                        <span><i class="bi bi-bookmark-star" aria-hidden="true"></i> Próxima adquisición</span>
-                        <span class="catalog-future-product__sample">EJEMPLO</span>
-                    </div>
-                </div>
-            </article>
-            <div class="catalog-future__moved-notice" id="catalog-future-moved-notice" role="status" hidden>
-                <i class="bi bi-check-circle" aria-hidden="true"></i>
-                <span><strong>Nintendo Switch 2</strong> ahora está en Mi colección.</span>
+        }
+        else
+        {
+            <div class="catalog-grid catalog-grid--future">
+                @foreach (var producto in dispositivosFuturos)
+                {
+                    var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                    <article class="catalog-card" data-future-catalog-item
+                             data-type="@producto.Tipo" data-name="@producto.Nombre"
+                             data-category="@producto.Categoria" data-category-id="@producto.CategoriaId" data-brand="@producto.Marca"
+                             data-model="@producto.Modelo" data-status="@producto.Estado"
+                             data-platform="@producto.Plataforma" data-genre="@producto.Genero" data-game-id="@producto.JuegoId"
+                             data-image="@producto.ImagenUrl" data-device-id="@producto.DispositivoId"
+                             data-collection-state="@producto.EstadoColeccion"
+                             role="button" tabindex="0" aria-haspopup="dialog"
+                             aria-label="Ver detalles de @producto.Nombre">
+                        <div class="catalog-card__visual">
+                            @if (tieneImagen)
+                            {
+                                <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
+                            }
+                            <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                                <span></span><i class="bi @producto.Icono"></i>
+                            </div>
+                            <span class="catalog-card__type">DISPOSITIVO</span>
+                        </div>
+                        <div class="catalog-card__body">
+                            <span class="catalog-card__category">@producto.Categoria</span>
+                            <h3>@producto.Nombre</h3>
+                            <div class="catalog-card__meta">
+                                <span class="catalog-card__status"><i aria-hidden="true"></i>@(string.IsNullOrWhiteSpace(producto.Estado) ? "Deseado" : producto.Estado)</span>
+                                <span class="catalog-card__collection-state">DESEADO</span>
+                            </div>
+                        </div>
+                    </article>
+                }
             </div>
-        </div>
+        }
     </section>
 </div>
 
-@section Scripts {
-    <div class="modal fade catalog-detail-modal catalog-future-detail-modal" id="future-product-modal" tabindex="-1" aria-labelledby="future-product-title" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div>
-                        <span class="catalog-detail-modal__kicker" id="future-product-kicker"><i class="bi bi-stars" aria-hidden="true"></i> PRÓXIMA ADQUISICIÓN</span>
-                        <h2 class="modal-title" id="future-product-title">Nintendo Switch 2</h2>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+<div class="modal fade catalog-detail-modal" id="catalog-detail-modal" tabindex="-1" aria-labelledby="catalog-detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <span class="catalog-detail-modal__kicker"><i class="bi bi-info-circle" aria-hidden="true"></i> FICHA DEL PRODUCTO</span>
+                    <h2 class="modal-title" id="catalog-detail-title"></h2>
                 </div>
-                <div class="modal-body">
-                    <div class="catalog-detail-modal__layout">
-                        <div class="catalog-detail-modal__visual">
-                            <span class="catalog-detail-modal__visual-label" id="future-product-visual-label"><i class="bi bi-bookmark-star" aria-hidden="true"></i> EN TU LISTA DE DESEOS</span>
-                            <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
-                            <div class="catalog-detail-modal__placeholder" aria-hidden="true">
-                                <i class="bi bi-controller"></i>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="catalog-detail-modal__layout" id="catalog-detail-panel">
+                    <div class="catalog-detail-modal__visual">
+                        <span class="catalog-detail-modal__visual-label"><i class="bi bi-box-seam" aria-hidden="true"></i> PIEZA DE TU RECORRIDO</span>
+                        <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
+                        <img id="catalog-detail-image" alt="" hidden />
+                        <div class="catalog-detail-modal__placeholder" id="catalog-detail-placeholder" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+                    </div>
+                    <div class="catalog-detail-modal__information">
+                        <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
+                        <span class="catalog-detail-modal__section-label">DETALLES DEL PRODUCTO</span>
+                        <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
+                    </div>
+                </div>
+                @if (esAdmin)
+                {
+                    <form id="catalog-device-edit-form" method="post" class="catalog-admin-form" hidden>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="IdDispositivo" />
+                        <input type="hidden" name="IdJuego" />
+                        <div class="catalog-admin-form__grid" id="catalog-edit-fields">
+                            <label data-device-field>Marca<input class="form-control" name="Marca" maxlength="100" /></label>
+                            <label data-device-field>Modelo<input class="form-control" name="Modelo" maxlength="150" /></label>
+                            <label data-game-field>Título<input class="form-control" name="Titulo" maxlength="200" /></label>
+                            <label data-game-field>Plataforma<input class="form-control" name="Plataforma" maxlength="100" /></label>
+                            <label data-game-field>Género<input class="form-control" name="Genero" maxlength="100" /></label>
+                            <label>Categoría
+                                <select class="form-select" name="IdCategoria" required>
+                                    @foreach (var categoria in Model.Categorias)
+                                    {
+                                        <option value="@categoria.IdCategoria">@categoria.Nombre</option>
+                                    }
+                                </select>
+                            </label>
+                            <label>Estado<input class="form-control" name="Estado" required maxlength="100" /></label>
+                            <label data-device-field>Sección
+                                <select class="form-select" name="EstadoColeccion" required>
+                                    <option value="COLECCION">Mi colección</option>
+                                    <option value="DESEADO">Futuras colecciones</option>
+                                </select>
+                            </label>
+                            <label class="catalog-admin-form__image">Imagen URL<input class="form-control" name="ImagenUrl" type="url" maxlength="500" placeholder="https://..." /></label>
+                        </div>
+                        <div class="catalog-edit-confirm" id="catalog-edit-confirm" hidden>
+                            <i class="bi bi-shield-check" aria-hidden="true"></i>
+                            <h3>¿Confirmas guardar los cambios?</h3>
+                            <p id="catalog-edit-confirm-message">El registro se actualizará en la base de datos.</p>
+                            <div class="catalog-delete-confirm__actions">
+                                <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-confirm-cancel">Volver a revisar</button>
+                                <button type="button" class="btn catalog-admin-save" id="catalog-edit-confirm-button">Sí, guardar cambios</button>
                             </div>
+                            <div class="catalog-admin-form__error" id="catalog-edit-confirm-error" role="alert" hidden></div>
                         </div>
-                        <div class="catalog-detail-modal__information">
-                            <span class="catalog-detail-modal__type" id="future-product-type">CONSOLA · FUTURA COLECCIÓN</span>
-                            <span class="catalog-detail-modal__section-label">DETALLES DEL PRODUCTO</span>
-                            <dl class="catalog-detail-modal__list">
-                                <div class="catalog-detail-modal__field">
-                                    <dt>Marca</dt>
-                                    <dd>Nintendo</dd>
-                                </div>
-                                <div class="catalog-detail-modal__field">
-                                    <dt>Modelo</dt>
-                                    <dd>Switch 2</dd>
-                                </div>
-                                <div class="catalog-detail-modal__field">
-                                    <dt>Tipo</dt>
-                                    <dd>Consola portátil</dd>
-                                </div>
-                                <div class="catalog-detail-modal__field">
-                                    <dt>Estado</dt>
-                                    <dd id="future-product-status">Pendiente de compra</dd>
-                                </div>
-                            </dl>
-                            <p class="catalog-future-detail-modal__note" id="future-product-note">Cuando la compres, márcala como adquirida para pasarla a Mi colección.</p>
+                        <div class="catalog-admin-form__error" id="catalog-edit-error" role="alert" hidden></div>
+                    </form>
+                    <div class="catalog-delete-confirm" id="catalog-delete-confirm" hidden>
+                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                        <h3 id="catalog-delete-confirm-title">¿Estás seguro de eliminar este elemento?</h3>
+                        <p id="catalog-delete-confirm-message">Esta acción eliminará definitivamente el registro de la base de datos y no se puede deshacer.</p>
+                        <div class="catalog-delete-confirm__actions">
+                            <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel">Cancelar</button>
+                            <button type="button" class="btn catalog-admin-danger" id="catalog-delete-confirm-button">Sí, eliminar</button>
                         </div>
+                        <div class="catalog-admin-form__error" id="catalog-delete-error" role="alert" hidden></div>
                     </div>
-                </div>
-                <div class="modal-footer catalog-detail-modal__footer catalog-future-detail-modal__footer">
-                    <span class="catalog-future-detail-modal__session-note">Prototipo: el cambio no se guarda en la base de datos.</span>
-                    <button type="button" class="btn catalog-detail-modal__move-action" id="catalog-move-to-owned">
-                        <i class="bi bi-bag-check me-2" aria-hidden="true"></i>Ya lo compré · pasar a Mi colección
-                    </button>
-                </div>
+                }
+            </div>
+            <div class="modal-footer catalog-detail-modal__footer">
+                @if (esAdmin)
+                {
+                    <div class="catalog-admin-actions" id="catalog-admin-actions" hidden>
+                        <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-button"><i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar</button>
+                        <button type="button" class="btn catalog-admin-danger" id="catalog-delete-button"><i class="bi bi-trash me-2" aria-hidden="true"></i>Eliminar</button>
+                    </div>
+                    <div class="catalog-admin-actions" id="catalog-edit-actions" hidden>
+                        <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-cancel">Cancelar</button>
+                        <button type="submit" form="catalog-device-edit-form" class="btn catalog-admin-save" id="catalog-edit-save"><i class="bi bi-check2 me-2" aria-hidden="true"></i>Guardar cambios</button>
+                    </div>
+                }
+                <button type="button" class="btn catalog-detail-modal__close-action" id="catalog-modal-close" data-bs-dismiss="modal">
+                    <i class="bi bi-check2 me-2" aria-hidden="true"></i>Listo
+                </button>
             </div>
         </div>
     </div>
+</div>
 
+@section Scripts {
     <script>
         (() => {
+            const page = document.querySelector(".catalog-page");
             const tabs = Array.from(document.querySelectorAll("[data-catalog-section]"));
             const panels = tabs.map((tab) => document.getElementById(tab.dataset.catalogSection));
+            const initialPanel = page.dataset.initialSection;
 
             const activateTab = (selectedTab, focusTab = false) => {
                 tabs.forEach((tab, index) => {
-                    const isSelected = tab === selectedTab;
-                    tab.setAttribute("aria-selected", String(isSelected));
-                    tab.tabIndex = isSelected ? 0 : -1;
-                    panels[index].hidden = !isSelected;
+                    const selected = tab === selectedTab;
+                    tab.setAttribute("aria-selected", String(selected));
+                    tab.tabIndex = selected ? 0 : -1;
+                    panels[index].hidden = !selected;
                 });
-
-                if (focusTab) {
-                    selectedTab.focus();
-                }
+                if (focusTab) selectedTab.focus();
             };
 
             tabs.forEach((tab, index) => {
                 tab.addEventListener("click", () => activateTab(tab));
                 tab.addEventListener("keydown", (event) => {
-                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
-                        return;
-                    }
-
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
                     event.preventDefault();
-                    const direction = event.key === "ArrowRight" ? 1 : -1;
-                    const nextIndex = (index + direction + tabs.length) % tabs.length;
-                    activateTab(tabs[nextIndex], true);
+                    const step = event.key === "ArrowRight" ? 1 : -1;
+                    activateTab(tabs[(index + step + tabs.length) % tabs.length], true);
                 });
             });
 
-            activateTab(tabs[0]);
+            activateTab(tabs.find((tab) => tab.dataset.catalogSection === initialPanel) || tabs[0]);
         })();
-    </script>
-    <script>
+
         (() => {
-            const productCard = document.getElementById("future-sample-product");
-            const productModalElement = document.getElementById("future-product-modal");
-            const moveButton = document.getElementById("catalog-move-to-owned");
-            const status = document.getElementById("future-product-status");
-            const note = document.getElementById("future-product-note");
-            const kicker = document.getElementById("future-product-kicker");
-            const visualLabel = document.getElementById("future-product-visual-label");
-            const productType = document.getElementById("future-product-type");
-            const sampleLabel = document.querySelector(".catalog-future__sample-label");
-            const movedNotice = document.getElementById("catalog-future-moved-notice");
-            const ownedTab = document.getElementById("catalog-tab-current");
-            const futureProductsTitle = document.querySelector(".catalog-future__products-heading h3");
-            let isOwned = false;
+            const grid = document.getElementById("catalog-grid");
+            if (!grid) return;
 
-            const showProductModal = () => {
-                bootstrap.Modal.getOrCreateInstance(productModalElement).show();
-            };
+            const items = Array.from(grid.querySelectorAll("[data-catalog-item]"));
+            const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
+            const searchInput = document.getElementById("catalog-search");
+            const resultsLabel = document.getElementById("catalog-results");
+            const noResults = document.getElementById("catalog-no-results");
+            const pagination = document.getElementById("catalog-pagination");
+            const paginationList = document.getElementById("catalog-pagination-list");
+            const pageSize = 9;
+            let activeFilter = "TODOS";
+            let currentPage = 1;
 
-            const openProductDetails = () => {
-                if (!productCard.hasAttribute("data-catalog-item")
-                    || !document.getElementById("catalog-detail-modal")) {
-                    showProductModal();
-                }
-            };
-
-            productCard.addEventListener("click", openProductDetails);
-            productCard.addEventListener("keydown", (event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    openProductDetails();
-                }
-            });
-
-            moveButton.addEventListener("click", () => {
-                if (isOwned) {
-                    return;
-                }
-
-                isOwned = true;
-                const collection = document.getElementById("my-collection");
-                const emptyState = collection.querySelector(".catalog-empty");
-                let grid = collection.querySelector("#catalog-grid");
-
-                if (!grid) {
-                    grid = document.createElement("div");
-                    grid.className = "catalog-grid";
-                    grid.id = "catalog-grid";
-                    if (emptyState) {
-                        emptyState.before(grid);
-                    } else {
-                        collection.append(grid);
-                    }
-                }
-
-                productCard.dataset.status = "Comprado";
-                productCard.dataset.purchaseDate = "";
-                productCard.setAttribute("data-catalog-item", "");
-                productCard.setAttribute("aria-label", "Ver detalles de Nintendo Switch 2, en Mi colección");
-                productCard.classList.add("catalog-future-product--owned");
-                productCard.querySelector(".catalog-future-product__status").textContent = "EN MI COLECCIÓN";
-                productCard.querySelector(".catalog-future-product__footer > span:first-child").textContent = "Producto adquirido";
-                grid.append(productCard);
-
-                if (emptyState) {
-                    emptyState.hidden = true;
-                }
-
-                sampleLabel.hidden = true;
-                futureProductsTitle.textContent = "Producto adquirido";
-                movedNotice.hidden = false;
-                status.textContent = "En Mi colección";
-                note.textContent = "Nintendo Switch 2 se añadió a Mi colección durante esta sesión.";
-                kicker.textContent = "PRODUCTO ADQUIRIDO";
-                visualLabel.textContent = "EN TU COLECCIÓN";
-                productType.textContent = "CONSOLA · MI COLECCIÓN";
-                moveButton.disabled = true;
-                moveButton.textContent = "Añadido a Mi colección";
-
-                ["catalog-owned-total", "catalog-filter-total", "catalog-tab-count", "catalog-filter-devices"].forEach((id) => {
-                    const counter = document.getElementById(id);
-                    counter.textContent = String(Number(counter.textContent) + 1);
+            const showPage = () => {
+                const query = searchInput.value.trim().toLocaleLowerCase("es");
+                const matches = items.filter((item) => {
+                    const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
+                    const matchesText = `${item.dataset.name} ${item.dataset.category} ${item.dataset.brand}`
+                        .toLocaleLowerCase("es").includes(query);
+                    return matchesType && matchesText;
                 });
-                const deviceCount = document.getElementById("catalog-owned-devices");
-                deviceCount.textContent = String(Number(deviceCount.textContent) + 1);
+                const pageCount = Math.ceil(matches.length / pageSize);
+                currentPage = Math.min(currentPage, Math.max(pageCount, 1));
+                const visibleItems = new Set(matches.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+                items.forEach((item) => item.hidden = !visibleItems.has(item));
+                resultsLabel.textContent = `${matches.length} ${matches.length === 1 ? "producto" : "productos"}`;
+                noResults.hidden = matches.length > 0;
+                pagination.hidden = pageCount <= 1;
+                paginationList.replaceChildren();
 
-                const resultsLabel = document.getElementById("catalog-results");
-                resultsLabel.textContent = `${Number(document.getElementById("catalog-owned-total").textContent)} productos`;
-
-                document.dispatchEvent(new CustomEvent("catalog:product-transferred", { detail: { item: productCard } }));
-                bootstrap.Modal.getInstance(productModalElement).hide();
-                ownedTab.click();
-            });
-        })();
-    </script>
-    @if (Model.Productos.Count > 0)
-    {
-        <script>
-            (() => {
-                const searchInput = document.getElementById("catalog-search");
-                const typeFilter = document.getElementById("catalog-type-filter");
-                const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
-                let items = Array.from(document.querySelectorAll("[data-catalog-item]"));
-                const resultsLabel = document.getElementById("catalog-results");
-                const noResults = document.getElementById("catalog-no-results");
-                const pagination = document.getElementById("catalog-pagination");
-                const paginationList = document.getElementById("catalog-pagination-list");
-                const detailModal = document.getElementById("catalog-detail-modal");
-                const detailTitle = document.getElementById("catalog-detail-title");
-                const detailType = document.getElementById("catalog-detail-type");
-                const detailImage = document.getElementById("catalog-detail-image");
-                const detailPlaceholder = document.getElementById("catalog-detail-placeholder");
-                const detailList = document.getElementById("catalog-detail-list");
-                const pageSize = 9;
-                let activeFilter = "TODOS";
-                let currentPage = 1;
-
-                const showProductDetails = (item) => {
-                    const product = item.dataset;
-                    detailTitle.textContent = item.querySelector(".catalog-card__body h3").textContent.trim();
-                    detailType.textContent = product.type;
-                    detailList.replaceChildren();
-
-                    const productFields = [
-                        ["Categoría", product.category],
-                        ["Marca", product.brand],
-                        ["Modelo", product.model],
-                        ["Detalle", product.detail],
-                        ["Plataforma", product.platform],
-                        ["Género", product.genre],
-                        ["Estado", product.status],
-                        ["Fecha de compra", product.purchaseDate],
-                        ["Valor registrado", product.price]
-                    ];
-
-                    productFields.forEach(([label, value]) => {
-                        if (!value) {
-                            return;
-                        }
-
-                        const row = document.createElement("div");
-                        const term = document.createElement("dt");
-                        const description = document.createElement("dd");
-                        row.className = "catalog-detail-modal__field";
-                        if (label === "Valor registrado") {
-                            row.classList.add("catalog-detail-modal__field--price");
-                        }
-                        term.textContent = label;
-                        description.textContent = value;
-                        row.append(term, description);
-                        detailList.append(row);
-                    });
-
-                    const icon = item.querySelector(".catalog-card__placeholder i, .catalog-future-product__visual > i");
-                    detailPlaceholder.replaceChildren();
-                    if (icon) {
-                        const placeholderIcon = document.createElement("i");
-                        placeholderIcon.className = icon.className;
-                        detailPlaceholder.append(placeholderIcon);
-                    }
-
-                    detailImage.hidden = true;
-                    detailImage.removeAttribute("src");
-                    detailPlaceholder.hidden = false;
-                    detailImage.alt = detailTitle.textContent;
-                    if (product.image) {
-                        detailImage.onerror = () => {
-                            detailImage.hidden = true;
-                            detailPlaceholder.hidden = false;
-                        };
-                        detailImage.onload = () => {
-                            detailImage.hidden = false;
-                            detailPlaceholder.hidden = true;
-                        };
-                        detailImage.src = product.image;
-                    }
-
-                    bootstrap.Modal.getOrCreateInstance(detailModal).show();
-                };
-
-                const bindCatalogItem = (item) => {
-                    item.addEventListener("click", () => showProductDetails(item));
-                    item.addEventListener("keydown", (event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            showProductDetails(item);
-                        }
-                    });
-                };
-
-                items.forEach(bindCatalogItem);
-
-                document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
-                    image.addEventListener("error", () => {
-                        image.hidden = true;
-                        const placeholder = image.nextElementSibling;
-                        if (placeholder) {
-                            placeholder.hidden = false;
-                        }
-                    });
-                });
-
-                const createPageButton = (label, page, options = {}) => {
-                    const item = document.createElement("li");
+                const addPageButton = (label, pageNumber, current = false, disabled = false) => {
+                    const listItem = document.createElement("li");
                     const button = document.createElement("button");
                     button.type = "button";
                     button.className = "catalog-page-button";
                     button.textContent = label;
-                    button.dataset.page = String(page);
-                    button.setAttribute("aria-label", options.ariaLabel || `Ir a la página ${page}`);
-                    if (options.current) {
-                        button.setAttribute("aria-current", "page");
-                    }
-                    if (options.disabled) {
-                        button.disabled = true;
-                    }
-                    item.append(button);
-                    return item;
+                    button.disabled = disabled;
+                    if (current) button.setAttribute("aria-current", "page");
+                    button.addEventListener("click", () => {
+                        currentPage = pageNumber;
+                        showPage();
+                    });
+                    listItem.append(button);
+                    paginationList.append(listItem);
                 };
 
-                const renderPagination = (pageCount) => {
-                    paginationList.replaceChildren();
-                    pagination.hidden = pageCount <= 1;
-                    if (pagination.hidden) {
-                        return;
+                if (pageCount > 1) {
+                    addPageButton("‹", currentPage - 1, false, currentPage === 1);
+                    for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+                        addPageButton(String(pageNumber), pageNumber, pageNumber === currentPage);
                     }
+                    addPageButton("›", currentPage + 1, false, currentPage === pageCount);
+                }
+            };
 
-                    paginationList.append(createPageButton("‹", currentPage - 1, {
-                        ariaLabel: "Página anterior",
-                        disabled: currentPage === 1
-                    }));
+            typeOptions.forEach((option) => option.addEventListener("click", () => {
+                activeFilter = option.dataset.type;
+                currentPage = 1;
+                typeOptions.forEach((candidate) => {
+                    const selected = candidate === option;
+                    candidate.classList.toggle("is-selected", selected);
+                    candidate.setAttribute("aria-pressed", String(selected));
+                });
+                document.querySelector(".catalog-type-filter__selection").textContent = option.dataset.label;
+                bootstrap.Dropdown.getOrCreateInstance(document.getElementById("catalog-type-filter")).hide();
+                showPage();
+            }));
+            searchInput.addEventListener("input", () => {
+                currentPage = 1;
+                showPage();
+            });
+            showPage();
+        })();
 
-                    const pages = new Set([1, pageCount]);
-                    for (let page = Math.max(1, currentPage - 1); page <= Math.min(pageCount, currentPage + 1); page += 1) {
-                        pages.add(page);
+        (() => {
+            const modalElement = document.getElementById("catalog-detail-modal");
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            const detailTitle = document.getElementById("catalog-detail-title");
+            const detailType = document.getElementById("catalog-detail-type");
+            const detailImage = document.getElementById("catalog-detail-image");
+            const detailPlaceholder = document.getElementById("catalog-detail-placeholder");
+            const detailList = document.getElementById("catalog-detail-list");
+            const detailPanel = document.getElementById("catalog-detail-panel");
+            const editForm = document.getElementById("catalog-device-edit-form");
+            const editFields = document.getElementById("catalog-edit-fields");
+            const editConfirm = document.getElementById("catalog-edit-confirm");
+            const adminActions = document.getElementById("catalog-admin-actions");
+            const editActions = document.getElementById("catalog-edit-actions");
+            const deleteConfirm = document.getElementById("catalog-delete-confirm");
+            const closeButton = document.getElementById("catalog-modal-close");
+            const deviceFields = Array.from(document.querySelectorAll("[data-device-field]"));
+            const gameFields = Array.from(document.querySelectorAll("[data-game-field]"));
+            let selectedItem = null;
+
+            const isAdmin = Boolean(editForm);
+            const appendDetail = (label, value) => {
+                if (!value) return;
+                const row = document.createElement("div");
+                const term = document.createElement("dt");
+                const description = document.createElement("dd");
+                row.className = "catalog-detail-modal__field";
+                term.textContent = label;
+                description.textContent = value;
+                row.append(term, description);
+                detailList.append(row);
+            };
+
+            const openDetails = (item) => {
+                selectedItem = item;
+                const product = item.dataset;
+                detailTitle.textContent = product.name;
+                detailType.textContent = `${product.category || "Producto"} · ${product.type}`;
+                detailList.replaceChildren();
+                appendDetail("Marca", product.brand);
+                appendDetail("Modelo", product.model);
+                appendDetail("Plataforma", product.platform);
+                appendDetail("Género", product.genre);
+                appendDetail("Categoría", product.category);
+                appendDetail("Estado", product.status || (product.collectionState === "DESEADO" ? "Deseado" : null));
+                if (product.type === "DISPOSITIVO") {
+                    appendDetail("Colección", product.collectionState === "DESEADO" ? "Futuras colecciones" : "Mi colección");
+                }
+
+                detailImage.hidden = true;
+                detailImage.removeAttribute("src");
+                detailPlaceholder.hidden = false;
+                detailImage.alt = `Imagen de ${product.name}`;
+                const icon = item.querySelector(".catalog-card__placeholder i");
+                detailPlaceholder.replaceChildren();
+                const placeholderIcon = document.createElement("i");
+                placeholderIcon.className = icon?.className || "bi bi-box-seam";
+                detailPlaceholder.append(placeholderIcon);
+                if (product.image) {
+                    detailImage.onerror = () => {
+                        detailImage.hidden = true;
+                        detailPlaceholder.hidden = false;
+                    };
+                    detailImage.onload = () => {
+                        detailImage.hidden = false;
+                        detailPlaceholder.hidden = true;
+                    };
+                    detailImage.src = product.image;
+                }
+
+                if (isAdmin) {
+                    const isDevice = product.type === "DISPOSITIVO" && product.deviceId;
+                    const isGame = product.type === "JUEGO" && product.gameId;
+                    const editable = Boolean(isDevice || isGame);
+                    adminActions.hidden = !editable;
+                    editActions.hidden = true;
+                    closeButton.hidden = false;
+                    editForm.hidden = true;
+                    editFields.hidden = false;
+                    editConfirm.hidden = true;
+                    detailPanel.hidden = false;
+                    deleteConfirm.hidden = true;
+                    deviceFields.forEach((field) => {
+                        field.hidden = !isDevice;
+                        field.querySelectorAll("input, select").forEach((input) => {
+                            input.required = isDevice && input.name === "EstadoColeccion";
+                        });
+                    });
+                    gameFields.forEach((field) => {
+                        field.hidden = !isGame;
+                        field.querySelectorAll("input").forEach((input) => {
+                            input.required = isGame && ["Titulo", "Plataforma"].includes(input.name);
+                        });
+                    });
+                    editForm.elements.IdDispositivo.value = product.deviceId || "";
+                    editForm.elements.IdJuego.value = product.gameId || "";
+                    editForm.elements.Marca.value = product.brand || "";
+                    editForm.elements.Modelo.value = product.model || "";
+                    editForm.elements.Titulo.value = product.name || "";
+                    editForm.elements.Plataforma.value = product.platform || "";
+                    editForm.elements.Genero.value = product.genre || "";
+                    editForm.elements.IdCategoria.value = item.dataset.categoryId || "";
+                    editForm.elements.Estado.value = product.status || "";
+                    editForm.elements.EstadoColeccion.value = product.collectionState || "COLECCION";
+                    editForm.elements.ImagenUrl.value = product.image || "";
+                }
+
+                modal.show();
+            };
+
+            const cards = [
+                ...document.querySelectorAll("[data-catalog-item]"),
+                ...document.querySelectorAll("[data-future-catalog-item]")
+            ];
+            cards.forEach((item) => {
+                item.addEventListener("click", () => openDetails(item));
+                item.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openDetails(item);
                     }
+                });
+            });
 
-                    let previousPage = 0;
-                    [...pages].sort((first, second) => first - second).forEach((page) => {
-                        if (previousPage && page - previousPage > 1) {
-                            const ellipsis = document.createElement("li");
-                            ellipsis.className = "catalog-pagination__ellipsis";
-                            ellipsis.textContent = "…";
-                            paginationList.append(ellipsis);
+            document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
+                image.addEventListener("error", () => {
+                    image.hidden = true;
+                    const placeholder = image.nextElementSibling;
+                    if (placeholder) placeholder.hidden = false;
+                });
+            });
+
+            if (!isAdmin) return;
+
+            const showAdminMode = (mode) => {
+                detailPanel.hidden = mode !== "details";
+                editForm.hidden = mode !== "edit" && mode !== "edit-confirm";
+                editFields.hidden = mode !== "edit";
+                editConfirm.hidden = mode !== "edit-confirm";
+                deleteConfirm.hidden = mode !== "delete";
+                adminActions.hidden = mode !== "details" || !(selectedItem?.dataset.deviceId || selectedItem?.dataset.gameId);
+                editActions.hidden = mode !== "edit";
+                closeButton.hidden = mode !== "details";
+                document.getElementById("catalog-edit-error").hidden = true;
+                document.getElementById("catalog-edit-confirm-error").hidden = true;
+                document.getElementById("catalog-delete-error").hidden = true;
+                if (mode === "delete") {
+                    const itemName = selectedItem?.dataset.name || "este elemento";
+                    document.getElementById("catalog-delete-confirm-title").textContent = `¿Confirmas eliminar ${itemName}?`;
+                }
+            };
+
+            document.getElementById("catalog-edit-button").addEventListener("click", () => showAdminMode("edit"));
+            document.getElementById("catalog-edit-cancel").addEventListener("click", () => showAdminMode("details"));
+            document.getElementById("catalog-delete-button").addEventListener("click", () => showAdminMode("delete"));
+            document.getElementById("catalog-delete-cancel").addEventListener("click", () => showAdminMode("details"));
+            document.getElementById("catalog-edit-confirm-cancel").addEventListener("click", () => showAdminMode("edit"));
+
+            const sendRequest = async (method, url, payload = null) => {
+                const token = editForm.elements.__RequestVerificationToken.value;
+                const headers = {
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": token
+                };
+                if (payload) headers["Content-Type"] = "application/json";
+                const response = await fetch(url, {
+                    method,
+                    headers,
+                    body: payload ? JSON.stringify(payload) : undefined,
+                    credentials: "same-origin",
+                    cache: "no-store",
+                    redirect: "error"
+                });
+                const responseText = await response.text();
+                let result = null;
+                try {
+                    result = responseText ? JSON.parse(responseText) : null;
+                } catch {
+                    result = null;
+                }
+                if (!response.ok) {
+                    const validationErrors = result?.errors
+                        ? Object.values(result.errors).flat().join(" ")
+                        : null;
+                    throw new Error([result?.message, result?.title, result?.detail, validationErrors].filter(Boolean).join(" ")
+                        || responseText
+                        || `La operación falló (HTTP ${response.status}).`);
+                }
+                if (!result) {
+                    throw new Error("El servidor respondió sin confirmar el resultado de la operación. Recarga el catálogo antes de volver a intentarlo.");
+                }
+                window.location.replace(`${window.location.pathname}?seccion=${encodeURIComponent(result.seccion || "my-collection")}`);
+            };
+
+            editForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const itemName = selectedItem.dataset.name || "el registro seleccionado";
+                document.getElementById("catalog-edit-confirm-message").textContent =
+                    `Se actualizará ${itemName} en la base de datos. Revisa los datos y confirma para continuar.`;
+                showAdminMode("edit-confirm");
+            });
+
+            document.getElementById("catalog-edit-confirm-button").addEventListener("click", async () => {
+                const error = document.getElementById("catalog-edit-confirm-error");
+                const confirmButton = document.getElementById("catalog-edit-confirm-button");
+                error.hidden = true;
+                confirmButton.disabled = true;
+                try {
+                    const isGame = Boolean(selectedItem.dataset.gameId);
+                    const id = isGame ? selectedItem.dataset.gameId : selectedItem.dataset.deviceId;
+                    const payload = isGame
+                        ? {
+                            idCategoria: Number(editForm.elements.IdCategoria.value),
+                            titulo: editForm.elements.Titulo.value,
+                            plataforma: editForm.elements.Plataforma.value,
+                            genero: editForm.elements.Genero.value,
+                            estado: editForm.elements.Estado.value,
+                            imagenUrl: editForm.elements.ImagenUrl.value || null
                         }
+                        : {
+                            idCategoria: Number(editForm.elements.IdCategoria.value),
+                            marca: editForm.elements.Marca.value,
+                            modelo: editForm.elements.Modelo.value,
+                            estado: editForm.elements.Estado.value,
+                            estadoColeccion: editForm.elements.EstadoColeccion.value,
+                            imagenUrl: editForm.elements.ImagenUrl.value || null
+                        };
+                    await sendRequest("PUT", `/api/catalogo/${isGame ? "juegos" : "dispositivos"}/${encodeURIComponent(id)}`, payload);
+                } catch (exception) {
+                    error.textContent = exception.message;
+                    error.hidden = false;
+                } finally {
+                    confirmButton.disabled = false;
+                }
+            });
 
-                        paginationList.append(createPageButton(String(page), page, {
-                            current: page === currentPage
-                        }));
-                        previousPage = page;
-                    });
+            document.getElementById("catalog-delete-confirm-button").addEventListener("click", async () => {
+                const error = document.getElementById("catalog-delete-error");
+                const button = document.getElementById("catalog-delete-confirm-button");
+                error.hidden = true;
+                button.disabled = true;
+                try {
+                    const isGame = Boolean(selectedItem.dataset.gameId);
+                    const id = isGame ? selectedItem.dataset.gameId : selectedItem.dataset.deviceId;
+                    await sendRequest("DELETE", `/api/catalogo/${isGame ? "juegos" : "dispositivos"}/${encodeURIComponent(id)}`);
+                } catch (exception) {
+                    error.textContent = exception.message;
+                    error.hidden = false;
+                } finally {
+                    button.disabled = false;
+                }
+            });
 
-                    paginationList.append(createPageButton("›", currentPage + 1, {
-                        ariaLabel: "Página siguiente",
-                        disabled: currentPage === pageCount
-                    }));
-                };
-
-                const updateCatalog = (focusPage = false) => {
-                    const query = searchInput.value.trim().toLocaleLowerCase("es");
-                    const matchingItems = items.filter((item) => {
-                        const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
-                        const matchesQuery = (item.dataset.name || "").toLocaleLowerCase("es").includes(query);
-                        return matchesType && matchesQuery;
-                    });
-
-                    const pageCount = Math.ceil(matchingItems.length / pageSize);
-                    currentPage = Math.min(currentPage, Math.max(pageCount, 1));
-                    const firstItemIndex = (currentPage - 1) * pageSize;
-                    const visibleItems = new Set(matchingItems.slice(firstItemIndex, firstItemIndex + pageSize));
-
-                    items.forEach((item) => {
-                        item.hidden = !visibleItems.has(item);
-                    });
-
-                    noResults.hidden = matchingItems.length > 0;
-                    resultsLabel.textContent = matchingItems.length === 0
-                        ? "0 productos"
-                        : `Mostrando ${firstItemIndex + 1}–${Math.min(firstItemIndex + pageSize, matchingItems.length)} de ${matchingItems.length} productos`;
-                    renderPagination(pageCount);
-
-                    if (focusPage) {
-                        paginationList.querySelector(`[data-page="${currentPage}"]`)?.focus();
-                        document.getElementById("collection-title").scrollIntoView({
-                            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-                            block: "start"
-                        });
-                    }
-                };
-
-                document.addEventListener("catalog:product-transferred", (event) => {
-                    const item = event.detail.item;
-                    if (items.includes(item)) {
-                        return;
-                    }
-
-                    items.push(item);
-                    bindCatalogItem(item);
-                    currentPage = Math.ceil(items.length / pageSize);
-                    updateCatalog();
-                });
-
-                paginationList.addEventListener("click", (event) => {
-                    const button = event.target.closest("button[data-page]");
-                    if (!button || button.disabled) {
-                        return;
-                    }
-
-                    currentPage = Number(button.dataset.page);
-                    updateCatalog(true);
-                });
-
-                typeOptions.forEach((option) => {
-                    option.addEventListener("click", () => {
-                        activeFilter = option.dataset.type;
-                        typeFilter.querySelector(".catalog-type-filter__selection").textContent = option.dataset.label;
-                        typeOptions.forEach((candidate) => {
-                            const selected = candidate === option;
-                            candidate.classList.toggle("is-selected", selected);
-                            candidate.setAttribute("aria-pressed", String(selected));
-                        });
-                        typeFilter.setAttribute("aria-label", `Filtrar por tipo: ${option.dataset.label}`);
-                        currentPage = 1;
-                        updateCatalog();
-                        typeFilter.focus();
-                    });
-                });
-
-                typeFilter.addEventListener("shown.bs.dropdown", () => {
-                    typeFilter.closest(".dropdown").querySelector(".catalog-type-filter__option.is-selected")?.focus();
-                });
-
-                searchInput.addEventListener("input", () => {
-                    currentPage = 1;
-                    updateCatalog();
-                });
-
-                updateCatalog();
-            })();
-        </script>
-    }
+        })();
+    </script>
 }

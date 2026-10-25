@@ -34,5 +34,10 @@ public class Dispositivo
     [Column("imagen_url")]
     public string? ImagenUrl { get; set; }
 
+    [Required]
+    [MaxLength(20)]
+    [Column("estado_coleccion")]
+    public string EstadoColeccion { get; set; } = "COLECCION";
+
     public Categoria Categoria { get; set; } = null!;
 }

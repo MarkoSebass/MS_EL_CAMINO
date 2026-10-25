@@ -95,6 +95,12 @@ public class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.IdDispositivo);
             entity.Property(e => e.FechaCompra).HasColumnType("date");
+            entity.Property(e => e.EstadoColeccion)
+                .HasMaxLength(20)
+                .HasDefaultValue("COLECCION")
+                .IsRequired();
+            entity.HasIndex(e => new { e.IdUsuario, e.EstadoColeccion })
+                .HasDatabaseName("ix_dispositivo_usuario_estado_coleccion");
             entity.HasOne(e => e.Categoria)
                 .WithMany()
                 .HasForeignKey(e => e.IdCategoria)

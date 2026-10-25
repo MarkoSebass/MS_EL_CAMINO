@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. CONFIGURACIÓN DE BASE DE DATOS (Entity Framework Core con PostgreSQL / Supabase)
 // ============================================================================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
@@ -56,6 +56,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
 
 // ============================================================================
 // 4. CONTROLADORES MVC Y API
@@ -72,13 +76,20 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "EL CAMINO API",
         Version = "v1",
-        Description = "API de Autenticación y Registro Tecnológico - El Camino",
+        Description = "API de autenticación y catálogo tecnológico. Requiere una sesión iniciada; las operaciones PUT y DELETE requieren rol ADMIN y token X-CSRF-TOKEN obtenido en GET /api/catalogo/antiforgery.",
         Contact = new OpenApiContact
         {
             Name = "El Camino Team",
             Email = "admin@elcamino.com"
         }
     });
+    var xmlDocumentation = Path.Combine(
+        AppContext.BaseDirectory,
+        $"{typeof(Program).Assembly.GetName().Name}.xml");
+    if (File.Exists(xmlDocumentation))
+    {
+        options.IncludeXmlComments(xmlDocumentation);
+    }
 });
 
 var app = builder.Build();
