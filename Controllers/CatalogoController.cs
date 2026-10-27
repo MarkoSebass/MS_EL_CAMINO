@@ -153,7 +153,7 @@ public class CatalogoController : Controller
         return Ok(new
         {
             success = true,
-            message = "Producto registrado en Futuras Colecciones con éxito.",
+            message = "¡Registro completado correctamente!",
             data = new CatalogoProductoViewModel
             {
                 Tipo = "DISPOSITIVO",
@@ -310,7 +310,7 @@ public class CatalogoController : Controller
         return Ok(new
         {
             success = true,
-            message = "Dispositivo actualizado correctamente.",
+            message = "¡Producto actualizado correctamente!",
             data = new
             {
                 idDispositivo = dispositivo.IdDispositivo,
@@ -371,7 +371,7 @@ public class CatalogoController : Controller
         return Ok(new
         {
             success = true,
-            message = "Dispositivo eliminado correctamente.",
+            message = "¡Producto eliminado correctamente!",
             idDispositivo = model.IdDispositivo,
             estadoColeccion
         });

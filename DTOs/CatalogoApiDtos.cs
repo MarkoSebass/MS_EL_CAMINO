@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace MS_EL_CAMINO.DTOs;
 
@@ -12,6 +13,26 @@ public sealed class CatalogoDispositivoDto
     public string? Estado { get; init; }
     public string? ImagenUrl { get; init; }
     public string EstadoColeccion { get; init; } = string.Empty;
+}
+
+public sealed class CatalogoDispositivoCrearDto
+{
+    [Range(1, int.MaxValue, ErrorMessage = "Selecciona una categoría válida.")]
+    public int IdCategoria { get; set; }
+
+    [Required(ErrorMessage = "La marca es requerida.")]
+    [StringLength(100)]
+    public string Marca { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El modelo es requerido.")]
+    [StringLength(150)]
+    public string Modelo { get; set; } = string.Empty;
+
+    public IFormFile? Imagen { get; set; }
+
+    [StringLength(500)]
+    [Url]
+    public string? ImagenUrl { get; set; }
 }
 
 public sealed class CatalogoDispositivoUpdateDto
@@ -78,8 +99,10 @@ public sealed class CatalogoJuegoUpdateDto
 
 public sealed class CatalogoMutationResponseDto
 {
+    public bool Success { get; init; } = true;
     public string Message { get; init; } = string.Empty;
     public string Seccion { get; init; } = "my-collection";
+    public object? Data { get; init; }
 }
 
 public sealed class CatalogoAntiforgeryDto

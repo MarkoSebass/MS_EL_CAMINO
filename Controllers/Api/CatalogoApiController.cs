@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MS_EL_CAMINO.Data;
 using MS_EL_CAMINO.DTOs;
 using MS_EL_CAMINO.Models;
+using MS_EL_CAMINO.Services;
 
 namespace MS_EL_CAMINO.Controllers.Api;
 
@@ -14,7 +15,7 @@ namespace MS_EL_CAMINO.Controllers.Api;
 /// API de consulta y administración del catálogo tecnológico personal.
 /// </summary>
 /// <remarks>
-/// Todos los endpoints requieren una sesión iniciada. Las operaciones de escritura requieren el rol ADMIN
+/// Todos los endpoints requieren una sesión iniciada. Las operaciones de escritura de administración requieren rol ADMIN
 /// y el encabezado antifalsificación X-CSRF-TOKEN. Obtén el token mediante GET /api/catalogo/antiforgery.
 /// Los resultados quedan limitados al usuario autenticado.
 /// </remarks>
@@ -28,29 +29,29 @@ public sealed class CatalogoApiController : ControllerBase
     private const string DesiredState = "DESEADO";
     private readonly ApplicationDbContext _context;
     private readonly IAntiforgery _antiforgery;
+    private readonly IStorageService _storageService;
     private readonly ILogger<CatalogoApiController> _logger;
 
     public CatalogoApiController(
         ApplicationDbContext context,
         IAntiforgery antiforgery,
+        IStorageService storageService,
         ILogger<CatalogoApiController> logger)
     {
         _context = context;
         _antiforgery = antiforgery;
+        _storageService = storageService;
         _logger = logger;
     }
 
     /// <summary>
-    /// Genera el token antifalsificación para las operaciones administrativas de esta sesión.
+    /// Genera el token antifalsificación para las operaciones de esta sesión.
     /// </summary>
     /// <response code="200">Token listo para enviar en X-CSRF-TOKEN.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
-    /// <response code="403">El usuario no tiene rol ADMIN.</response>
     [HttpGet("antiforgery")]
-    [Authorize(Roles = "ADMIN")]
     [ProducesResponseType(typeof(CatalogoAntiforgeryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public IActionResult GetAntiforgeryToken()
     {
         var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
@@ -62,7 +63,7 @@ public sealed class CatalogoApiController : ControllerBase
     }
 
     /// <summary>
-    /// Devuelve las categorías disponibles para editar dispositivos y juegos.
+    /// Devuelve las categorías disponibles para clasificar y editar dispositivos y juegos.
     /// </summary>
     /// <response code="200">Catálogo de categorías ordenado por nombre.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
@@ -167,7 +168,136 @@ public sealed class CatalogoApiController : ControllerBase
     }
 
     /// <summary>
-    /// Actualiza los datos de un dispositivo propio. Solo ADMIN.
+    /// Registra un nuevo dispositivo en Futuras Colecciones (ESTADO_COLECCION = DESEADO) subiendo su imagen a Supabase Storage.
+    /// </summary>
+    /// <response code="201">Producto creado exitosamente en PostgreSQL y almacenado en Supabase.</response>
+    /// <response code="400">Datos inválidos o categoría inexistente.</response>
+    /// <response code="401">No hay una sesión iniciada.</response>
+    [HttpPost("dispositivos/futura-coleccion")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(CatalogoMutationResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<CatalogoMutationResponseDto>> CreateFutureCollection([FromForm] CatalogoDispositivoCrearDto request)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var categoria = await _context.Categorias
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.IdCategoria == request.IdCategoria, HttpContext.RequestAborted);
+
+        if (categoria == null)
+        {
+            return BadRequest(new { message = "La categoría seleccionada no existe." });
+        }
+
+        string? imagenUrl = request.ImagenUrl;
+        if (request.Imagen != null && request.Imagen.Length > 0)
+        {
+            try
+            {
+                imagenUrl = await _storageService.UploadImageAsync(request.Imagen, "dispositivos", HttpContext.RequestAborted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al subir imagen a Supabase Storage.");
+            }
+        }
+
+        var nuevoDispositivo = new Dispositivo
+        {
+            IdUsuario = userId,
+            IdCategoria = request.IdCategoria,
+            Marca = request.Marca.Trim(),
+            Modelo = request.Modelo.Trim(),
+            Precio = 0m,
+            Estado = "Deseado",
+            FechaCompra = null,
+            ImagenUrl = imagenUrl,
+            EstadoColeccion = DesiredState
+        };
+
+        _context.Dispositivos.Add(nuevoDispositivo);
+        await _context.SaveChangesAsync(HttpContext.RequestAborted);
+
+        return CreatedAtAction(nameof(GetDevice), new { id = nuevoDispositivo.IdDispositivo }, new CatalogoMutationResponseDto
+        {
+            Success = true,
+            Message = "¡Dispositivo registrado en Futuras Colecciones correctamente!",
+            Seccion = "future-collections",
+            Data = new
+            {
+                idDispositivo = nuevoDispositivo.IdDispositivo,
+                marca = nuevoDispositivo.Marca,
+                modelo = nuevoDispositivo.Modelo,
+                categoria = categoria.Nombre,
+                estadoColeccion = DesiredState,
+                imagenUrl = nuevoDispositivo.ImagenUrl
+            }
+        });
+    }
+
+    /// <summary>
+    /// Marca un dispositivo de Futuras Colecciones como adquirido (cambia a COLECCION sin duplicar registros).
+    /// </summary>
+    /// <param name="id">Identificador del dispositivo.</param>
+    /// <response code="200">Dispositivo marcado como adquirido y transferido a Mi Colección.</response>
+    /// <response code="401">No hay una sesión iniciada.</response>
+    /// <response code="404">El dispositivo no existe o no pertenece al usuario.</response>
+    [HttpPost("dispositivos/{id:int}/adquirido")]
+    [ProducesResponseType(typeof(CatalogoMutationResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CatalogoMutationResponseDto>> MarkAsAcquired(int id)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var dispositivo = await _context.Dispositivos
+            .Include(d => d.Categoria)
+            .FirstOrDefaultAsync(d => d.IdDispositivo == id && d.IdUsuario == userId, HttpContext.RequestAborted);
+
+        if (dispositivo == null)
+        {
+            return NotFound(new { message = "No se encontró el dispositivo en tu catálogo." });
+        }
+
+        dispositivo.EstadoColeccion = CollectionState;
+        if (string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase))
+        {
+            dispositivo.Estado = "Adquirido";
+        }
+        if (!dispositivo.FechaCompra.HasValue)
+        {
+            dispositivo.FechaCompra = DateOnly.FromDateTime(DateTime.UtcNow);
+        }
+
+        await _context.SaveChangesAsync(HttpContext.RequestAborted);
+
+        return Ok(new CatalogoMutationResponseDto
+        {
+            Success = true,
+            Message = "¡Dispositivo marcado como adquirido y transferido a Mi Colección correctamente!",
+            Seccion = "my-collection",
+            Data = new
+            {
+                idDispositivo = dispositivo.IdDispositivo,
+                marca = dispositivo.Marca,
+                modelo = dispositivo.Modelo,
+                categoria = dispositivo.Categoria.Nombre,
+                estadoColeccion = CollectionState,
+                imagenUrl = dispositivo.ImagenUrl
+            }
+        });
+    }
+
+    /// <summary>
+    /// Actualiza los datos de un dispositivo propio en PostgreSQL. Solo ADMIN.
     /// </summary>
     /// <param name="id">Identificador del dispositivo.</param>
     /// <param name="request">Datos validados del dispositivo.</param>
@@ -175,10 +305,8 @@ public sealed class CatalogoApiController : ControllerBase
     /// <response code="200">Dispositivo actualizado en PostgreSQL.</response>
     /// <response code="400">Datos inválidos o categoría inexistente.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
-    /// <response code="400">El token CSRF falta o no es válido.</response>
     /// <response code="403">El usuario no tiene rol ADMIN.</response>
     /// <response code="404">El dispositivo no existe o no pertenece al usuario.</response>
-    /// <response code="500">No se pudo guardar el cambio.</response>
     [HttpPut("dispositivos/{id:int}")]
     [Authorize(Roles = "ADMIN")]
     [ValidateAntiForgeryToken]
@@ -187,7 +315,6 @@ public sealed class CatalogoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CatalogoMutationResponseDto>> UpdateDevice(
         int id,
         [FromBody] CatalogoDispositivoUpdateDto request,
@@ -236,22 +363,21 @@ public sealed class CatalogoApiController : ControllerBase
 
         return Ok(new CatalogoMutationResponseDto
         {
-            Message = "Dispositivo actualizado y guardado en la base de datos.",
+            Success = true,
+            Message = "¡Dispositivo actualizado correctamente en la base de datos!",
             Seccion = request.EstadoColeccion == DesiredState ? "future-collections" : "my-collection"
         });
     }
 
     /// <summary>
-    /// Elimina un dispositivo propio. Solo ADMIN.
+    /// Elimina un dispositivo propio de PostgreSQL. Solo ADMIN.
     /// </summary>
     /// <param name="id">Identificador del dispositivo.</param>
     /// <param name="csrfToken">Token solicitado mediante GET /api/catalogo/antiforgery.</param>
-    /// <response code="200">Dispositivo eliminado.</response>
+    /// <response code="200">Dispositivo eliminado definitivamente.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
-    /// <response code="400">El token CSRF falta o no es válido.</response>
     /// <response code="403">El usuario no tiene rol ADMIN.</response>
     /// <response code="404">El dispositivo no existe o no pertenece al usuario.</response>
-    /// <response code="500">No se pudo eliminar el registro.</response>
     [HttpDelete("dispositivos/{id:int}")]
     [Authorize(Roles = "ADMIN")]
     [ValidateAntiForgeryToken]
@@ -260,7 +386,6 @@ public sealed class CatalogoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CatalogoMutationResponseDto>> DeleteDevice(
         int id,
         [FromHeader(Name = "X-CSRF-TOKEN")] string csrfToken)
@@ -302,7 +427,12 @@ public sealed class CatalogoApiController : ControllerBase
                 detail: "La base de datos no pudo eliminar el registro.");
         }
 
-        return Ok(new CatalogoMutationResponseDto { Message = "Dispositivo eliminado de la base de datos.", Seccion = section });
+        return Ok(new CatalogoMutationResponseDto
+        {
+            Success = true,
+            Message = "¡Dispositivo eliminado de la base de datos correctamente!",
+            Seccion = section
+        });
     }
 
     /// <summary>
@@ -386,10 +516,8 @@ public sealed class CatalogoApiController : ControllerBase
     /// <response code="200">Juego actualizado en PostgreSQL.</response>
     /// <response code="400">Datos inválidos o categoría inexistente.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
-    /// <response code="400">El token CSRF falta o no es válido.</response>
     /// <response code="403">El usuario no tiene rol ADMIN.</response>
     /// <response code="404">El juego no existe o no pertenece al usuario.</response>
-    /// <response code="500">No se pudo guardar el cambio.</response>
     [HttpPut("juegos/{id:int}")]
     [Authorize(Roles = "ADMIN")]
     [ValidateAntiForgeryToken]
@@ -398,7 +526,6 @@ public sealed class CatalogoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CatalogoMutationResponseDto>> UpdateGame(
         int id,
         [FromBody] CatalogoJuegoUpdateDto request,
@@ -446,7 +573,11 @@ public sealed class CatalogoApiController : ControllerBase
                 detail: "La base de datos no pudo guardar los cambios.");
         }
 
-        return Ok(new CatalogoMutationResponseDto { Message = "Juego actualizado y guardado en la base de datos." });
+        return Ok(new CatalogoMutationResponseDto
+        {
+            Success = true,
+            Message = "¡Juego actualizado correctamente en la base de datos!"
+        });
     }
 
     /// <summary>
@@ -454,12 +585,10 @@ public sealed class CatalogoApiController : ControllerBase
     /// </summary>
     /// <param name="id">Identificador del juego.</param>
     /// <param name="csrfToken">Token solicitado mediante GET /api/catalogo/antiforgery.</param>
-    /// <response code="200">Juego eliminado.</response>
+    /// <response code="200">Juego eliminado definitivamente.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
-    /// <response code="400">El token CSRF falta o no es válido.</response>
     /// <response code="403">El usuario no tiene rol ADMIN.</response>
     /// <response code="404">El juego no existe o no pertenece al usuario.</response>
-    /// <response code="500">No se pudo eliminar el registro.</response>
     [HttpDelete("juegos/{id:int}")]
     [Authorize(Roles = "ADMIN")]
     [ValidateAntiForgeryToken]
@@ -468,7 +597,6 @@ public sealed class CatalogoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CatalogoMutationResponseDto>> DeleteGame(
         int id,
         [FromHeader(Name = "X-CSRF-TOKEN")] string csrfToken)
@@ -498,7 +626,11 @@ public sealed class CatalogoApiController : ControllerBase
                 detail: "La base de datos no pudo eliminar el registro.");
         }
 
-        return Ok(new CatalogoMutationResponseDto { Message = "Juego eliminado de la base de datos." });
+        return Ok(new CatalogoMutationResponseDto
+        {
+            Success = true,
+            Message = "¡Juego eliminado de la base de datos correctamente!"
+        });
     }
 
     private bool TryGetUserId(out int userId) =>

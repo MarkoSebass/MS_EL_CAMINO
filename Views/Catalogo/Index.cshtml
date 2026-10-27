@@ -426,8 +426,31 @@
     </div>
 </div>
 
+@* Toast flotante para notificaciones de éxito instantáneas *@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="catalog-feedback-toast" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success fs-5" aria-hidden="true"></i>
+                <span id="catalog-feedback-toast-message">Operación completada con éxito.</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // Función global de notificación tipo Toast instantáneo
+        const showCatalogToast = (message) => {
+            const toastEl = document.getElementById("catalog-feedback-toast");
+            const msgEl = document.getElementById("catalog-feedback-toast-message");
+            if (toastEl && msgEl) {
+                msgEl.textContent = message;
+                const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 3500 });
+                toast.show();
+            }
+        };
         (() => {
             const page = document.querySelector(".catalog-page");
             const tabs = Array.from(document.querySelectorAll("[data-catalog-section]"));
@@ -861,8 +884,9 @@
                         // Mover inmediatamente la tarjeta a Mi Colección sin recarga
                         updateCardInDOM(selectedItem, result.data);
                         modal.hide();
+                        showCatalogToast(result.message || "¡Producto marcado como adquirido correctamente!");
 
-                        // Opcional: mostrar un aviso visual rápido o activar pestaña Mi Colección
+                        // Activar pestaña Mi Colección
                         const tabCurrent = document.getElementById("catalog-tab-current");
                         if (tabCurrent) tabCurrent.click();
                     } catch (ex) {
@@ -928,6 +952,7 @@
                             updateCardInDOM(selectedItem, result.data);
                             openDetails(selectedItem);
                             showAdminMode("details");
+                            showCatalogToast(result.message || "¡Producto actualizado correctamente!");
                         } else {
                             const id = selectedItem.dataset.gameId;
                             const payload = {
@@ -993,6 +1018,7 @@
 
                             modal.hide();
                             removeCardFromDOM(selectedItem);
+                            showCatalogToast(result.message || "¡Producto eliminado correctamente!");
                         } else {
                             const id = selectedItem.dataset.gameId;
                             const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
@@ -1002,6 +1028,7 @@
                             if (!response.ok) throw new Error("Error al eliminar el juego.");
                             modal.hide();
                             removeCardFromDOM(selectedItem);
+                            showCatalogToast(result.message || "¡Producto eliminado correctamente!");
                         }
                     } catch (exception) {
                         if (error) {
@@ -1101,6 +1128,7 @@
                         updateCounts();
                         futureCreateForm.reset();
                         if (futureCreateModal) futureCreateModal.hide();
+                        showCatalogToast(result.message || "¡Registro completado correctamente!");
                     } catch (ex) {
                         if (errorEl) {
                             errorEl.textContent = ex.message;
