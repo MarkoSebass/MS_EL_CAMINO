@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using MS_EL_CAMINO.Models;
 
 namespace MS_EL_CAMINO.ViewModels;
@@ -35,6 +36,25 @@ public class CatalogoProductoViewModel
     public string Icono { get; set; } = "bi-box-seam";
 }
 
+public class DispositivoCrearFuturaColeccionViewModel
+{
+    [Required(ErrorMessage = "La categoría es obligatoria.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Selecciona una categoría válida.")]
+    [Display(Name = "Categoría")]
+    public int IdCategoria { get; set; }
+
+    [Required(ErrorMessage = "La marca es requerida.")]
+    [StringLength(100, ErrorMessage = "La marca no puede superar los 100 caracteres.")]
+    public string Marca { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El modelo es requerido.")]
+    [StringLength(150, ErrorMessage = "El modelo no puede superar los 150 caracteres.")]
+    public string Modelo { get; set; } = string.Empty;
+
+    [Display(Name = "Imagen")]
+    public IFormFile? Imagen { get; set; }
+}
+
 public class DispositivoEditarViewModel
 {
     [Required]
@@ -69,6 +89,12 @@ public class DispositivoEditarViewModel
 }
 
 public class DispositivoEliminarViewModel
+{
+    [Required]
+    public int IdDispositivo { get; set; }
+}
+
+public class DispositivoMarcarAdquiridoViewModel
 {
     [Required]
     public int IdDispositivo { get; set; }

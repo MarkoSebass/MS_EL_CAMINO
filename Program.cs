@@ -26,6 +26,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 // 2. INYECCIÓN DE DEPENDENCIAS (Servicios de Aplicación)
 // ============================================================================
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+builder.Services.AddHttpClient<IStorageService, SupabaseStorageService>();
 
 // ============================================================================
 // 3. CONFIGURACIÓN DE AUTENTICACIÓN Y COOKIES

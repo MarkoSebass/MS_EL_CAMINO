@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MS_EL_CAMINO.Data;
 using MS_EL_CAMINO.Models;
+using MS_EL_CAMINO.Services;
 using MS_EL_CAMINO.ViewModels;
 
 namespace MS_EL_CAMINO.Controllers;
@@ -14,13 +15,16 @@ public class CatalogoController : Controller
     private const string CollectionState = "COLECCION";
     private const string DesiredState = "DESEADO";
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly IStorageService _storageService;
     private readonly ILogger<CatalogoController> _logger;
 
     public CatalogoController(
         IDbContextFactory<ApplicationDbContext> contextFactory,
+        IStorageService storageService,
         ILogger<CatalogoController> logger)
     {
         _contextFactory = contextFactory;
+        _storageService = storageService;
         _logger = logger;
     }
 
@@ -70,6 +74,176 @@ public class CatalogoController : Controller
         };
 
         return View(viewModel);
+    }
+
+    /// <summary>
+    /// Registro de un nuevo producto en 'Futuras Colecciones' (ESTADO_COLECCION = 'DESEADO').
+    /// Sube la imagen a Supabase Storage y obtiene su URL pública para guardarla en PostgreSQL.
+    /// Respuesta instantánea vía AJAX.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CrearFuturaColeccion([FromForm] DispositivoCrearFuturaColeccionViewModel model)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(new { success = false, message = "Datos incompletos o inválidos.", errors });
+        }
+
+        await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
+
+        var categoria = await context.Categorias
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.IdCategoria == model.IdCategoria, HttpContext.RequestAborted);
+
+        if (categoria == null)
+        {
+            return BadRequest(new { success = false, message = "La categoría seleccionada no existe." });
+        }
+
+        string? imagenUrl = null;
+        if (model.Imagen != null && model.Imagen.Length > 0)
+        {
+            try
+            {
+                imagenUrl = await _storageService.UploadImageAsync(model.Imagen, "dispositivos", HttpContext.RequestAborted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al subir imagen a Supabase Storage para nueva futura colección.");
+            }
+        }
+
+        var nuevoDispositivo = new Dispositivo
+        {
+            IdUsuario = userId,
+            IdCategoria = model.IdCategoria,
+            Marca = model.Marca.Trim(),
+            Modelo = model.Modelo.Trim(),
+            Precio = 0m,
+            Estado = "Deseado",
+            FechaCompra = null,
+            ImagenUrl = imagenUrl,
+            EstadoColeccion = DesiredState
+        };
+
+        try
+        {
+            context.Dispositivos.Add(nuevoDispositivo);
+            await context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al registrar futura colección en PostgreSQL para usuario {UserId}", userId);
+            return StatusCode(500, new { success = false, message = "Error al guardar el nuevo producto en la base de datos." });
+        }
+
+        var nombreCompleto = $"{nuevoDispositivo.Marca} {nuevoDispositivo.Modelo}".Trim();
+        var icono = GetDeviceIcon(categoria.Nombre);
+
+        return Ok(new
+        {
+            success = true,
+            message = "Producto registrado en Futuras Colecciones con éxito.",
+            data = new CatalogoProductoViewModel
+            {
+                Tipo = "DISPOSITIVO",
+                Categoria = categoria.Nombre,
+                CategoriaId = categoria.IdCategoria,
+                Nombre = nombreCompleto,
+                DispositivoId = nuevoDispositivo.IdDispositivo,
+                EstadoColeccion = DesiredState,
+                Marca = nuevoDispositivo.Marca,
+                Modelo = nuevoDispositivo.Modelo,
+                Estado = nuevoDispositivo.Estado,
+                ImagenUrl = nuevoDispositivo.ImagenUrl,
+                Icono = icono
+            }
+        });
+    }
+
+    /// <summary>
+    /// Marca un dispositivo de 'Futuras Colecciones' como adquirido (ESTADO_COLECCION = 'COLECCION').
+    /// No duplica datos ni mueve entre tablas, solo actualiza la columna estado_coleccion en PostgreSQL.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarcarComoAdquirido([FromBody] DispositivoMarcarAdquiridoViewModel model)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        if (model == null || model.IdDispositivo <= 0)
+        {
+            return BadRequest(new { success = false, message = "Identificador de producto inválido." });
+        }
+
+        await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
+
+        var dispositivo = await context.Dispositivos
+            .Include(d => d.Categoria)
+            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
+
+        if (dispositivo == null)
+        {
+            return NotFound(new { success = false, message = "El producto no fue encontrado en tu catálogo." });
+        }
+
+        // Actualización directa sin crear registros nuevos ni duplicar datos
+        dispositivo.EstadoColeccion = CollectionState;
+        if (string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase))
+        {
+            dispositivo.Estado = "Adquirido";
+        }
+        if (!dispositivo.FechaCompra.HasValue)
+        {
+            dispositivo.FechaCompra = DateOnly.FromDateTime(DateTime.UtcNow);
+        }
+
+        try
+        {
+            await context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al marcar como adquirido el dispositivo {Id} del usuario {UserId}", model.IdDispositivo, userId);
+            return StatusCode(500, new { success = false, message = "Error al actualizar en la base de datos." });
+        }
+
+        var nombreCompleto = $"{dispositivo.Marca} {dispositivo.Modelo}".Trim();
+        var icono = GetDeviceIcon(dispositivo.Categoria.Nombre);
+
+        return Ok(new
+        {
+            success = true,
+            message = "¡Producto marcado como adquirido y movido a Mi Colección!",
+            data = new CatalogoProductoViewModel
+            {
+                Tipo = "DISPOSITIVO",
+                Categoria = dispositivo.Categoria.Nombre,
+                CategoriaId = dispositivo.IdCategoria,
+                Nombre = nombreCompleto,
+                DispositivoId = dispositivo.IdDispositivo,
+                EstadoColeccion = CollectionState,
+                Marca = dispositivo.Marca,
+                Modelo = dispositivo.Modelo,
+                Estado = dispositivo.Estado,
+                ImagenUrl = dispositivo.ImagenUrl,
+                FechaCompra = dispositivo.FechaCompra,
+                Icono = icono
+            }
+        });
     }
 
     /// <summary>
