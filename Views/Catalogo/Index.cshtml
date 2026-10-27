@@ -37,7 +37,7 @@
                 <strong>Futuras colecciones</strong>
                 <span>Lo que viene en el camino</span>
             </span>
-            <span class="catalog-section-nav__count">@dispositivosFuturos.Count</span>
+            <span class="catalog-section-nav__count" id="catalog-tab-future-count">@dispositivosFuturos.Count</span>
         </button>
     </nav>
 
@@ -93,13 +93,13 @@
                                         data-type="TODOS" data-label="Todos los productos" aria-pressed="true">
                                     <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
                                     <span class="catalog-type-filter__option-label">Todos los productos</span>
-                                    <span class="catalog-type-filter__count">@Model.Productos.Count</span>
+                                    <span class="catalog-type-filter__count" id="filter-count-todos">@Model.Productos.Count</span>
                                 </button>
                                 <button class="dropdown-item catalog-type-filter__option" type="button"
                                         data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
                                     <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
                                     <span class="catalog-type-filter__option-label">Dispositivos</span>
-                                    <span class="catalog-type-filter__count">@Model.TotalDispositivos</span>
+                                    <span class="catalog-type-filter__count" id="filter-count-dispositivos">@Model.TotalDispositivos</span>
                                 </button>
                                 <button class="dropdown-item catalog-type-filter__option" type="button"
                                         data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
@@ -129,7 +129,7 @@
 
             @if (Model.Productos.Count == 0)
             {
-                <div class="catalog-empty">
+                <div class="catalog-empty" id="catalog-main-empty">
                     <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
                     <h3>Tu colección empieza aquí.</h3>
                     <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
@@ -206,61 +206,58 @@
                 <h2>Futuras colecciones</h2>
                 <p>Dispositivos que quieres sumar más adelante.</p>
             </div>
-            <span class="catalog-future__badge"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @dispositivosFuturos.Count EN LA LISTA</span>
+            <span class="catalog-future__badge" id="future-badge-count"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @dispositivosFuturos.Count EN LA LISTA</span>
         </div>
-        @if (dispositivosFuturos.Count == 0)
-        {
-            <div class="catalog-future__empty">
-                <div class="catalog-future__mark" aria-hidden="true"><span>02</span><i class="bi bi-stars"></i></div>
-                <div class="catalog-future__copy">
-                    <span class="catalog-future__eyebrow">EL SIGUIENTE CAPÍTULO</span>
-                    <h3>Tus próximas piezas empiezan con una idea.</h3>
-                    <p>Los dispositivos que se registren con estado <strong>DESEADO</strong> aparecerán aquí, separados de los que ya forman parte de tu colección.</p>
-                </div>
-                <span class="catalog-future__spark catalog-future__spark--one" aria-hidden="true"></span>
-                <span class="catalog-future__spark catalog-future__spark--two" aria-hidden="true"></span>
-            </div>
-        }
-        else
-        {
-            <div class="catalog-grid catalog-grid--future">
-                @foreach (var producto in dispositivosFuturos)
-                {
-                    var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
-                    <article class="catalog-card" data-future-catalog-item
-                             data-type="@producto.Tipo" data-name="@producto.Nombre"
-                             data-category="@producto.Categoria" data-category-id="@producto.CategoriaId" data-brand="@producto.Marca"
-                             data-model="@producto.Modelo" data-status="@producto.Estado"
-                             data-platform="@producto.Plataforma" data-genre="@producto.Genero" data-game-id="@producto.JuegoId"
-                             data-image="@producto.ImagenUrl" data-device-id="@producto.DispositivoId"
-                             data-collection-state="@producto.EstadoColeccion"
-                             role="button" tabindex="0" aria-haspopup="dialog"
-                             aria-label="Ver detalles de @producto.Nombre">
-                        <div class="catalog-card__visual">
-                            @if (tieneImagen)
-                            {
-                                <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
-                            }
-                            <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
-                                <span></span><i class="bi @producto.Icono"></i>
-                            </div>
-                            <span class="catalog-card__type">DISPOSITIVO</span>
+        <div class="catalog-grid catalog-grid--future" id="catalog-future-grid">
+            @foreach (var producto in dispositivosFuturos)
+            {
+                var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                <article class="catalog-card" data-future-catalog-item
+                         data-type="@producto.Tipo" data-name="@producto.Nombre"
+                         data-category="@producto.Categoria" data-category-id="@producto.CategoriaId" data-brand="@producto.Marca"
+                         data-model="@producto.Modelo" data-status="@producto.Estado"
+                         data-platform="@producto.Plataforma" data-genre="@producto.Genero" data-game-id="@producto.JuegoId"
+                         data-image="@producto.ImagenUrl" data-device-id="@producto.DispositivoId"
+                         data-collection-state="@producto.EstadoColeccion"
+                         role="button" tabindex="0" aria-haspopup="dialog"
+                         aria-label="Ver detalles de @producto.Nombre">
+                    <div class="catalog-card__visual">
+                        @if (tieneImagen)
+                        {
+                            <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
+                        }
+                        <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                            <span></span><i class="bi @producto.Icono"></i>
                         </div>
-                        <div class="catalog-card__body">
-                            <span class="catalog-card__category">@producto.Categoria</span>
-                            <h3>@producto.Nombre</h3>
-                            <div class="catalog-card__meta">
-                                <span class="catalog-card__status"><i aria-hidden="true"></i>@(string.IsNullOrWhiteSpace(producto.Estado) ? "Deseado" : producto.Estado)</span>
-                                <span class="catalog-card__collection-state">DESEADO</span>
-                            </div>
+                        <span class="catalog-card__type">DISPOSITIVO</span>
+                    </div>
+                    <div class="catalog-card__body">
+                        <span class="catalog-card__category">@producto.Categoria</span>
+                        <h3>@producto.Nombre</h3>
+                        <div class="catalog-card__meta">
+                            <span class="catalog-card__status"><i aria-hidden="true"></i>@(string.IsNullOrWhiteSpace(producto.Estado) ? "Deseado" : producto.Estado)</span>
+                            <span class="catalog-card__collection-state">DESEADO</span>
                         </div>
-                    </article>
-                }
+                    </div>
+                </article>
+            }
+        </div>
+        <div class="catalog-future__empty" id="catalog-future-empty" hidden="@(dispositivosFuturos.Count > 0 ? "hidden" : null)">
+            <div class="catalog-future__mark" aria-hidden="true"><span>02</span><i class="bi bi-stars"></i></div>
+            <div class="catalog-future__copy">
+                <span class="catalog-future__eyebrow">EL SIGUIENTE CAPÍTULO</span>
+                <h3>Tus próximas piezas empiezan con una idea.</h3>
+                <p>Los dispositivos que se registren con estado <strong>DESEADO</strong> aparecerán aquí, separados de los que ya forman parte de tu colección.</p>
             </div>
-        }
+            <span class="catalog-future__spark catalog-future__spark--one" aria-hidden="true"></span>
+            <span class="catalog-future__spark catalog-future__spark--two" aria-hidden="true"></span>
+        </div>
     </section>
 </div>
 
+@* ========================================================== *@
+@* MODAL BOOTSTRAP 5: DETALLES, EDICIÓN Y ELIMINACIÓN         *@
+@* ========================================================== *@
 <div class="modal fade catalog-detail-modal" id="catalog-detail-modal" tabindex="-1" aria-labelledby="catalog-detail-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content">
@@ -272,6 +269,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
+                @* Panel de Información Detallada *@
                 <div class="catalog-detail-modal__layout" id="catalog-detail-panel">
                     <div class="catalog-detail-modal__visual">
                         <span class="catalog-detail-modal__visual-label"><i class="bi bi-box-seam" aria-hidden="true"></i> PIEZA DE TU RECORRIDO</span>
@@ -285,8 +283,10 @@
                         <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
                     </div>
                 </div>
+
                 @if (esAdmin)
                 {
+                    @* Formulario de Edición (Solo ADMIN) *@
                     <form id="catalog-device-edit-form" method="post" class="catalog-admin-form" hidden>
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="IdDispositivo" />
@@ -306,38 +306,34 @@
                                 </select>
                             </label>
                             <label>Estado<input class="form-control" name="Estado" required maxlength="100" /></label>
-                            <label data-device-field>Sección
+                            <label data-device-field>Estado de Colección
                                 <select class="form-select" name="EstadoColeccion" required>
                                     <option value="COLECCION">Mi colección</option>
                                     <option value="DESEADO">Futuras colecciones</option>
                                 </select>
                             </label>
-                            <label class="catalog-admin-form__image">Imagen URL<input class="form-control" name="ImagenUrl" type="url" maxlength="500" placeholder="https://..." /></label>
-                        </div>
-                        <div class="catalog-edit-confirm" id="catalog-edit-confirm" hidden>
-                            <i class="bi bi-shield-check" aria-hidden="true"></i>
-                            <h3>¿Confirmas guardar los cambios?</h3>
-                            <p id="catalog-edit-confirm-message">El registro se actualizará en la base de datos.</p>
-                            <div class="catalog-delete-confirm__actions">
-                                <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-confirm-cancel">Volver a revisar</button>
-                                <button type="button" class="btn catalog-admin-save" id="catalog-edit-confirm-button">Sí, guardar cambios</button>
-                            </div>
-                            <div class="catalog-admin-form__error" id="catalog-edit-confirm-error" role="alert" hidden></div>
+                            <label class="catalog-admin-form__image">URL de Imagen<input class="form-control" name="ImagenUrl" type="url" maxlength="500" placeholder="https://..." /></label>
                         </div>
                         <div class="catalog-admin-form__error" id="catalog-edit-error" role="alert" hidden></div>
                     </form>
+
+                    @* Diálogo de Confirmación para Eliminar *@
                     <div class="catalog-delete-confirm" id="catalog-delete-confirm" hidden>
                         <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                        <h3 id="catalog-delete-confirm-title">¿Estás seguro de eliminar este elemento?</h3>
-                        <p id="catalog-delete-confirm-message">Esta acción eliminará definitivamente el registro de la base de datos y no se puede deshacer.</p>
+                        <h3 id="catalog-delete-confirm-title">¿Estás seguro de eliminar este producto?</h3>
+                        <p id="catalog-delete-confirm-message">Esta acción eliminará definitivamente el registro de la base de datos PostgreSQL y no se puede deshacer.</p>
                         <div class="catalog-delete-confirm__actions">
                             <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel">Cancelar</button>
-                            <button type="button" class="btn catalog-admin-danger" id="catalog-delete-confirm-button">Sí, eliminar</button>
+                            <button type="button" class="btn catalog-admin-danger" id="catalog-delete-confirm-button">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="delete-spinner"></span>
+                                Sí, eliminar
+                            </button>
                         </div>
                         <div class="catalog-admin-form__error" id="catalog-delete-error" role="alert" hidden></div>
                     </div>
                 }
             </div>
+
             <div class="modal-footer catalog-detail-modal__footer">
                 @if (esAdmin)
                 {
@@ -347,7 +343,10 @@
                     </div>
                     <div class="catalog-admin-actions" id="catalog-edit-actions" hidden>
                         <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-cancel">Cancelar</button>
-                        <button type="submit" form="catalog-device-edit-form" class="btn catalog-admin-save" id="catalog-edit-save"><i class="bi bi-check2 me-2" aria-hidden="true"></i>Guardar cambios</button>
+                        <button type="button" class="btn catalog-admin-save" id="catalog-edit-save">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="edit-spinner"></span>
+                            <i class="bi bi-check2 me-2" aria-hidden="true" id="edit-save-icon"></i>Guardar cambios
+                        </button>
                     </div>
                 }
                 <button type="button" class="btn catalog-detail-modal__close-action" id="catalog-modal-close" data-bs-dismiss="modal">
@@ -389,23 +388,25 @@
             activateTab(tabs.find((tab) => tab.dataset.catalogSection === initialPanel) || tabs[0]);
         })();
 
-        (() => {
+        // Módulo de Filtrado y Paginación
+        const CatalogFilter = (() => {
             const grid = document.getElementById("catalog-grid");
-            if (!grid) return;
-
-            const items = Array.from(grid.querySelectorAll("[data-catalog-item]"));
-            const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
             const searchInput = document.getElementById("catalog-search");
             const resultsLabel = document.getElementById("catalog-results");
             const noResults = document.getElementById("catalog-no-results");
             const pagination = document.getElementById("catalog-pagination");
             const paginationList = document.getElementById("catalog-pagination-list");
+            const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
             const pageSize = 9;
             let activeFilter = "TODOS";
             let currentPage = 1;
 
+            const getItems = () => grid ? Array.from(grid.querySelectorAll("[data-catalog-item]")) : [];
+
             const showPage = () => {
-                const query = searchInput.value.trim().toLocaleLowerCase("es");
+                if (!grid) return;
+                const items = getItems();
+                const query = (searchInput?.value || "").trim().toLocaleLowerCase("es");
                 const matches = items.filter((item) => {
                     const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
                     const matchesText = `${item.dataset.name} ${item.dataset.category} ${item.dataset.brand}`
@@ -416,10 +417,12 @@
                 currentPage = Math.min(currentPage, Math.max(pageCount, 1));
                 const visibleItems = new Set(matches.slice((currentPage - 1) * pageSize, currentPage * pageSize));
                 items.forEach((item) => item.hidden = !visibleItems.has(item));
-                resultsLabel.textContent = `${matches.length} ${matches.length === 1 ? "producto" : "productos"}`;
-                noResults.hidden = matches.length > 0;
-                pagination.hidden = pageCount <= 1;
-                paginationList.replaceChildren();
+                if (resultsLabel) {
+                    resultsLabel.textContent = `${matches.length} ${matches.length === 1 ? "producto" : "productos"}`;
+                }
+                if (noResults) noResults.hidden = matches.length > 0;
+                if (pagination) pagination.hidden = pageCount <= 1;
+                if (paginationList) paginationList.replaceChildren();
 
                 const addPageButton = (label, pageNumber, current = false, disabled = false) => {
                     const listItem = document.createElement("li");
@@ -437,7 +440,7 @@
                     paginationList.append(listItem);
                 };
 
-                if (pageCount > 1) {
+                if (pageCount > 1 && paginationList) {
                     addPageButton("‹", currentPage - 1, false, currentPage === 1);
                     for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
                         addPageButton(String(pageNumber), pageNumber, pageNumber === currentPage);
@@ -454,17 +457,25 @@
                     candidate.classList.toggle("is-selected", selected);
                     candidate.setAttribute("aria-pressed", String(selected));
                 });
-                document.querySelector(".catalog-type-filter__selection").textContent = option.dataset.label;
-                bootstrap.Dropdown.getOrCreateInstance(document.getElementById("catalog-type-filter")).hide();
+                const sel = document.querySelector(".catalog-type-filter__selection");
+                if (sel) sel.textContent = option.dataset.label;
+                const dropdownInstance = bootstrap.Dropdown.getInstance(document.getElementById("catalog-type-filter"));
+                if (dropdownInstance) dropdownInstance.hide();
                 showPage();
             }));
-            searchInput.addEventListener("input", () => {
-                currentPage = 1;
-                showPage();
-            });
+
+            if (searchInput) {
+                searchInput.addEventListener("input", () => {
+                    currentPage = 1;
+                    showPage();
+                });
+            }
+
             showPage();
+            return { refresh: showPage };
         })();
 
+        // Módulo de Modal y Gestión de Productos
         (() => {
             const modalElement = document.getElementById("catalog-detail-modal");
             const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
@@ -476,7 +487,6 @@
             const detailPanel = document.getElementById("catalog-detail-panel");
             const editForm = document.getElementById("catalog-device-edit-form");
             const editFields = document.getElementById("catalog-edit-fields");
-            const editConfirm = document.getElementById("catalog-edit-confirm");
             const adminActions = document.getElementById("catalog-admin-actions");
             const editActions = document.getElementById("catalog-edit-actions");
             const deleteConfirm = document.getElementById("catalog-delete-confirm");
@@ -486,6 +496,7 @@
             let selectedItem = null;
 
             const isAdmin = Boolean(editForm);
+
             const appendDetail = (label, value) => {
                 if (!value) return;
                 const row = document.createElement("div");
@@ -511,7 +522,7 @@
                 appendDetail("Categoría", product.category);
                 appendDetail("Estado", product.status || (product.collectionState === "DESEADO" ? "Deseado" : null));
                 if (product.type === "DISPOSITIVO") {
-                    appendDetail("Colección", product.collectionState === "DESEADO" ? "Futuras colecciones" : "Mi colección");
+                    appendDetail("Estado de Colección", product.collectionState === "DESEADO" ? "Futuras colecciones" : "Mi colección");
                 }
 
                 detailImage.hidden = true;
@@ -544,7 +555,6 @@
                     closeButton.hidden = false;
                     editForm.hidden = true;
                     editFields.hidden = false;
-                    editConfirm.hidden = true;
                     detailPanel.hidden = false;
                     deleteConfirm.hidden = true;
                     deviceFields.forEach((field) => {
@@ -575,19 +585,17 @@
                 modal.show();
             };
 
-            const cards = [
-                ...document.querySelectorAll("[data-catalog-item]"),
-                ...document.querySelectorAll("[data-future-catalog-item]")
-            ];
-            cards.forEach((item) => {
-                item.addEventListener("click", () => openDetails(item));
-                item.addEventListener("keydown", (event) => {
+            const bindCardEvents = (card) => {
+                card.addEventListener("click", () => openDetails(card));
+                card.addEventListener("keydown", (event) => {
                     if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        openDetails(item);
+                        openDetails(card);
                     }
                 });
-            });
+            };
+
+            document.querySelectorAll("[data-catalog-item], [data-future-catalog-item]").forEach(bindCardEvents);
 
             document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
                 image.addEventListener("error", () => {
@@ -601,19 +609,18 @@
 
             const showAdminMode = (mode) => {
                 detailPanel.hidden = mode !== "details";
-                editForm.hidden = mode !== "edit" && mode !== "edit-confirm";
+                editForm.hidden = mode !== "edit";
                 editFields.hidden = mode !== "edit";
-                editConfirm.hidden = mode !== "edit-confirm";
                 deleteConfirm.hidden = mode !== "delete";
                 adminActions.hidden = mode !== "details" || !(selectedItem?.dataset.deviceId || selectedItem?.dataset.gameId);
                 editActions.hidden = mode !== "edit";
                 closeButton.hidden = mode !== "details";
                 document.getElementById("catalog-edit-error").hidden = true;
-                document.getElementById("catalog-edit-confirm-error").hidden = true;
                 document.getElementById("catalog-delete-error").hidden = true;
                 if (mode === "delete") {
-                    const itemName = selectedItem?.dataset.name || "este elemento";
-                    document.getElementById("catalog-delete-confirm-title").textContent = `¿Confirmas eliminar ${itemName}?`;
+                    const itemName = selectedItem?.dataset.name || "este producto";
+                    document.getElementById("catalog-delete-confirm-title").textContent = `¿Estás seguro de eliminar este producto?`;
+                    document.getElementById("catalog-delete-confirm-message").textContent = `¿Confirmas eliminar ${itemName}? Se eliminará permanentemente de PostgreSQL.`;
                 }
             };
 
@@ -621,70 +628,152 @@
             document.getElementById("catalog-edit-cancel").addEventListener("click", () => showAdminMode("details"));
             document.getElementById("catalog-delete-button").addEventListener("click", () => showAdminMode("delete"));
             document.getElementById("catalog-delete-cancel").addEventListener("click", () => showAdminMode("details"));
-            document.getElementById("catalog-edit-confirm-cancel").addEventListener("click", () => showAdminMode("edit"));
 
-            const sendRequest = async (method, url, payload = null) => {
-                const token = editForm.elements.__RequestVerificationToken.value;
-                const headers = {
-                    "Accept": "application/json",
-                    "X-CSRF-TOKEN": token
-                };
-                if (payload) headers["Content-Type"] = "application/json";
-                const response = await fetch(url, {
-                    method,
-                    headers,
-                    body: payload ? JSON.stringify(payload) : undefined,
-                    credentials: "same-origin",
-                    cache: "no-store",
-                    redirect: "error"
-                });
-                const responseText = await response.text();
-                let result = null;
-                try {
-                    result = responseText ? JSON.parse(responseText) : null;
-                } catch {
-                    result = null;
+            // Actualización DOM Instantánea tras Editar
+            const updateCardInDOM = (card, data) => {
+                card.dataset.name = data.nombre;
+                card.dataset.brand = data.marca;
+                card.dataset.model = data.modelo;
+                card.dataset.category = data.categoria;
+                card.dataset.categoryId = data.idCategoria;
+                card.dataset.status = data.estado;
+                card.dataset.image = data.imagenUrl || "";
+                
+                const titleEl = card.querySelector("h3");
+                if (titleEl) titleEl.textContent = data.nombre;
+
+                const catEl = card.querySelector(".catalog-card__category");
+                if (catEl) catEl.textContent = data.categoria;
+
+                const statusEl = card.querySelector(".catalog-card__status");
+                if (statusEl) {
+                    statusEl.innerHTML = `<i aria-hidden="true"></i>${data.estado}`;
                 }
-                if (!response.ok) {
-                    const validationErrors = result?.errors
-                        ? Object.values(result.errors).flat().join(" ")
-                        : null;
-                    throw new Error([result?.message, result?.title, result?.detail, validationErrors].filter(Boolean).join(" ")
-                        || responseText
-                        || `La operación falló (HTTP ${response.status}).`);
+
+                const imgContainer = card.querySelector(".catalog-card__visual");
+                if (imgContainer) {
+                    let img = imgContainer.querySelector("img");
+                    const placeholder = imgContainer.querySelector(".catalog-card__placeholder");
+                    if (data.imagenUrl) {
+                        if (!img) {
+                            img = document.createElement("img");
+                            img.alt = `Imagen de ${data.nombre}`;
+                            img.loading = "lazy";
+                            imgContainer.prepend(img);
+                        }
+                        img.src = data.imagenUrl;
+                        img.hidden = false;
+                        if (placeholder) placeholder.hidden = true;
+                    } else {
+                        if (img) img.remove();
+                        if (placeholder) placeholder.hidden = false;
+                    }
                 }
-                if (!result) {
-                    throw new Error("El servidor respondió sin confirmar el resultado de la operación. Recarga el catálogo antes de volver a intentarlo.");
+
+                // Si cambió el estado de colección (Mi colección vs Futuras colecciones), moverlo de contenedor
+                const oldState = card.dataset.collectionState;
+                const newState = data.estadoColeccion;
+                if (oldState !== newState) {
+                    card.dataset.collectionState = newState;
+                    const mainGrid = document.getElementById("catalog-grid");
+                    const futureGrid = document.getElementById("catalog-future-grid");
+                    const futureEmpty = document.getElementById("catalog-future-empty");
+
+                    if (newState === "DESEADO" && futureGrid) {
+                        card.removeAttribute("data-catalog-item");
+                        card.setAttribute("data-future-catalog-item", "");
+                        let meta = card.querySelector(".catalog-card__meta");
+                        if (meta && !meta.querySelector(".catalog-card__collection-state")) {
+                            const badge = document.createElement("span");
+                            badge.className = "catalog-card__collection-state";
+                            badge.textContent = "DESEADO";
+                            meta.append(badge);
+                        }
+                        futureGrid.appendChild(card);
+                        if (futureEmpty) futureEmpty.hidden = true;
+                    } else if (newState === "COLECCION" && mainGrid) {
+                        card.removeAttribute("data-future-catalog-item");
+                        card.setAttribute("data-catalog-item", "");
+                        const badge = card.querySelector(".catalog-card__collection-state");
+                        if (badge) badge.remove();
+                        mainGrid.appendChild(card);
+                    }
+                    updateCounts();
                 }
-                window.location.replace(`${window.location.pathname}?seccion=${encodeURIComponent(result.seccion || "my-collection")}`);
             };
 
-            editForm.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                const itemName = selectedItem.dataset.name || "el registro seleccionado";
-                document.getElementById("catalog-edit-confirm-message").textContent =
-                    `Se actualizará ${itemName} en la base de datos. Revisa los datos y confirma para continuar.`;
-                showAdminMode("edit-confirm");
-            });
+            const removeCardFromDOM = (card) => {
+                const isFuture = card.hasAttribute("data-future-catalog-item");
+                card.remove();
+                if (isFuture) {
+                    const futureGrid = document.getElementById("catalog-future-grid");
+                    const futureEmpty = document.getElementById("catalog-future-empty");
+                    if (futureGrid && futureGrid.querySelectorAll("[data-future-catalog-item]").length === 0 && futureEmpty) {
+                        futureEmpty.hidden = false;
+                    }
+                }
+                updateCounts();
+            };
 
-            document.getElementById("catalog-edit-confirm-button").addEventListener("click", async () => {
-                const error = document.getElementById("catalog-edit-confirm-error");
-                const confirmButton = document.getElementById("catalog-edit-confirm-button");
+            const updateCounts = () => {
+                const totalOwned = document.querySelectorAll("#catalog-grid [data-catalog-item]").length;
+                const totalDevices = document.querySelectorAll("#catalog-grid [data-catalog-item][data-type='DISPOSITIVO']").length;
+                const totalFuture = document.querySelectorAll("#catalog-future-grid [data-future-catalog-item]").length;
+
+                const tabCount = document.getElementById("catalog-tab-count");
+                if (tabCount) tabCount.textContent = totalOwned;
+
+                const tabFutureCount = document.getElementById("catalog-tab-future-count");
+                if (tabFutureCount) tabFutureCount.textContent = totalFuture;
+
+                const ownedTotal = document.getElementById("catalog-owned-total");
+                if (ownedTotal) ownedTotal.textContent = totalOwned;
+
+                const ownedDevices = document.getElementById("catalog-owned-devices");
+                if (ownedDevices) ownedDevices.textContent = totalDevices;
+
+                const filterTodos = document.getElementById("filter-count-todos");
+                if (filterTodos) filterTodos.textContent = totalOwned;
+
+                const filterDispositivos = document.getElementById("filter-count-dispositivos");
+                if (filterDispositivos) filterDispositivos.textContent = totalDevices;
+
+                const futureBadge = document.getElementById("future-badge-count");
+                if (futureBadge) futureBadge.innerHTML = `<i class="bi bi-hourglass-split" aria-hidden="true"></i> ${totalFuture} EN LA LISTA`;
+
+                CatalogFilter.refresh();
+            };
+
+            // Guardar Cambios (Editar) vía AJAX al Controlador MVC
+            document.getElementById("catalog-edit-save").addEventListener("click", async () => {
+                const error = document.getElementById("catalog-edit-error");
+                const saveButton = document.getElementById("catalog-edit-save");
+                const spinner = document.getElementById("edit-spinner");
+                const saveIcon = document.getElementById("edit-save-icon");
                 error.hidden = true;
-                confirmButton.disabled = true;
+
+                if (!editForm.checkValidity()) {
+                    editForm.reportValidity();
+                    return;
+                }
+
+                saveButton.disabled = true;
+                if (spinner) spinner.hidden = false;
+                if (saveIcon) saveIcon.hidden = true;
+
                 try {
                     const isGame = Boolean(selectedItem.dataset.gameId);
-                    const id = isGame ? selectedItem.dataset.gameId : selectedItem.dataset.deviceId;
-                    const payload = isGame
-                        ? {
-                            idCategoria: Number(editForm.elements.IdCategoria.value),
-                            titulo: editForm.elements.Titulo.value,
-                            plataforma: editForm.elements.Plataforma.value,
-                            genero: editForm.elements.Genero.value,
-                            estado: editForm.elements.Estado.value,
-                            imagenUrl: editForm.elements.ImagenUrl.value || null
-                        }
-                        : {
+                    const token = editForm.elements.__RequestVerificationToken.value;
+                    const headers = {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "RequestVerificationToken": token,
+                        "X-CSRF-TOKEN": token
+                    };
+
+                    if (!isGame) {
+                        const payload = {
+                            idDispositivo: Number(editForm.elements.IdDispositivo.value),
                             idCategoria: Number(editForm.elements.IdCategoria.value),
                             marca: editForm.elements.Marca.value,
                             modelo: editForm.elements.Modelo.value,
@@ -692,29 +781,102 @@
                             estadoColeccion: editForm.elements.EstadoColeccion.value,
                             imagenUrl: editForm.elements.ImagenUrl.value || null
                         };
-                    await sendRequest("PUT", `/api/catalogo/${isGame ? "juegos" : "dispositivos"}/${encodeURIComponent(id)}`, payload);
+
+                        const response = await fetch("/Catalogo/Editar", {
+                            method: "POST",
+                            headers,
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.message || (result.errors ? result.errors.join(", ") : "Error al actualizar."));
+                        }
+
+                        // Actualizar UI instantáneamente sin recargar la página completa
+                        updateCardInDOM(selectedItem, result.data);
+                        openDetails(selectedItem);
+                        showAdminMode("details");
+                    } else {
+                        // Soporte para Juegos si aplica
+                        const id = selectedItem.dataset.gameId;
+                        const payload = {
+                            idCategoria: Number(editForm.elements.IdCategoria.value),
+                            titulo: editForm.elements.Titulo.value,
+                            plataforma: editForm.elements.Plataforma.value,
+                            genero: editForm.elements.Genero.value,
+                            estado: editForm.elements.Estado.value,
+                            imagenUrl: editForm.elements.ImagenUrl.value || null
+                        };
+
+                        const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
+                            method: "PUT",
+                            headers,
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) throw new Error("Error al actualizar el juego.");
+                        window.location.reload();
+                    }
                 } catch (exception) {
                     error.textContent = exception.message;
                     error.hidden = false;
                 } finally {
-                    confirmButton.disabled = false;
+                    saveButton.disabled = false;
+                    if (spinner) spinner.hidden = true;
+                    if (saveIcon) saveIcon.hidden = false;
                 }
             });
 
+            // Confirmar Eliminación vía AJAX al Controlador MVC
             document.getElementById("catalog-delete-confirm-button").addEventListener("click", async () => {
                 const error = document.getElementById("catalog-delete-error");
                 const button = document.getElementById("catalog-delete-confirm-button");
+                const spinner = document.getElementById("delete-spinner");
                 error.hidden = true;
                 button.disabled = true;
+                if (spinner) spinner.hidden = false;
+
                 try {
                     const isGame = Boolean(selectedItem.dataset.gameId);
-                    const id = isGame ? selectedItem.dataset.gameId : selectedItem.dataset.deviceId;
-                    await sendRequest("DELETE", `/api/catalogo/${isGame ? "juegos" : "dispositivos"}/${encodeURIComponent(id)}`);
+                    const token = editForm.elements.__RequestVerificationToken.value;
+                    const headers = {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "RequestVerificationToken": token,
+                        "X-CSRF-TOKEN": token
+                    };
+
+                    if (!isGame) {
+                        const id = Number(selectedItem.dataset.deviceId);
+                        const response = await fetch("/Catalogo/Eliminar", {
+                            method: "POST",
+                            headers,
+                            body: JSON.stringify({ idDispositivo: id })
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.message || "Error al eliminar el dispositivo.");
+                        }
+
+                        modal.hide();
+                        removeCardFromDOM(selectedItem);
+                    } else {
+                        const id = selectedItem.dataset.gameId;
+                        const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
+                            method: "DELETE",
+                            headers
+                        });
+                        if (!response.ok) throw new Error("Error al eliminar el juego.");
+                        modal.hide();
+                        removeCardFromDOM(selectedItem);
+                    }
                 } catch (exception) {
                     error.textContent = exception.message;
                     error.hidden = false;
                 } finally {
                     button.disabled = false;
+                    if (spinner) spinner.hidden = true;
                 }
             });
 

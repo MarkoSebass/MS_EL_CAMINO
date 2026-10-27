@@ -14,10 +14,14 @@ public class CatalogoController : Controller
     private const string CollectionState = "COLECCION";
     private const string DesiredState = "DESEADO";
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+    private readonly ILogger<CatalogoController> _logger;
 
-    public CatalogoController(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public CatalogoController(
+        IDbContextFactory<ApplicationDbContext> contextFactory,
+        ILogger<CatalogoController> logger)
     {
         _contextFactory = contextFactory;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -66,6 +70,137 @@ public class CatalogoController : Controller
         };
 
         return View(viewModel);
+    }
+
+    /// <summary>
+    /// Acción MVC para editar un dispositivo existente. Exclusivo para administradores.
+    /// Soporta tanto peticiones AJAX (JSON) como envíos de formulario estándar.
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "ADMIN")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Editar([FromBody] DispositivoEditarViewModel model)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(new { success = false, message = "Datos inválidos.", errors });
+        }
+
+        await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
+
+        var categoriaExiste = await context.Categorias
+            .AnyAsync(c => c.IdCategoria == model.IdCategoria, HttpContext.RequestAborted);
+        if (!categoriaExiste)
+        {
+            return BadRequest(new { success = false, message = "La categoría seleccionada no existe." });
+        }
+
+        var dispositivo = await context.Dispositivos
+            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
+
+        if (dispositivo == null)
+        {
+            return NotFound(new { success = false, message = "El dispositivo no fue encontrado en tu catálogo." });
+        }
+
+        var categoria = await context.Categorias
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.IdCategoria == model.IdCategoria, HttpContext.RequestAborted);
+
+        dispositivo.IdCategoria = model.IdCategoria;
+        dispositivo.Marca = model.Marca.Trim();
+        dispositivo.Modelo = model.Modelo.Trim();
+        dispositivo.Estado = model.Estado.Trim();
+        dispositivo.EstadoColeccion = model.EstadoColeccion.Trim().ToUpperInvariant();
+        dispositivo.ImagenUrl = string.IsNullOrWhiteSpace(model.ImagenUrl) ? null : model.ImagenUrl.Trim();
+
+        try
+        {
+            await context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar dispositivo {Id} del usuario {UserId}", model.IdDispositivo, userId);
+            return StatusCode(500, new { success = false, message = "Error al guardar los cambios en la base de datos." });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = "Dispositivo actualizado correctamente.",
+            data = new
+            {
+                idDispositivo = dispositivo.IdDispositivo,
+                idCategoria = dispositivo.IdCategoria,
+                categoria = categoria?.Nombre ?? string.Empty,
+                marca = dispositivo.Marca,
+                modelo = dispositivo.Modelo,
+                nombre = $"{dispositivo.Marca} {dispositivo.Modelo}".Trim(),
+                estado = dispositivo.Estado,
+                estadoColeccion = dispositivo.EstadoColeccion,
+                imagenUrl = dispositivo.ImagenUrl
+            }
+        });
+    }
+
+    /// <summary>
+    /// Acción MVC para eliminar un dispositivo existente. Exclusivo para administradores.
+    /// Soporta peticiones asíncronas para una respuesta instantánea sin recarga pesada.
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "ADMIN")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Eliminar([FromBody] DispositivoEliminarViewModel model)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            return Unauthorized();
+        }
+
+        if (model == null || model.IdDispositivo <= 0)
+        {
+            return BadRequest(new { success = false, message = "Identificador de producto inválido." });
+        }
+
+        await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
+
+        var dispositivo = await context.Dispositivos
+            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
+
+        if (dispositivo == null)
+        {
+            return NotFound(new { success = false, message = "El dispositivo no fue encontrado o ya fue eliminado." });
+        }
+
+        var estadoColeccion = dispositivo.EstadoColeccion;
+
+        try
+        {
+            context.Dispositivos.Remove(dispositivo);
+            await context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar dispositivo {Id} del usuario {UserId}", model.IdDispositivo, userId);
+            return StatusCode(500, new { success = false, message = "No se pudo eliminar el producto de la base de datos." });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = "Dispositivo eliminado correctamente.",
+            idDispositivo = model.IdDispositivo,
+            estadoColeccion
+        });
     }
 
     private async Task<List<CatalogoProductoViewModel>> LoadDevicesAsync(int userId, CancellationToken cancellationToken)

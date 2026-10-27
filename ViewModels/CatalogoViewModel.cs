@@ -34,3 +34,42 @@ public class CatalogoProductoViewModel
     public DateOnly? FechaCompra { get; init; }
     public string Icono { get; set; } = "bi-box-seam";
 }
+
+public class DispositivoEditarViewModel
+{
+    [Required]
+    public int IdDispositivo { get; set; }
+
+    [Required(ErrorMessage = "La categoría es obligatoria.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Selecciona una categoría válida.")]
+    [Display(Name = "Categoría")]
+    public int IdCategoria { get; set; }
+
+    [Required(ErrorMessage = "La marca es requerida.")]
+    [StringLength(100, ErrorMessage = "La marca no puede superar los 100 caracteres.")]
+    public string Marca { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El modelo es requerido.")]
+    [StringLength(150, ErrorMessage = "El modelo no puede superar los 150 caracteres.")]
+    public string Modelo { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El estado es requerido.")]
+    [StringLength(100, ErrorMessage = "El estado no puede superar los 100 caracteres.")]
+    public string Estado { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El estado de colección es requerido.")]
+    [RegularExpression("^(COLECCION|DESEADO)$", ErrorMessage = "El estado de colección debe ser COLECCION o DESEADO.")]
+    [Display(Name = "Estado de Colección")]
+    public string EstadoColeccion { get; set; } = "COLECCION";
+
+    [StringLength(500, ErrorMessage = "La URL de la imagen no puede superar los 500 caracteres.")]
+    [Url(ErrorMessage = "Debe ser una URL válida.")]
+    [Display(Name = "URL de Imagen")]
+    public string? ImagenUrl { get; set; }
+}
+
+public class DispositivoEliminarViewModel
+{
+    [Required]
+    public int IdDispositivo { get; set; }
+}
