@@ -112,6 +112,8 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.IdComponente);
             entity.Property(e => e.TipoComponente).IsRequired();
             entity.Property(e => e.FechaCompra).HasColumnType("date");
+            entity.HasIndex(e => e.IdUsuario)
+                .HasDatabaseName("ix_componente_id_usuario");
         });
 
         modelBuilder.Entity<Juego>(entity =>
@@ -120,6 +122,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Plataforma).IsRequired();
             entity.Property(e => e.Titulo).IsRequired();
             entity.Property(e => e.FechaCompra).HasColumnType("date");
+            entity.HasIndex(e => e.IdUsuario)
+                .HasDatabaseName("ix_juegos_id_usuario");
             entity.HasOne(e => e.Categoria)
                 .WithMany()
                 .HasForeignKey(e => e.IdCategoria)

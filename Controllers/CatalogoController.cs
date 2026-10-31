@@ -271,35 +271,38 @@ public class CatalogoController : Controller
 
         await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
 
-        var categoriaExiste = await context.Categorias
-            .AnyAsync(c => c.IdCategoria == model.IdCategoria, HttpContext.RequestAborted);
-        if (!categoriaExiste)
+        var categoria = await context.Categorias
+            .AsNoTracking()
+            .Where(c => c.IdCategoria == model.IdCategoria)
+            .Select(c => c.Nombre)
+            .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        if (categoria == null)
         {
             return BadRequest(new { success = false, message = "La categoría seleccionada no existe." });
         }
 
-        var dispositivo = await context.Dispositivos
-            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
-
-        if (dispositivo == null)
-        {
-            return NotFound(new { success = false, message = "El dispositivo no fue encontrado en tu catálogo." });
-        }
-
-        var categoria = await context.Categorias
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.IdCategoria == model.IdCategoria, HttpContext.RequestAborted);
-
-        dispositivo.IdCategoria = model.IdCategoria;
-        dispositivo.Marca = model.Marca.Trim();
-        dispositivo.Modelo = model.Modelo.Trim();
-        dispositivo.Estado = model.Estado.Trim();
-        dispositivo.EstadoColeccion = model.EstadoColeccion.Trim().ToUpperInvariant();
-        dispositivo.ImagenUrl = string.IsNullOrWhiteSpace(model.ImagenUrl) ? null : model.ImagenUrl.Trim();
+        var marca = model.Marca.Trim();
+        var modelo = model.Modelo.Trim();
+        var estado = model.Estado.Trim();
+        var estadoColeccion = model.EstadoColeccion.Trim().ToUpperInvariant();
+        var imagenUrl = string.IsNullOrWhiteSpace(model.ImagenUrl) ? null : model.ImagenUrl.Trim();
 
         try
         {
-            await context.SaveChangesAsync(HttpContext.RequestAborted);
+            var affectedRows = await context.Dispositivos
+                .Where(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId)
+                .ExecuteUpdateAsync(updates => updates
+                    .SetProperty(d => d.IdCategoria, model.IdCategoria)
+                    .SetProperty(d => d.Marca, marca)
+                    .SetProperty(d => d.Modelo, modelo)
+                    .SetProperty(d => d.Estado, estado)
+                    .SetProperty(d => d.EstadoColeccion, estadoColeccion)
+                    .SetProperty(d => d.ImagenUrl, imagenUrl),
+                    HttpContext.RequestAborted);
+            if (affectedRows == 0)
+            {
+                return NotFound(new { success = false, message = "El dispositivo no fue encontrado en tu catálogo." });
+            }
         }
         catch (Exception ex)
         {
@@ -313,15 +316,15 @@ public class CatalogoController : Controller
             message = "¡Producto actualizado correctamente!",
             data = new
             {
-                idDispositivo = dispositivo.IdDispositivo,
-                idCategoria = dispositivo.IdCategoria,
-                categoria = categoria?.Nombre ?? string.Empty,
-                marca = dispositivo.Marca,
-                modelo = dispositivo.Modelo,
-                nombre = $"{dispositivo.Marca} {dispositivo.Modelo}".Trim(),
-                estado = dispositivo.Estado,
-                estadoColeccion = dispositivo.EstadoColeccion,
-                imagenUrl = dispositivo.ImagenUrl
+                idDispositivo = model.IdDispositivo,
+                idCategoria = model.IdCategoria,
+                categoria,
+                marca,
+                modelo,
+                nombre = $"{marca} {modelo}".Trim(),
+                estado,
+                estadoColeccion,
+                imagenUrl
             }
         });
     }
@@ -347,20 +350,15 @@ public class CatalogoController : Controller
 
         await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
 
-        var dispositivo = await context.Dispositivos
-            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
-
-        if (dispositivo == null)
-        {
-            return NotFound(new { success = false, message = "El dispositivo no fue encontrado o ya fue eliminado." });
-        }
-
-        var estadoColeccion = dispositivo.EstadoColeccion;
-
         try
         {
-            context.Dispositivos.Remove(dispositivo);
-            await context.SaveChangesAsync(HttpContext.RequestAborted);
+            var affectedRows = await context.Dispositivos
+                .Where(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            if (affectedRows == 0)
+            {
+                return NotFound(new { success = false, message = "El dispositivo no fue encontrado o ya fue eliminado." });
+            }
         }
         catch (Exception ex)
         {
@@ -372,8 +370,7 @@ public class CatalogoController : Controller
         {
             success = true,
             message = "¡Producto eliminado correctamente!",
-            idDispositivo = model.IdDispositivo,
-            estadoColeccion
+            idDispositivo = model.IdDispositivo
         });
     }
 

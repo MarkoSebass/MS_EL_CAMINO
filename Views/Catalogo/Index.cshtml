@@ -284,7 +284,7 @@
                 <form id="future-create-form" enctype="multipart/form-data" class="catalog-admin-form">
                     @Html.AntiForgeryToken()
                     <div class="catalog-admin-form__grid">
-                        <label>Categoría
+                        <label>
                             <select class="form-select" name="IdCategoria" required>
                                 <option value="" disabled selected>Selecciona una categoría...</option>
                                 @foreach (var categoria in Model.Categorias)
@@ -326,8 +326,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <span class="catalog-detail-modal__kicker"><i class="bi bi-info-circle" aria-hidden="true"></i> FICHA DEL PRODUCTO</span>
+                    <span class="catalog-detail-modal__kicker"><i class="bi bi-stars" aria-hidden="true"></i><span id="catalog-modal-kicker-label">ARCHIVO PERSONAL / DETALLE DE PIEZA</span></span>
                     <h2 class="modal-title" id="catalog-detail-title"></h2>
+                    <p class="catalog-detail-modal__subtitle" id="catalog-modal-subtitle">Una pieza de tecnología, una parte de tu recorrido.</p>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
@@ -339,10 +340,11 @@
                         <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
                         <img id="catalog-detail-image" alt="" hidden />
                         <div class="catalog-detail-modal__placeholder" id="catalog-detail-placeholder" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+                        <span class="catalog-detail-modal__visual-caption"><span>EL CAMINO</span><span>OBJETO DE COLECCIÓN</span></span>
                     </div>
                     <div class="catalog-detail-modal__information">
                         <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
-                        <span class="catalog-detail-modal__section-label">DETALLES DEL PRODUCTO</span>
+                        <span class="catalog-detail-modal__section-label">ESPECIFICACIONES <i class="bi bi-arrow-down-right" aria-hidden="true"></i></span>
                         <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
                     </div>
                 </div>
@@ -354,13 +356,22 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="IdDispositivo" />
                         <input type="hidden" name="IdJuego" />
+                        <div class="catalog-edit-intro">
+                            <span class="catalog-edit-intro__icon"><i class="bi bi-sliders2" aria-hidden="true"></i></span>
+                            <div>
+                                <span class="catalog-edit-intro__eyebrow">PERSONALIZA TU REGISTRO</span>
+                                <p>Actualiza los datos para que esta pieza siga contando tu historia.</p>
+                            </div>
+                            <span class="catalog-edit-intro__product" id="catalog-edit-product-name"></span>
+                        </div>
                         <div class="catalog-admin-form__grid" id="catalog-edit-fields">
-                            <label data-device-field>Marca<input class="form-control" name="Marca" maxlength="100" /></label>
-                            <label data-device-field>Modelo<input class="form-control" name="Modelo" maxlength="150" /></label>
-                            <label data-game-field>Título<input class="form-control" name="Titulo" maxlength="200" /></label>
-                            <label data-game-field>Plataforma<input class="form-control" name="Plataforma" maxlength="100" /></label>
-                            <label data-game-field>Género<input class="form-control" name="Genero" maxlength="100" /></label>
-                            <label>Categoría
+                            <label data-device-field><span class="catalog-edit-field-label"><i class="bi bi-bookmark" aria-hidden="true"></i>Marca</span><input class="form-control" name="Marca" maxlength="100" placeholder="Ej. Sony" /></label>
+                            <label data-device-field><span class="catalog-edit-field-label"><i class="bi bi-box" aria-hidden="true"></i>Modelo</span><input class="form-control" name="Modelo" maxlength="150" placeholder="Nombre del modelo" /></label>
+                            <label data-game-field><span class="catalog-edit-field-label"><i class="bi bi-controller" aria-hidden="true"></i>Título</span><input class="form-control" name="Titulo" maxlength="200" placeholder="Nombre del juego" /></label>
+                            <label data-game-field><span class="catalog-edit-field-label"><i class="bi bi-display" aria-hidden="true"></i>Plataforma</span><input class="form-control" name="Plataforma" maxlength="100" placeholder="Ej. PC, PlayStation 5" /></label>
+                            <label data-game-field><span class="catalog-edit-field-label"><i class="bi bi-collection" aria-hidden="true"></i>Género <span class="catalog-edit-field-label__optional">OPCIONAL</span></span><input class="form-control" name="Genero" maxlength="100" placeholder="Ej. Aventura" /></label>
+                            <label>
+                                <span class="catalog-edit-field-label"><i class="bi bi-grid" aria-hidden="true"></i>Categoría</span>
                                 <select class="form-select" name="IdCategoria" required>
                                     @foreach (var categoria in Model.Categorias)
                                     {
@@ -368,28 +379,37 @@
                                     }
                                 </select>
                             </label>
-                            <label>Estado<input class="form-control" name="Estado" required maxlength="100" /></label>
-                            <label data-device-field>Estado de Colección
+                            <label><span class="catalog-edit-field-label"><i class="bi bi-activity" aria-hidden="true"></i>Estado</span><input class="form-control" name="Estado" required maxlength="100" placeholder="Ej. En uso" /></label>
+                            <label data-device-field><span class="catalog-edit-field-label"><i class="bi bi-bookmark-star" aria-hidden="true"></i>Ubicación en tu colección</span>
                                 <select class="form-select" name="EstadoColeccion" required>
                                     <option value="COLECCION">Mi colección</option>
                                     <option value="DESEADO">Futuras colecciones</option>
                                 </select>
                             </label>
-                            <label class="catalog-admin-form__image">URL de Imagen<input class="form-control" name="ImagenUrl" type="url" maxlength="500" placeholder="https://..." /></label>
+                            <label class="catalog-admin-form__image"><span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen <span class="catalog-edit-field-label__optional">OPCIONAL</span></span><input class="form-control" name="ImagenUrl" type="url" maxlength="500" placeholder="https://..." /></label>
                         </div>
                         <div class="catalog-admin-form__error" id="catalog-edit-error" role="alert" hidden></div>
                     </form>
 
                     @* Diálogo de Confirmación para Eliminar *@
                     <div class="catalog-delete-confirm" id="catalog-delete-confirm" hidden>
-                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                        <h3 id="catalog-delete-confirm-title">¿Estás seguro de eliminar este producto?</h3>
-                        <p id="catalog-delete-confirm-message">Esta acción eliminará definitivamente el registro de la base de datos PostgreSQL y no se puede deshacer.</p>
+                        <div class="catalog-delete-confirm__heading">
+                            <span class="catalog-delete-confirm__icon"><i class="bi bi-trash3" aria-hidden="true"></i></span>
+                            <span class="catalog-delete-confirm__eyebrow">ACCIÓN PERMANENTE</span>
+                            <h3 id="catalog-delete-confirm-title">¿Eliminar esta pieza?</h3>
+                            <p>El registro se quitará definitivamente de tu catálogo.</p>
+                        </div>
+                        <div class="catalog-delete-confirm__product">
+                            <span class="catalog-delete-confirm__product-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                            <span class="catalog-delete-confirm__product-copy"><small>VAS A ELIMINAR</small><strong id="catalog-delete-product-name"></strong></span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </div>
+                        <p class="catalog-delete-confirm__warning"><i class="bi bi-info-circle" aria-hidden="true"></i> Esta acción no se puede deshacer.</p>
                         <div class="catalog-delete-confirm__actions">
-                            <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel">Cancelar</button>
+                            <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Conservar producto</button>
                             <button type="button" class="btn catalog-admin-danger" id="catalog-delete-confirm-button">
                                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="delete-spinner"></span>
-                                Sí, eliminar
+                                <i class="bi bi-trash3 me-2" aria-hidden="true" id="delete-confirm-icon"></i>Eliminar definitivamente
                             </button>
                         </div>
                         <div class="catalog-admin-form__error" id="catalog-delete-error" role="alert" hidden></div>
@@ -407,8 +427,12 @@
                 @if (esAdmin)
                 {
                     <div class="catalog-admin-actions" id="catalog-admin-actions" hidden>
-                        <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-button"><i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar</button>
-                        <button type="button" class="btn catalog-admin-danger" id="catalog-delete-button"><i class="bi bi-trash me-2" aria-hidden="true"></i>Eliminar</button>
+                        <button type="button" class="btn catalog-admin-icon-action catalog-admin-icon-action--edit" id="catalog-edit-button" title="Editar producto" aria-label="Editar producto">
+                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn catalog-admin-icon-action catalog-admin-icon-action--delete" id="catalog-delete-button" title="Eliminar producto" aria-label="Eliminar producto">
+                            <i class="bi bi-trash3" aria-hidden="true"></i>
+                        </button>
                     </div>
                     <div class="catalog-admin-actions" id="catalog-edit-actions" hidden>
                         <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-cancel">Cancelar</button>
@@ -572,6 +596,8 @@
             const modalElement = document.getElementById("catalog-detail-modal");
             const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
             const detailTitle = document.getElementById("catalog-detail-title");
+            const modalKickerLabel = document.getElementById("catalog-modal-kicker-label");
+            const modalSubtitle = document.getElementById("catalog-modal-subtitle");
             const detailType = document.getElementById("catalog-detail-type");
             const detailImage = document.getElementById("catalog-detail-image");
             const detailPlaceholder = document.getElementById("catalog-detail-placeholder");
@@ -605,6 +631,9 @@
             const openDetails = (item) => {
                 selectedItem = item;
                 const product = item.dataset;
+                modalElement.dataset.mode = "details";
+                modalKickerLabel.textContent = "ARCHIVO PERSONAL / DETALLE DE PIEZA";
+                modalSubtitle.textContent = "Una pieza de tecnología, una parte de tu recorrido.";
                 detailTitle.textContent = product.name;
                 detailType.textContent = `${product.category || "Producto"} · ${product.type}`;
                 detailList.replaceChildren();
@@ -679,6 +708,7 @@
                     editForm.elements.Estado.value = product.status || "";
                     editForm.elements.EstadoColeccion.value = product.collectionState || "COLECCION";
                     editForm.elements.ImagenUrl.value = product.image || "";
+                    document.getElementById("catalog-edit-product-name").textContent = product.name;
                 }
 
                 modal.show();
@@ -705,6 +735,7 @@
             });
 
             const showAdminMode = (mode) => {
+                modalElement.dataset.mode = mode;
                 detailPanel.hidden = mode !== "details";
                 if (editForm) {
                     editForm.hidden = mode !== "edit";
@@ -722,10 +753,16 @@
                 const delError = document.getElementById("catalog-delete-error");
                 if (editError) editError.hidden = true;
                 if (delError) delError.hidden = true;
-                if (mode === "delete") {
-                    const itemName = selectedItem?.dataset.name || "este producto";
-                    document.getElementById("catalog-delete-confirm-title").textContent = `¿Estás seguro de eliminar este producto?`;
-                    document.getElementById("catalog-delete-confirm-message").textContent = `¿Confirmas eliminar ${itemName}? Se eliminará permanentemente de PostgreSQL.`;
+                if (mode === "edit") {
+                    modalKickerLabel.textContent = "EDICIÓN / AJUSTA LOS DETALLES";
+                    modalSubtitle.textContent = "Los cambios se aplicarán a esta pieza de tu colección.";
+                } else if (mode === "delete") {
+                    modalKickerLabel.textContent = "CONFIRMACIÓN / ELIMINACIÓN";
+                    modalSubtitle.textContent = "Revisa el producto antes de confirmar esta acción.";
+                    document.getElementById("catalog-delete-product-name").textContent = selectedItem?.dataset.name || "este producto";
+                } else {
+                    modalKickerLabel.textContent = "ARCHIVO PERSONAL / DETALLE DE PIEZA";
+                    modalSubtitle.textContent = "Una pieza de tecnología, una parte de tu recorrido.";
                 }
             };
 
@@ -739,12 +776,14 @@
             // Actualización DOM Instantánea tras Editar
             const updateCardInDOM = (card, data) => {
                 card.dataset.name = data.nombre;
-                card.dataset.brand = data.marca;
-                card.dataset.model = data.modelo;
+                if ("marca" in data) card.dataset.brand = data.marca || "";
+                if ("modelo" in data) card.dataset.model = data.modelo || "";
                 card.dataset.category = data.categoria;
                 card.dataset.categoryId = data.idCategoria;
                 card.dataset.status = data.estado;
                 card.dataset.image = data.imagenUrl || "";
+                if ("plataforma" in data) card.dataset.platform = data.plataforma || "";
+                if ("genero" in data) card.dataset.genre = data.genero || "";
                 
                 const titleEl = card.querySelector("h3");
                 if (titleEl) titleEl.textContent = data.nombre;
@@ -754,7 +793,9 @@
 
                 const statusEl = card.querySelector(".catalog-card__status");
                 if (statusEl) {
-                    statusEl.innerHTML = `<i aria-hidden="true"></i>${data.estado}`;
+                    const statusIcon = document.createElement("i");
+                    statusIcon.setAttribute("aria-hidden", "true");
+                    statusEl.replaceChildren(statusIcon, document.createTextNode(data.estado || ""));
                 }
 
                 const imgContainer = card.querySelector(".catalog-card__visual");
@@ -780,7 +821,7 @@
                 // Si cambió el estado de colección (Mi colección vs Futuras colecciones), moverlo de contenedor
                 const oldState = card.dataset.collectionState;
                 const newState = data.estadoColeccion;
-                if (oldState !== newState) {
+                if (newState && oldState !== newState) {
                     card.dataset.collectionState = newState;
                     const mainGrid = document.getElementById("catalog-grid");
                     const futureGrid = document.getElementById("catalog-future-grid");
@@ -969,8 +1010,24 @@
                                 headers,
                                 body: JSON.stringify(payload)
                             });
-                            if (!response.ok) throw new Error("Error al actualizar el juego.");
-                            window.location.reload();
+                            const result = await response.json();
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.message || result.detail || result.title || "Error al actualizar el juego.");
+                            }
+
+                            const categorySelect = editForm.elements.IdCategoria;
+                            updateCardInDOM(selectedItem, {
+                                idCategoria: Number(categorySelect.value),
+                                categoria: categorySelect.selectedOptions[0]?.textContent.trim() || "",
+                                nombre: payload.titulo,
+                                plataforma: payload.plataforma,
+                                genero: payload.genero,
+                                estado: payload.estado,
+                                imagenUrl: payload.imagenUrl
+                            });
+                            openDetails(selectedItem);
+                            showAdminMode("details");
+                            showCatalogToast(result.message || "¡Juego actualizado correctamente!");
                         }
                     } catch (exception) {
                         if (error) {
@@ -989,9 +1046,11 @@
                     const error = document.getElementById("catalog-delete-error");
                     const button = document.getElementById("catalog-delete-confirm-button");
                     const spinner = document.getElementById("delete-spinner");
+                    const icon = document.getElementById("delete-confirm-icon");
                     if (error) error.hidden = true;
                     button.disabled = true;
                     if (spinner) spinner.hidden = false;
+                    if (icon) icon.hidden = true;
 
                     try {
                         const isGame = Boolean(selectedItem.dataset.gameId);
@@ -1025,7 +1084,10 @@
                                 method: "DELETE",
                                 headers
                             });
-                            if (!response.ok) throw new Error("Error al eliminar el juego.");
+                            const result = await response.json();
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.message || result.detail || result.title || "Error al eliminar el juego.");
+                            }
                             modal.hide();
                             removeCardFromDOM(selectedItem);
                             showCatalogToast(result.message || "¡Producto eliminado correctamente!");
@@ -1038,6 +1100,7 @@
                     } finally {
                         button.disabled = false;
                         if (spinner) spinner.hidden = true;
+                        if (icon) icon.hidden = false;
                     }
                 });
             }
