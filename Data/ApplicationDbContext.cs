@@ -95,7 +95,6 @@ public class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.IdDispositivo);
             entity.Property(e => e.FechaCompra).HasColumnType("date");
-            entity.Property(e => e.Especificaciones).HasColumnType("text");
             entity.Property(e => e.EstadoColeccion)
                 .HasMaxLength(20)
                 .HasDefaultValue("COLECCION")

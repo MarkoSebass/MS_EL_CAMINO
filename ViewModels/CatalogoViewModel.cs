@@ -32,7 +32,6 @@ public class CatalogoProductoViewModel
     public string? Detalle { get; set; }
     public string? Estado { get; init; }
     public string? ImagenUrl { get; set; }
-    public string? Especificaciones { get; init; }
     public DateOnly? FechaCompra { get; init; }
     public string Icono { get; set; } = "bi-box-seam";
 }
@@ -60,9 +59,6 @@ public class DispositivoCrearFuturaColeccionViewModel
 
     [Display(Name = "Imagen")]
     public IFormFile? Imagen { get; set; }
-
-    [StringLength(4000, ErrorMessage = "Las especificaciones no pueden superar los 4000 caracteres.")]
-    public string? Especificaciones { get; set; }
 
     public bool HasValidImage =>
         Imagen == null
@@ -109,9 +105,6 @@ public class DispositivoEditarViewModel
 
     [Display(Name = "Nueva imagen")]
     public IFormFile? Imagen { get; set; }
-
-    [StringLength(4000, ErrorMessage = "Las especificaciones no pueden superar los 4000 caracteres.")]
-    public string? Especificaciones { get; set; }
 
     public bool HasValidImage =>
         Imagen == null

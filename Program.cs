@@ -91,8 +91,8 @@ builder.Services.AddSwaggerGen(options =>
             : null;
         var tag = string.Equals(controller, "Auth", StringComparison.OrdinalIgnoreCase)
             ? "LOGIN"
-            : string.Equals(controller, "Catalogo", StringComparison.OrdinalIgnoreCase)
-                ? "CÁTOLOGO TECNOLÓGICO"
+            : controller?.StartsWith("Catalogo", StringComparison.OrdinalIgnoreCase) == true
+                ? "CATÁLOGO TECNOLÓGICO"
                 : controller ?? "API";
         return [tag];
     });

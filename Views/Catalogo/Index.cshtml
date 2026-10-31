@@ -188,7 +188,6 @@
                                  data-detail="@producto.Detalle"
                                  data-status="@producto.Estado"
                                  data-image="@producto.ImagenUrl"
-                                 data-specifications="@producto.Especificaciones"
                                  data-device-id="@producto.DispositivoId"
                                  data-game-id="@producto.JuegoId"
                                  data-collection-state="@producto.EstadoColeccion"
@@ -245,8 +244,8 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="catalog-future__badge" id="future-badge-count"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @dispositivosFuturos.Count EN LA LISTA</span>
-                <button type="button" class="btn catalog-admin-save" id="btn-open-create-future" data-bs-toggle="modal" data-bs-target="#future-create-modal">
-                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Nuevo objetivo
+                <button type="button" class="btn catalog-admin-save catalog-future-create-trigger" id="btn-open-create-future" data-bs-toggle="modal" data-bs-target="#future-create-modal">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i><span>Nuevo registro</span>
                 </button>
             </div>
         </div>
@@ -261,7 +260,6 @@
                          data-model="@producto.Modelo" data-status="@producto.Estado"
                          data-platform="@producto.Plataforma" data-genre="@producto.Genero" data-game-id="@producto.JuegoId"
                          data-image="@producto.ImagenUrl" data-device-id="@producto.DispositivoId"
-                         data-specifications="@producto.Especificaciones"
                          data-collection-state="@producto.EstadoColeccion"
                          role="button" tabindex="0" aria-haspopup="dialog"
                          aria-label="Ver detalles de @producto.Nombre">
@@ -302,27 +300,24 @@
 @* ========================================================== *@
 @* MODAL MODERNO DE REGISTRO: FUTURAS COLECCIONES (SUPABASE)   *@
 @* ========================================================== *@
-<div class="modal fade catalog-detail-modal" id="future-create-modal" tabindex="-1" aria-labelledby="future-create-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal fade catalog-detail-modal catalog-future-create-modal" id="future-create-modal" tabindex="-1" aria-labelledby="future-create-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <div>
-                    <span class="catalog-detail-modal__kicker"><i class="bi bi-stars" aria-hidden="true"></i> NUEVO OBJETIVO</span>
-                    <h2 class="modal-title" id="future-create-title">Registrar en Futuras Colecciones</h2>
+                <div class="catalog-future-create-modal__heading">
+                    <span class="catalog-future-create-modal__mark"><i class="bi bi-stars" aria-hidden="true"></i></span>
+                    <div>
+                        <span class="catalog-detail-modal__kicker">FUTURAS COLECCIONES / NUEVA PIEZA</span>
+                        <h2 class="modal-title" id="future-create-title">Añade un objetivo a tu camino</h2>
+                        <p>Registra el equipo que te gustaría sumar a tu colección.</p>
+                    </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form id="future-create-form" enctype="multipart/form-data" class="catalog-admin-form catalog-future-form">
                     @Html.AntiForgeryToken()
-                    <div class="catalog-future-form__intro">
-                        <span class="catalog-future-form__icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
-                        <div>
-                            <span class="catalog-future-form__eyebrow">IMAGINA TU PRÓXIMA ADQUISICIÓN</span>
-                            <p>Añade el dispositivo que quieres conseguir. Aparecerá junto a tus demás objetivos y podrás marcarlo como adquirido cuando llegue el momento.</p>
-                        </div>
-                    </div>
-                    <div class="catalog-admin-form__grid catalog-future-form__grid">
+                    <div class="catalog-future-form__fields">
                         <label>
                             <span class="catalog-edit-field-label"><i class="bi bi-grid" aria-hidden="true"></i>Categoría</span>
                             <select class="form-select" name="IdCategoria" required>
@@ -339,43 +334,39 @@
                         </label>
                         <label>
                             <span class="catalog-edit-field-label"><i class="bi bi-box" aria-hidden="true"></i>Modelo</span>
-                            <input class="form-control" name="Modelo" maxlength="150" required placeholder="Ej. PlayStation 5 Pro, iPhone 16" />
+                            <input class="form-control" name="Modelo" maxlength="150" required placeholder="Nombre del modelo que quieres conseguir" />
                         </label>
-                        <div class="catalog-future-specifications" id="future-category-specifications" hidden>
-                            <div class="catalog-future-specifications__heading">
-                                <span class="catalog-future-specifications__icon"><i class="bi bi-toggles" aria-hidden="true"></i></span>
-                                <div>
-                                    <span class="catalog-future-form__eyebrow">DETALLES DE ESTA CATEGORÍA</span>
-                                    <p id="future-category-specifications-copy">Completa los detalles que quieras recordar de esta pieza.</p>
-                                </div>
-                            </div>
-                            <div class="catalog-future-specifications__grid" id="future-category-specifications-fields"></div>
-                            <label class="catalog-future-specifications__notes">
-                                <span class="catalog-edit-field-label"><i class="bi bi-card-text" aria-hidden="true"></i>Notas adicionales <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
-                                <textarea class="form-control" id="future-specifications-notes" maxlength="500" rows="2" placeholder="Algún detalle, versión o característica que quieras guardar"></textarea>
-                            </label>
+                    </div>
+                    <div class="catalog-future-upload">
+                        <div class="catalog-future-upload__heading">
+                            <span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen del producto <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
+                            <span class="catalog-future-upload__hint">JPG, PNG, WEBP o GIF · máximo 10 MB</span>
                         </div>
-                        <label class="catalog-admin-form__image">
-                            <span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
-                            <span class="catalog-edit-image">
-                                <img id="future-create-image-preview" alt="Vista previa del dispositivo deseado" hidden />
-                                <span class="catalog-edit-image__control">
-                                    <input class="form-control" id="future-create-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
-                                    <small>JPG, PNG, WEBP o GIF · máximo 10 MB. Puedes registrar el objetivo sin imagen.</small>
-                                    <span class="catalog-edit-image__filename" id="future-create-image-filename" aria-live="polite">Ninguna imagen seleccionada</span>
+                        <label class="catalog-future-upload__dropzone" id="future-create-dropzone" for="future-create-image-input">
+                            <input class="catalog-future-upload__input" id="future-create-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
+                            <span class="catalog-future-upload__empty" id="future-create-upload-empty">
+                                <span class="catalog-future-upload__icon"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i></span>
+                                <strong>Arrastra tu imagen aquí</strong>
+                                <span>o <span class="catalog-future-upload__browse">explora tus archivos</span></span>
+                            </span>
+                            <span class="catalog-future-upload__preview" id="future-create-upload-preview" hidden>
+                                <img id="future-create-image-preview" alt="Vista previa del producto" />
+                                <span class="catalog-future-upload__file">
+                                    <i class="bi bi-image" aria-hidden="true"></i>
+                                    <span id="future-create-image-filename"></span>
                                 </span>
+                                <span class="catalog-future-upload__change">Cambiar imagen</span>
                             </span>
                         </label>
                     </div>
-                    <input type="hidden" name="Especificaciones" id="future-create-specifications" />
                     <div class="catalog-admin-form__error" id="future-create-error" role="alert" hidden></div>
                 </form>
             </div>
             <div class="modal-footer catalog-detail-modal__footer">
                 <button type="button" class="btn catalog-admin-secondary catalog-future-form__cancel" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn catalog-admin-save" id="future-create-submit">
+                <button type="button" class="btn catalog-admin-save catalog-future-form__submit" id="future-create-submit">
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="future-create-spinner"></span>
-                    <i class="bi bi-stars me-2" aria-hidden="true" id="future-create-icon"></i>Añadir a mis objetivos
+                    <i class="bi bi-plus-lg me-2" aria-hidden="true" id="future-create-icon"></i>Guardar registro
                 </button>
             </div>
         </div>
@@ -420,7 +411,6 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="IdDispositivo" />
                         <input type="hidden" name="IdJuego" />
-                        <input type="hidden" name="Especificaciones" />
                         <div class="catalog-edit-intro">
                             <span class="catalog-edit-intro__icon"><i class="bi bi-sliders2" aria-hidden="true"></i></span>
                             <div>
@@ -886,14 +876,6 @@
                 appendDetail("Género", product.genre);
                 appendDetail("Categoría", product.category);
                 appendDetail("Estado", product.status || (product.collectionState === "DESEADO" ? "Deseado" : null));
-                if (product.specifications) {
-                    try {
-                        const specifications = JSON.parse(product.specifications);
-                        Object.entries(specifications).forEach(([label, value]) => appendDetail(label, value));
-                    } catch (exception) {
-                        console.error("No se pudieron leer las especificaciones del producto.", exception);
-                    }
-                }
                 if (product.type === "DISPOSITIVO") {
                     appendDetail("Estado de Colección", product.collectionState === "DESEADO" ? "Futuras colecciones" : "Mi colección");
                 }
@@ -959,7 +941,6 @@
                     editForm.elements.Estado.value = product.status || "";
                     editForm.elements.EstadoColeccion.value = product.collectionState || "COLECCION";
                     editForm.elements.ImagenUrl.value = product.image || "";
-                    editForm.elements.Especificaciones.value = product.specifications || "";
                     setEditImagePreview(product.image || "");
                     document.getElementById("catalog-edit-product-name").textContent = product.name;
                 }
@@ -1108,7 +1089,6 @@
                 card.dataset.categoryId = data.idCategoria ?? data.categoriaId;
                 card.dataset.status = data.estado;
                 card.dataset.image = data.imagenUrl || "";
-                if ("especificaciones" in data) card.dataset.specifications = data.especificaciones || "";
                 if ("plataforma" in data) card.dataset.platform = data.plataforma || "";
                 if ("genero" in data) card.dataset.genre = data.genero || "";
                 
@@ -1381,187 +1361,55 @@
             const futureCreateModal = futureCreateModalEl ? bootstrap.Modal.getOrCreateInstance(futureCreateModalEl) : null;
             const futureCreateForm = document.getElementById("future-create-form");
             const btnFutureCreateSubmit = document.getElementById("future-create-submit");
-            const futureCategorySelect = futureCreateForm?.elements.IdCategoria;
-            const futureCategorySpecifications = document.getElementById("future-category-specifications");
-            const futureCategorySpecificationsFields = document.getElementById("future-category-specifications-fields");
-            const futureCategorySpecificationsCopy = document.getElementById("future-category-specifications-copy");
-            const futureSpecificationsNotes = document.getElementById("future-specifications-notes");
-            const futureSpecificationsInput = document.getElementById("future-create-specifications");
             const futureCreateImageInput = document.getElementById("future-create-image-input");
             const futureCreateImagePreview = document.getElementById("future-create-image-preview");
             const futureCreateImageFilename = document.getElementById("future-create-image-filename");
+            const futureCreateUploadEmpty = document.getElementById("future-create-upload-empty");
+            const futureCreateUploadPreview = document.getElementById("future-create-upload-preview");
+            const futureCreateDropzone = document.getElementById("future-create-dropzone");
             let futureCreateImageObjectUrl = null;
-            const normalizeCategoryName = (value) => value
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLocaleLowerCase("es");
-            const categorySpecificationProfiles = [
-                {
-                    matches: ["periferico", "peripheral"],
-                    title: "Personaliza los detalles de tu periférico.",
-                    fields: [
-                        { label: "Tipo de periférico", type: "select", options: ["Mouse", "Teclado", "Audífonos", "Monitor", "Control", "Micrófono", "Cámara web", "Otro"] },
-                        { label: "Conexión", type: "select", options: ["Alámbrica", "Bluetooth", "Inalámbrica 2.4 GHz", "USB", "No definido"] },
-                        { label: "Compatibilidad", placeholder: "PC, PlayStation, Xbox, universal..." },
-                        { label: "Color", placeholder: "Color o acabado" }
-                    ]
-                },
-                {
-                    matches: ["consola", "console"],
-                    title: "Añade la configuración que buscas para tu consola.",
-                    fields: [
-                        { label: "Generación", placeholder: "Ej. novena generación" },
-                        { label: "Almacenamiento", placeholder: "Ej. 1 TB SSD" },
-                        { label: "Edición", type: "select", options: ["Digital", "Con lector de discos", "Edición especial", "No definido"] },
-                        { label: "Color", placeholder: "Color o edición" }
-                    ]
-                },
-                {
-                    matches: ["laptop", "portatil", "notebook"],
-                    title: "Define la configuración ideal de tu laptop.",
-                    fields: [
-                        { label: "Procesador", placeholder: "Ej. Intel Core Ultra 7, Ryzen 7" },
-                        { label: "Memoria RAM", placeholder: "Ej. 16 GB" },
-                        { label: "Almacenamiento", placeholder: "Ej. 1 TB SSD" },
-                        { label: "Gráficos", placeholder: "Integrados o modelo de GPU" },
-                        { label: "Tamaño de pantalla", placeholder: "Ej. 14 pulgadas" }
-                    ]
-                },
-                {
-                    matches: ["componente", "hardware"],
-                    title: "Registra las especificaciones clave de este componente.",
-                    fields: [
-                        { label: "Tipo de componente", type: "select", options: ["Procesador", "Tarjeta gráfica", "Memoria RAM", "Almacenamiento", "Placa madre", "Fuente de poder", "Refrigeración", "Otro"] },
-                        { label: "Interfaz o socket", placeholder: "Ej. AM5, LGA 1700, PCIe 4.0, DDR5" },
-                        { label: "Capacidad o potencia", placeholder: "Ej. 2 TB, 32 GB, 850 W" },
-                        { label: "Compatibilidad", placeholder: "Plataforma, formato o equipo compatible" }
-                    ]
-                },
-                {
-                    matches: ["pc", "computadora", "ordenador"],
-                    title: "Arma el perfil del equipo que quieres construir.",
-                    fields: [
-                        { label: "Procesador", placeholder: "Ej. Intel Core i7, Ryzen 7" },
-                        { label: "Memoria RAM", placeholder: "Ej. 32 GB DDR5" },
-                        { label: "Almacenamiento", placeholder: "Ej. 2 TB NVMe" },
-                        { label: "Tarjeta gráfica", placeholder: "Ej. GeForce RTX, Radeon RX" },
-                        { label: "Gabinete o formato", placeholder: "Ej. ATX, Mini-ITX" }
-                    ]
-                },
-                {
-                    matches: ["smartphone", "celular", "telefono"],
-                    title: "Guarda las características importantes de tu próximo teléfono.",
-                    fields: [
-                        { label: "Almacenamiento", placeholder: "Ej. 256 GB" },
-                        { label: "Memoria RAM", placeholder: "Ej. 8 GB" },
-                        { label: "Sistema operativo", type: "select", options: ["Android", "iOS", "Otro"] },
-                        { label: "Tamaño de pantalla", placeholder: "Ej. 6.7 pulgadas" },
-                        { label: "Color", placeholder: "Color o acabado" }
-                    ]
-                },
-                {
-                    matches: ["tablet", "tableta"],
-                    title: "Define las características que buscas en tu próxima tablet.",
-                    fields: [
-                        { label: "Almacenamiento", placeholder: "Ej. 256 GB" },
-                        { label: "Tamaño de pantalla", placeholder: "Ej. 11 pulgadas" },
-                        { label: "Conectividad", type: "select", options: ["Wi-Fi", "Wi-Fi + celular", "No definido"] },
-                        { label: "Compatibilidad con accesorios", placeholder: "Lápiz, teclado, funda..." },
-                        { label: "Color", placeholder: "Color o acabado" }
-                    ]
-                },
-                {
-                    matches: ["monitor", "televisor", "television", "smart tv"],
-                    title: "Completa la configuración de pantalla que tienes en mente.",
-                    fields: [
-                        { label: "Tamaño", placeholder: "Ej. 27 pulgadas" },
-                        { label: "Resolución", placeholder: "Ej. 1440p, 4K" },
-                        { label: "Frecuencia de actualización", placeholder: "Ej. 144 Hz, 120 Hz" },
-                        { label: "Panel o tecnología", placeholder: "IPS, OLED, QLED..." },
-                        { label: "Conectividad", placeholder: "HDMI, DisplayPort, Smart TV..." }
-                    ]
-                },
-                {
-                    matches: ["smartwatch", "reloj inteligente"],
-                    title: "Elige los detalles que buscas en tu reloj inteligente.",
-                    fields: [
-                        { label: "Tamaño de caja", placeholder: "Ej. 44 mm" },
-                        { label: "Compatibilidad", placeholder: "Android, iOS, universal..." },
-                        { label: "Conectividad", type: "select", options: ["Bluetooth", "Wi-Fi", "LTE / celular", "GPS", "No definido"] },
-                        { label: "Material o color", placeholder: "Ej. aluminio negro" }
-                    ]
-                }
-            ];
-            const createCategoryField = (definition) => {
-                const label = document.createElement("label");
-                label.className = "catalog-future-specifications__field";
-                const fieldLabel = document.createElement("span");
-                fieldLabel.className = "catalog-edit-field-label";
-                fieldLabel.textContent = definition.label;
-                let control;
-                if (definition.type === "select") {
-                    control = document.createElement("select");
-                    control.className = "form-select";
-                    const placeholder = document.createElement("option");
-                    placeholder.value = "";
-                    placeholder.textContent = "Selecciona una opción";
-                    control.append(placeholder);
-                    definition.options.forEach((value) => {
-                        const option = document.createElement("option");
-                        option.value = value;
-                        option.textContent = value;
-                        control.append(option);
-                    });
-                } else {
-                    control = document.createElement("input");
-                    control.className = "form-control";
-                    control.type = "text";
-                    control.maxLength = 100;
-                    control.placeholder = definition.placeholder || "";
-                }
-                control.dataset.specificationLabel = definition.label;
-                label.append(fieldLabel, control);
-                return label;
-            };
-            const updateFutureCategoryFields = () => {
-                if (!futureCategorySelect || !futureCategorySpecifications || !futureCategorySpecificationsFields) return;
-                const categoryName = normalizeCategoryName(futureCategorySelect.selectedOptions[0]?.textContent || "");
-                const profile = categorySpecificationProfiles.find((item) => item.matches.some((match) => categoryName.includes(match)));
-                futureCategorySpecificationsFields.replaceChildren();
-                if (!categoryName) {
-                    futureCategorySpecifications.hidden = true;
-                    return;
-                }
-
-                const definitions = profile?.fields || [
-                    { label: "Tipo o característica principal", placeholder: "Describe qué tipo de dispositivo buscas" },
-                    { label: "Compatibilidad", placeholder: "Plataformas o dispositivos compatibles" },
-                    { label: "Color o acabado", placeholder: "Opcional" }
-                ];
-                definitions.forEach((definition) => futureCategorySpecificationsFields.append(createCategoryField(definition)));
-                futureCategorySpecificationsCopy.textContent = profile?.title || "Agrega los datos que te ayudarán a elegir este producto.";
-                futureCategorySpecifications.hidden = false;
-            };
-
-            futureCategorySelect?.addEventListener("change", updateFutureCategoryFields);
-
-            futureCreateImageInput?.addEventListener("change", () => {
+            const updateFutureImagePreview = () => {
                 if (futureCreateImageObjectUrl) {
                     URL.revokeObjectURL(futureCreateImageObjectUrl);
                     futureCreateImageObjectUrl = null;
                 }
 
                 const file = futureCreateImageInput.files?.[0];
-                futureCreateImagePreview.hidden = !file;
+                futureCreateUploadEmpty.hidden = Boolean(file);
+                futureCreateUploadPreview.hidden = !file;
                 futureCreateImagePreview.removeAttribute("src");
                 if (!file) {
-                    futureCreateImageFilename.textContent = "Ninguna imagen seleccionada";
+                    futureCreateImageFilename.textContent = "";
                     return;
                 }
 
                 futureCreateImageObjectUrl = URL.createObjectURL(file);
                 futureCreateImagePreview.src = futureCreateImageObjectUrl;
                 futureCreateImageFilename.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+            };
+
+            futureCreateImageInput?.addEventListener("change", () => {
+                updateFutureImagePreview();
+            });
+
+            futureCreateDropzone?.addEventListener("dragover", (event) => {
+                event.preventDefault();
+                futureCreateDropzone.classList.add("is-dragging");
+            });
+            futureCreateDropzone?.addEventListener("dragleave", (event) => {
+                if (!futureCreateDropzone.contains(event.relatedTarget)) {
+                    futureCreateDropzone.classList.remove("is-dragging");
+                }
+            });
+            futureCreateDropzone?.addEventListener("drop", (event) => {
+                event.preventDefault();
+                futureCreateDropzone.classList.remove("is-dragging");
+                const file = event.dataTransfer?.files?.[0];
+                if (!file) return;
+                const transfer = new DataTransfer();
+                transfer.items.add(file);
+                futureCreateImageInput.files = transfer.files;
+                futureCreateImageInput.dispatchEvent(new Event("change", { bubbles: true }));
             });
 
             if (btnFutureCreateSubmit && futureCreateForm) {
@@ -1587,14 +1435,7 @@
                         }
                     }
 
-                    const specifications = {};
-                    futureCategorySpecificationsFields.querySelectorAll("[data-specification-label]").forEach((field) => {
-                        if (field.value.trim()) specifications[field.dataset.specificationLabel] = field.value.trim();
-                    });
-                    if (futureSpecificationsNotes.value.trim()) {
-                        specifications["Notas adicionales"] = futureSpecificationsNotes.value.trim();
-                    }
-                    futureSpecificationsInput.value = JSON.stringify(specifications);
+
 
                     btnFutureCreateSubmit.disabled = true;
                     if (spinner) spinner.hidden = false;
@@ -1628,7 +1469,6 @@
                         article.dataset.model = p.modelo;
                         article.dataset.status = p.estado;
                         article.dataset.image = p.imagenUrl || "";
-                        article.dataset.specifications = p.especificaciones || "";
                         article.dataset.deviceId = p.dispositivoId;
                         article.dataset.collectionState = p.estadoColeccion;
                         article.setAttribute("role", "button");
@@ -1689,17 +1529,11 @@
 
                         updateCounts();
                         futureCreateForm.reset();
-                        futureCategorySpecificationsFields.replaceChildren();
-                        futureCategorySpecifications.hidden = true;
-                        futureSpecificationsNotes.value = "";
-                        futureSpecificationsInput.value = "";
                         if (futureCreateImageObjectUrl) {
                             URL.revokeObjectURL(futureCreateImageObjectUrl);
                             futureCreateImageObjectUrl = null;
                         }
-                        futureCreateImagePreview.hidden = true;
-                        futureCreateImagePreview.removeAttribute("src");
-                        futureCreateImageFilename.textContent = "Ninguna imagen seleccionada";
+                        updateFutureImagePreview();
                         if (futureCreateModal) futureCreateModal.hide();
                         document.getElementById("catalog-tab-future")?.click();
                         showCatalogToast(result.message || "¡Registro completado correctamente!");

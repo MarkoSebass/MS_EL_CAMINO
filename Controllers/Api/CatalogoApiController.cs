@@ -1,6 +1,5 @@
 using System.Data.Common;
 using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -124,7 +123,6 @@ public sealed class CatalogoApiController : ControllerBase
                 Modelo = device.Modelo,
                 Estado = device.Estado,
                 ImagenUrl = device.ImagenUrl,
-                Especificaciones = device.Especificaciones,
                 EstadoColeccion = device.EstadoColeccion
             })
             .ToListAsync(HttpContext.RequestAborted);
@@ -162,7 +160,6 @@ public sealed class CatalogoApiController : ControllerBase
                 Modelo = item.Modelo,
                 Estado = item.Estado,
                 ImagenUrl = item.ImagenUrl,
-                Especificaciones = item.Especificaciones,
                 EstadoColeccion = item.EstadoColeccion
             })
             .FirstOrDefaultAsync(HttpContext.RequestAborted);
@@ -200,11 +197,6 @@ public sealed class CatalogoApiController : ControllerBase
             return BadRequest(new { message = "La categoría seleccionada no existe." });
         }
 
-        if (!TryNormalizeSpecifications(request.Especificaciones, out var especificaciones))
-        {
-            return BadRequest(new { message = "Las especificaciones enviadas no tienen un formato válido." });
-        }
-
         if (request.Imagen is { Length: > 0 } && !IsValidImage(request.Imagen))
         {
             return BadRequest(new { message = "La imagen debe ser JPG, PNG, WEBP o GIF y pesar como máximo 10 MB." });
@@ -237,7 +229,6 @@ public sealed class CatalogoApiController : ControllerBase
             Estado = "Deseado",
             FechaCompra = null,
             ImagenUrl = imagenUrl,
-            Especificaciones = especificaciones,
             EstadoColeccion = DesiredState
         };
 
@@ -256,8 +247,7 @@ public sealed class CatalogoApiController : ControllerBase
                 modelo = nuevoDispositivo.Modelo,
                 categoria = categoria.Nombre,
                 estadoColeccion = DesiredState,
-                imagenUrl = nuevoDispositivo.ImagenUrl,
-                especificaciones = nuevoDispositivo.Especificaciones
+                imagenUrl = nuevoDispositivo.ImagenUrl
             }
         });
     }
@@ -356,11 +346,6 @@ public sealed class CatalogoApiController : ControllerBase
         var modelo = request.Modelo.Trim();
         var estado = request.Estado.Trim();
         var imagenUrl = NormalizeImageUrl(request.ImagenUrl);
-        if (!TryNormalizeSpecifications(request.Especificaciones, out var especificaciones))
-        {
-            return BadRequest(new { message = "Las especificaciones enviadas no tienen un formato válido." });
-        }
-
         try
         {
             var affectedRows = await _context.Dispositivos
@@ -371,7 +356,6 @@ public sealed class CatalogoApiController : ControllerBase
                     .SetProperty(item => item.Modelo, modelo)
                     .SetProperty(item => item.Estado, estado)
                     .SetProperty(item => item.ImagenUrl, imagenUrl)
-                    .SetProperty(item => item.Especificaciones, item => request.Especificaciones == null ? item.Especificaciones : especificaciones)
                     .SetProperty(item => item.EstadoColeccion, request.EstadoColeccion),
                     HttpContext.RequestAborted);
 
@@ -709,43 +693,6 @@ public sealed class CatalogoApiController : ControllerBase
 
     private static string? NormalizeImageUrl(string? imageUrl) =>
         string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
-
-    private static bool TryNormalizeSpecifications(string? value, out string? normalized)
-    {
-        normalized = null;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return true;
-        }
-
-        try
-        {
-            var specifications = JsonSerializer.Deserialize<Dictionary<string, string>>(value);
-            if (specifications is null || specifications.Count > 20
-                || specifications.Any(item => string.IsNullOrWhiteSpace(item.Key)
-                    || item.Key.Length > 80
-                    || item.Value?.Length > 500))
-            {
-                return false;
-            }
-
-            var cleaned = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var item in specifications.Where(item => !string.IsNullOrWhiteSpace(item.Value)))
-            {
-                if (!cleaned.TryAdd(item.Key.Trim(), item.Value.Trim()))
-                {
-                    return false;
-                }
-            }
-
-            normalized = cleaned.Count == 0 ? null : JsonSerializer.Serialize(cleaned);
-            return normalized is null || normalized.Length <= 4000;
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
-    }
 
     private static bool IsSafeImageUrl(string? imageUrl) =>
         string.IsNullOrWhiteSpace(imageUrl)
