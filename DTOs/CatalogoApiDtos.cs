@@ -12,6 +12,8 @@ public sealed class CatalogoDispositivoDto
     public string? Modelo { get; init; }
     public string? Estado { get; init; }
     public string? ImagenUrl { get; init; }
+    /// <summary>Especificaciones adicionales del dispositivo, serializadas como un objeto JSON.</summary>
+    public string? Especificaciones { get; init; }
     public string EstadoColeccion { get; init; } = string.Empty;
 }
 
@@ -33,6 +35,10 @@ public sealed class CatalogoDispositivoCrearDto
     [StringLength(500)]
     [Url]
     public string? ImagenUrl { get; set; }
+
+    /// <summary>Especificaciones por categoría en formato JSON, por ejemplo {"Conexión":"Bluetooth"}.</summary>
+    [StringLength(4000)]
+    public string? Especificaciones { get; set; }
 }
 
 public sealed class CatalogoDispositivoUpdateDto
@@ -54,6 +60,10 @@ public sealed class CatalogoDispositivoUpdateDto
 
     [StringLength(500)]
     public string? ImagenUrl { get; init; }
+
+    /// <summary>Especificaciones adicionales del dispositivo en formato JSON.</summary>
+    [StringLength(4000)]
+    public string? Especificaciones { get; init; }
 
     [Required]
     [RegularExpression("^(COLECCION|DESEADO)$")]

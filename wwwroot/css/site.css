@@ -6819,3 +6819,236 @@ a:focus-visible {
         transition: none;
     }
 }
+
+.catalog-overview {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.catalog-stat {
+    align-items: center;
+    text-align: center;
+}
+
+.catalog-stat__icon {
+    margin-bottom: 11px;
+}
+
+.catalog-stat__label {
+    text-align: center;
+}
+
+.catalog-future-form {
+    display: grid;
+    gap: 20px;
+}
+
+.catalog-future-form__intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid rgba(198, 207, 157, .16);
+    border-radius: 15px;
+    background:
+        radial-gradient(ellipse at 0 0, rgba(198, 207, 157, .09), transparent 68%),
+        rgba(0, 0, 0, .14);
+}
+
+.catalog-future-form__icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    place-items: center;
+    border: 1px solid rgba(198, 207, 157, .24);
+    border-radius: 12px;
+    background: rgba(198, 207, 157, .08);
+    color: #d3daa9;
+    font-size: 17px;
+}
+
+.catalog-future-form__eyebrow {
+    display: block;
+    margin: 2px 0 6px;
+    color: #d3a64f;
+    font-family: var(--font-data);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: .14em;
+}
+
+.catalog-future-form__intro p {
+    max-width: 610px;
+    margin: 0;
+    color: rgba(237, 234, 227, .64);
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+.catalog-future-form__grid {
+    padding-top: 0;
+}
+
+.catalog-future-form__grid > label {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+}
+
+.catalog-future-form .catalog-edit-image {
+    width: 100%;
+}
+
+.catalog-future-form .catalog-edit-image__control {
+    gap: 8px;
+}
+
+.catalog-future-form .catalog-admin-form__error {
+    margin-top: 0;
+}
+
+.catalog-future-form__cancel {
+    min-height: 45px;
+    border-radius: 11px;
+}
+
+#future-create-modal .catalog-detail-modal__footer {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#future-create-modal .catalog-detail-modal__footer .catalog-admin-save {
+    min-height: 45px;
+    padding: 10px 17px;
+    border-radius: 11px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 1050px) {
+    .catalog-overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575px) {
+    .catalog-overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .catalog-future-form__intro {
+        padding: 13px;
+    }
+
+    .catalog-future-form__grid {
+        padding: 0;
+    }
+
+    #future-create-modal .catalog-detail-modal__footer {
+        flex-direction: column-reverse;
+    }
+
+    #future-create-modal .catalog-detail-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+.catalog-future-specifications {
+    display: grid;
+    grid-column: 1 / -1;
+    gap: 13px;
+    padding: 17px;
+    border: 1px solid rgba(198, 207, 157, .2);
+    border-radius: 15px;
+    background:
+        radial-gradient(ellipse at 0 0, rgba(198, 207, 157, .085), transparent 62%),
+        rgba(0, 0, 0, .17);
+    animation: catalog-specifications-enter .24s ease both;
+}
+
+.catalog-future-specifications[hidden] {
+    display: none !important;
+}
+
+.catalog-future-specifications__heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+}
+
+.catalog-future-specifications__icon {
+    display: grid;
+    width: 35px;
+    height: 35px;
+    flex: 0 0 35px;
+    place-items: center;
+    border: 1px solid rgba(198, 207, 157, .2);
+    border-radius: 10px;
+    background: rgba(198, 207, 157, .07);
+    color: #c6cf9d;
+    font-size: 15px;
+}
+
+.catalog-future-specifications__heading .catalog-future-form__eyebrow {
+    margin-top: 1px;
+}
+
+.catalog-future-specifications__heading p {
+    margin: 0;
+    color: rgba(237, 234, 227, .54);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.catalog-future-specifications__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.catalog-future-specifications__field,
+.catalog-future-specifications__notes {
+    display: grid;
+    min-width: 0;
+    align-content: start;
+    gap: 7px;
+}
+
+.catalog-future-specifications .catalog-edit-field-label {
+    color: rgba(237, 234, 227, .78);
+    font-size: 9px;
+}
+
+.catalog-future-specifications__notes textarea.form-control {
+    min-height: 68px;
+    resize: vertical;
+}
+
+@keyframes catalog-specifications-enter {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 575px) {
+    .catalog-future-specifications {
+        padding: 13px;
+    }
+
+    .catalog-future-specifications__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .catalog-future-specifications {
+        animation: none;
+    }
+}

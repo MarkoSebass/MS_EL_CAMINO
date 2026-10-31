@@ -34,6 +34,9 @@ public class Dispositivo
     [Column("imagen_url")]
     public string? ImagenUrl { get; set; }
 
+    [Column("especificaciones")]
+    public string? Especificaciones { get; set; }
+
     [Required]
     [MaxLength(20)]
     [Column("estado_coleccion")]

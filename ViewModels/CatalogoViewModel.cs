@@ -32,12 +32,19 @@ public class CatalogoProductoViewModel
     public string? Detalle { get; set; }
     public string? Estado { get; init; }
     public string? ImagenUrl { get; set; }
+    public string? Especificaciones { get; init; }
     public DateOnly? FechaCompra { get; init; }
     public string Icono { get; set; } = "bi-box-seam";
 }
 
 public class DispositivoCrearFuturaColeccionViewModel
 {
+    private const long MaxImageSizeBytes = 10 * 1024 * 1024;
+    private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".webp", ".gif"
+    };
+
     [Required(ErrorMessage = "La categoría es obligatoria.")]
     [Range(1, int.MaxValue, ErrorMessage = "Selecciona una categoría válida.")]
     [Display(Name = "Categoría")]
@@ -53,6 +60,14 @@ public class DispositivoCrearFuturaColeccionViewModel
 
     [Display(Name = "Imagen")]
     public IFormFile? Imagen { get; set; }
+
+    [StringLength(4000, ErrorMessage = "Las especificaciones no pueden superar los 4000 caracteres.")]
+    public string? Especificaciones { get; set; }
+
+    public bool HasValidImage =>
+        Imagen == null
+        || Imagen.Length is > 0 and <= MaxImageSizeBytes
+        && AllowedImageExtensions.Contains(Path.GetExtension(Imagen.FileName));
 }
 
 public class DispositivoEditarViewModel
@@ -94,6 +109,9 @@ public class DispositivoEditarViewModel
 
     [Display(Name = "Nueva imagen")]
     public IFormFile? Imagen { get; set; }
+
+    [StringLength(4000, ErrorMessage = "Las especificaciones no pueden superar los 4000 caracteres.")]
+    public string? Especificaciones { get; set; }
 
     public bool HasValidImage =>
         Imagen == null

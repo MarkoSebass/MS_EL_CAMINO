@@ -77,12 +77,24 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "EL CAMINO API",
         Version = "v1",
-        Description = "API de autenticación y catálogo tecnológico. Requiere una sesión iniciada; las operaciones PUT y DELETE requieren rol ADMIN y token X-CSRF-TOKEN obtenido en GET /api/catalogo/antiforgery.",
+        Description = "EL CAMINO es una API para consultar y administrar tu colección tecnológica y tus futuras adquisiciones. Inicia sesión en la aplicación para acceder a las rutas protegidas. Las operaciones administrativas de escritura requieren el rol ADMIN y el token antifalsificación X-CSRF-TOKEN, que se obtiene en GET /api/catalogo/antiforgery. Los recursos del catálogo se limitan al usuario autenticado.",
         Contact = new OpenApiContact
         {
             Name = "El Camino Team",
             Email = "admin@elcamino.com"
         }
+    });
+    options.TagActionsBy(api =>
+    {
+        var controller = api.ActionDescriptor.RouteValues.TryGetValue("controller", out var value)
+            ? value
+            : null;
+        var tag = string.Equals(controller, "Auth", StringComparison.OrdinalIgnoreCase)
+            ? "LOGIN"
+            : string.Equals(controller, "Catalogo", StringComparison.OrdinalIgnoreCase)
+                ? "CÁTOLOGO TECNOLÓGICO"
+                : controller ?? "API";
+        return [tag];
     });
     var xmlDocumentation = Path.Combine(
         AppContext.BaseDirectory,
@@ -96,18 +108,18 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // ============================================================================
-// WARMUP DE CONEXIÓN A SUPABASE (Evita el fallo inicial de conexión en frío)
+// VERIFICACIÓN DE CONEXIÓN A SUPABASE
 // ============================================================================
 try
 {
-    using var scope = app.Services.CreateScope();
+    await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var canConnect = dbContext.Database.CanConnect();
+    var canConnect = await dbContext.Database.CanConnectAsync(app.Lifetime.ApplicationStopping);
     app.Logger.LogInformation("Verificación inicial de base de datos Supabase: {Status}", canConnect ? "Conectado" : "Pendiente");
 }
 catch (Exception ex)
 {
-    app.Logger.LogWarning("Calentamiento inicial de BD diferido: {Message}", ex.Message);
+    app.Logger.LogWarning(ex, "Verificación inicial de base de datos diferida.");
 }
 
 // ============================================================================
