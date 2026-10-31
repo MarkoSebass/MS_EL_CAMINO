@@ -7304,3 +7304,49 @@ a:focus-visible {
         transition: none;
     }
 }
+
+.catalog-future__heading > .catalog-future__actions {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.catalog-future__actions .catalog-future-create-trigger {
+    margin-left: auto;
+}
+
+.catalog-detail-modal .catalog-admin-form__image .catalog-future-upload {
+    gap: 8px;
+}
+
+.catalog-detail-modal .catalog-admin-form__image .catalog-future-upload__hint {
+    text-align: left;
+}
+
+.catalog-detail-modal .catalog-admin-form__image .catalog-future-upload__dropzone {
+    min-height: 148px;
+}
+
+@media (max-width: 700px) {
+    .catalog-future__heading > .catalog-future__actions {
+        justify-content: flex-start;
+    }
+
+    .catalog-future__actions .catalog-future-create-trigger {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 575px) {
+    .catalog-future__heading > .catalog-future__actions {
+        flex-wrap: wrap;
+    }
+
+    .catalog-detail-modal .catalog-admin-form__image .catalog-future-upload__preview {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+}

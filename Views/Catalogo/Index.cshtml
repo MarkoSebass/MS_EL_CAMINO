@@ -242,7 +242,7 @@
                 <h2>Futuras colecciones</h2>
                 <p>Dispositivos que quieres sumar más adelante a tu historia personal.</p>
             </div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="catalog-future__actions">
                 <span class="catalog-future__badge" id="future-badge-count"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @dispositivosFuturos.Count EN LA LISTA</span>
                 <button type="button" class="btn catalog-admin-save catalog-future-create-trigger" id="btn-open-create-future" data-bs-toggle="modal" data-bs-target="#future-create-modal">
                     <i class="bi bi-plus-lg" aria-hidden="true"></i><span>Nuevo registro</span>
@@ -441,18 +441,29 @@
                                     <option value="DESEADO">Futuras colecciones</option>
                                 </select>
                             </label>
-                            <label class="catalog-admin-form__image">
+                            <div class="catalog-admin-form__image">
                                 <span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
-                                <span class="catalog-edit-image">
-                                    <img id="catalog-edit-image-preview" alt="Vista previa de la imagen del producto" hidden />
-                                    <span class="catalog-edit-image__control">
-                                        <input class="form-control" id="catalog-edit-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
-                                        <small id="catalog-edit-image-help">JPG, PNG, WEBP o GIF · máximo 10 MB. Si no eliges otra, conservaremos la imagen actual.</small>
-                                        <span class="catalog-edit-image__filename" id="catalog-edit-image-filename" aria-live="polite">Ninguna imagen nueva seleccionada</span>
-                                    </span>
+                                <span class="catalog-future-upload">
+                                    <span class="catalog-future-upload__hint">JPG, PNG, WEBP o GIF · máximo 10 MB. Si no eliges otra, se conservará la actual.</span>
+                                    <label class="catalog-future-upload__dropzone" id="catalog-edit-dropzone" for="catalog-edit-image-input">
+                                        <input class="catalog-future-upload__input" id="catalog-edit-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
+                                        <span class="catalog-future-upload__empty" id="catalog-edit-upload-empty">
+                                            <span class="catalog-future-upload__icon"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i></span>
+                                            <strong>Arrastra una imagen aquí</strong>
+                                            <span>o <span class="catalog-future-upload__browse">explora tus archivos</span></span>
+                                        </span>
+                                        <span class="catalog-future-upload__preview" id="catalog-edit-upload-preview" hidden>
+                                            <img id="catalog-edit-image-preview" alt="Vista previa de la imagen del producto" />
+                                            <span class="catalog-future-upload__file">
+                                                <i class="bi bi-image" aria-hidden="true"></i>
+                                                <span id="catalog-edit-image-filename"></span>
+                                            </span>
+                                            <span class="catalog-future-upload__change">Cambiar imagen</span>
+                                        </span>
+                                    </label>
                                 </span>
                                 <input name="ImagenUrl" type="hidden" />
-                            </label>
+                            </div>
                         </div>
                         <div class="catalog-admin-form__error" id="catalog-edit-error" role="alert" hidden></div>
                     </form>
@@ -820,12 +831,54 @@
             const editImageInput = document.getElementById("catalog-edit-image-input");
             const editImagePreview = document.getElementById("catalog-edit-image-preview");
             const editImageFilename = document.getElementById("catalog-edit-image-filename");
+            const editImageEmpty = document.getElementById("catalog-edit-upload-empty");
+            const editImagePreviewContainer = document.getElementById("catalog-edit-upload-preview");
+            const editDropzone = document.getElementById("catalog-edit-dropzone");
             const updateSuccessModalElement = document.getElementById("catalog-update-success-modal");
             const deviceFields = Array.from(document.querySelectorAll("[data-device-field]"));
             const gameFields = Array.from(document.querySelectorAll("[data-game-field]"));
             let selectedItem = null;
             let editImageObjectUrl = null;
             let acquiredUpdateCompleted = false;
+
+            const readJsonResponse = async (response) => {
+                if (!(response.headers.get("content-type") || "").includes("json")) {
+                    if (response.redirected) {
+                        throw new Error("Tu sesión pudo haber expirado. Inicia sesión nuevamente e inténtalo.");
+                    }
+                    throw new Error(`No se pudo completar la solicitud (HTTP ${response.status}).`);
+                }
+
+                try {
+                    return await response.json();
+                } catch {
+                    throw new Error("El servidor devolvió una respuesta inválida. Inténtalo nuevamente.");
+                }
+            };
+
+            const bindImageDropzone = (input, dropzone, onChange) => {
+                if (!input || !dropzone) return;
+                input.addEventListener("change", onChange);
+                dropzone.addEventListener("dragover", (event) => {
+                    event.preventDefault();
+                    dropzone.classList.add("is-dragging");
+                });
+                dropzone.addEventListener("dragleave", (event) => {
+                    if (!dropzone.contains(event.relatedTarget)) {
+                        dropzone.classList.remove("is-dragging");
+                    }
+                });
+                dropzone.addEventListener("drop", (event) => {
+                    event.preventDefault();
+                    dropzone.classList.remove("is-dragging");
+                    const file = event.dataTransfer?.files?.[0];
+                    if (!file) return;
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+                });
+            };
 
             const isAdmin = Boolean(editForm);
             const setEditImagePreview = (imageUrl) => {
@@ -836,16 +889,18 @@
 
                 editImageInput.value = "";
                 editImagePreview.hidden = !imageUrl;
+                editImageEmpty.hidden = Boolean(imageUrl);
+                editImagePreviewContainer.hidden = !imageUrl;
                 editImagePreview.removeAttribute("src");
                 editImageFilename.textContent = imageUrl ? "Se conservará la imagen actual" : "Ninguna imagen seleccionada";
                 if (imageUrl) editImagePreview.src = imageUrl;
             };
 
-            const showCatalogUpdateModal = (message) => {
+            const showCatalogUpdateModal = (message, sourceModalElement = modalElement) => {
                 document.getElementById("catalog-update-success-message").textContent = message;
                 const successModal = bootstrap.Modal.getOrCreateInstance(updateSuccessModalElement);
-                modalElement.addEventListener("hidden.bs.modal", () => successModal.show(), { once: true });
-                modal.hide();
+                sourceModalElement.addEventListener("hidden.bs.modal", () => successModal.show(), { once: true });
+                bootstrap.Modal.getOrCreateInstance(sourceModalElement).hide();
             };
 
             const appendDetail = (label, value) => {
@@ -1007,7 +1062,7 @@
                 document.getElementById("catalog-delete-cancel")?.addEventListener("click", () => showAdminMode("details"));
             }
 
-            editImageInput?.addEventListener("change", () => {
+            const updateEditImagePreview = () => {
                 const file = editImageInput.files?.[0];
                 if (!file) {
                     setEditImagePreview(editForm.elements.ImagenUrl.value);
@@ -1018,14 +1073,18 @@
                 editImageObjectUrl = URL.createObjectURL(file);
                 editImagePreview.src = editImageObjectUrl;
                 editImagePreview.hidden = false;
+                editImageEmpty.hidden = true;
+                editImagePreviewContainer.hidden = false;
                 editImageFilename.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB`;
-            });
+            };
+            bindImageDropzone(editImageInput, editDropzone, updateEditImagePreview);
 
             acquiredModalElement.addEventListener("hidden.bs.modal", () => {
                 if (acquiredUpdateCompleted) {
                     acquiredUpdateCompleted = false;
                     document.getElementById("catalog-tab-current")?.click();
-                    showCatalogToast("¡Producto marcado como adquirido y movido a Mi Colección!");
+                    document.getElementById("catalog-update-success-message").textContent = "¡Producto marcado como adquirido y movido a Mi Colección!";
+                    bootstrap.Modal.getOrCreateInstance(updateSuccessModalElement).show();
                     return;
                 }
                 if (selectedItem?.isConnected) modal.show();
@@ -1061,7 +1120,7 @@
                         },
                         body: JSON.stringify({ idDispositivo: Number(selectedItem.dataset.deviceId) })
                     });
-                    const result = await response.json();
+                    const result = await readJsonResponse(response);
                     if (!response.ok || !result.success) {
                         throw new Error(result.message || "No se pudo marcar como adquirido.");
                     }
@@ -1224,7 +1283,7 @@
                     if (selectedImage) {
                         const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
                         const extension = selectedImage.name.slice(selectedImage.name.lastIndexOf(".")).toLowerCase();
-                        if (selectedImage.size > 10 * 1024 * 1024 || !allowedExtensions.includes(extension)) {
+                        if (selectedImage.size <= 0 || selectedImage.size > 10 * 1024 * 1024 || !allowedExtensions.includes(extension)) {
                             error.textContent = "Selecciona una imagen JPG, PNG, WEBP o GIF de máximo 10 MB.";
                             error.hidden = false;
                             return;
@@ -1252,7 +1311,7 @@
                                 body: formData
                             });
 
-                            const result = await response.json();
+                            const result = await readJsonResponse(response);
                             if (!response.ok || !result.success) {
                                 throw new Error(result.message || (result.errors ? result.errors.join(", ") : "Error al actualizar."));
                             }
@@ -1269,7 +1328,7 @@
                                 headers,
                                 body: formData
                             });
-                            const result = await response.json();
+                            const result = await readJsonResponse(response);
                             if (!response.ok || !result.success) {
                                 throw new Error(result.message || result.detail || result.title || "Error al actualizar el juego.");
                             }
@@ -1298,13 +1357,22 @@
                     const button = document.getElementById("catalog-delete-confirm-button");
                     const spinner = document.getElementById("delete-spinner");
                     const icon = document.getElementById("delete-confirm-icon");
+                    const itemToDelete = selectedItem;
+                    if (!itemToDelete) {
+                        if (error) {
+                            error.textContent = "Selecciona un producto antes de eliminarlo.";
+                            error.hidden = false;
+                        }
+                        return;
+                    }
+
                     if (error) error.hidden = true;
                     button.disabled = true;
                     if (spinner) spinner.hidden = false;
                     if (icon) icon.hidden = true;
 
                     try {
-                        const isGame = Boolean(selectedItem.dataset.gameId);
+                        const isGame = Boolean(itemToDelete.dataset.gameId);
                         const token = editForm.elements.__RequestVerificationToken.value;
                         const headers = {
                             "Content-Type": "application/json",
@@ -1314,34 +1382,36 @@
                         };
 
                         if (!isGame) {
-                            const id = Number(selectedItem.dataset.deviceId);
+                            const id = Number(itemToDelete.dataset.deviceId);
+                            if (!Number.isSafeInteger(id) || id <= 0) {
+                                throw new Error("No se encontró un identificador válido para este dispositivo. Recarga la página e inténtalo nuevamente.");
+                            }
+
                             const response = await fetch("/Catalogo/Eliminar", {
                                 method: "POST",
                                 headers,
                                 body: JSON.stringify({ idDispositivo: id })
                             });
 
-                            const result = await response.json();
+                            const result = await readJsonResponse(response);
                             if (!response.ok || !result.success) {
                                 throw new Error(result.message || "Error al eliminar el dispositivo.");
                             }
 
-                            modal.hide();
-                            removeCardFromDOM(selectedItem);
-                            showCatalogToast(result.message || "¡Producto eliminado correctamente!");
+                            removeCardFromDOM(itemToDelete);
+                            showCatalogUpdateModal(result.message || "¡Producto eliminado correctamente!");
                         } else {
-                            const id = selectedItem.dataset.gameId;
+                            const id = itemToDelete.dataset.gameId;
                             const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
                                 method: "DELETE",
                                 headers
                             });
-                            const result = await response.json();
+                            const result = await readJsonResponse(response);
                             if (!response.ok || !result.success) {
                                 throw new Error(result.message || result.detail || result.title || "Error al eliminar el juego.");
                             }
-                            modal.hide();
-                            removeCardFromDOM(selectedItem);
-                            showCatalogToast(result.message || "¡Producto eliminado correctamente!");
+                            removeCardFromDOM(itemToDelete);
+                            showCatalogUpdateModal(result.message || "¡Producto eliminado correctamente!");
                         }
                     } catch (exception) {
                         if (error) {
@@ -1358,7 +1428,6 @@
 
             // CREAR NUEVA FUTURA COLECCIÓN (SUBIDA A SUPABASE STORAGE Y GUARDADO EN POSTGRESQL)
             const futureCreateModalEl = document.getElementById("future-create-modal");
-            const futureCreateModal = futureCreateModalEl ? bootstrap.Modal.getOrCreateInstance(futureCreateModalEl) : null;
             const futureCreateForm = document.getElementById("future-create-form");
             const btnFutureCreateSubmit = document.getElementById("future-create-submit");
             const futureCreateImageInput = document.getElementById("future-create-image-input");
@@ -1388,29 +1457,7 @@
                 futureCreateImageFilename.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB`;
             };
 
-            futureCreateImageInput?.addEventListener("change", () => {
-                updateFutureImagePreview();
-            });
-
-            futureCreateDropzone?.addEventListener("dragover", (event) => {
-                event.preventDefault();
-                futureCreateDropzone.classList.add("is-dragging");
-            });
-            futureCreateDropzone?.addEventListener("dragleave", (event) => {
-                if (!futureCreateDropzone.contains(event.relatedTarget)) {
-                    futureCreateDropzone.classList.remove("is-dragging");
-                }
-            });
-            futureCreateDropzone?.addEventListener("drop", (event) => {
-                event.preventDefault();
-                futureCreateDropzone.classList.remove("is-dragging");
-                const file = event.dataTransfer?.files?.[0];
-                if (!file) return;
-                const transfer = new DataTransfer();
-                transfer.items.add(file);
-                futureCreateImageInput.files = transfer.files;
-                futureCreateImageInput.dispatchEvent(new Event("change", { bubbles: true }));
-            });
+            bindImageDropzone(futureCreateImageInput, futureCreateDropzone, updateFutureImagePreview);
 
             if (btnFutureCreateSubmit && futureCreateForm) {
                 btnFutureCreateSubmit.addEventListener("click", async () => {
@@ -1449,7 +1496,7 @@
                             body: formData
                         });
 
-                        const result = await response.json();
+                        const result = await readJsonResponse(response);
                         if (!response.ok || !result.success) {
                             throw new Error(result.message || result.detail || result.title || (result.errors ? result.errors.join(", ") : "No se pudo registrar el objetivo."));
                         }
@@ -1458,6 +1505,11 @@
                         const futureGrid = document.getElementById("catalog-future-grid");
                         const futureEmpty = document.getElementById("catalog-future-empty");
                         const p = result.data;
+                        const deviceId = Number(result.idDispositivo ?? p.dispositivoId ?? p.DispositivoId);
+                        if (!Number.isSafeInteger(deviceId) || deviceId <= 0) {
+                            throw new Error("El producto se guardó, pero el servidor no devolvió un identificador válido. Recarga la página para actualizar la lista.");
+                        }
+
                         const article = document.createElement("article");
                         article.className = "catalog-card";
                         article.setAttribute("data-future-catalog-item", "");
@@ -1469,7 +1521,7 @@
                         article.dataset.model = p.modelo;
                         article.dataset.status = p.estado;
                         article.dataset.image = p.imagenUrl || "";
-                        article.dataset.deviceId = p.dispositivoId;
+                        article.dataset.deviceId = String(deviceId);
                         article.dataset.collectionState = p.estadoColeccion;
                         article.setAttribute("role", "button");
                         article.setAttribute("tabindex", "0");
@@ -1534,9 +1586,8 @@
                             futureCreateImageObjectUrl = null;
                         }
                         updateFutureImagePreview();
-                        if (futureCreateModal) futureCreateModal.hide();
                         document.getElementById("catalog-tab-future")?.click();
-                        showCatalogToast(result.message || "¡Registro completado correctamente!");
+                        showCatalogUpdateModal(result.message || "¡Registro completado correctamente!", futureCreateModalEl);
                     } catch (ex) {
                         if (errorEl) {
                             errorEl.textContent = ex.message;

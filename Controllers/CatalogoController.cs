@@ -172,6 +172,7 @@ public class CatalogoController : Controller
         {
             success = true,
             message = "¡Registro completado correctamente!",
+            idDispositivo = nuevoDispositivo.IdDispositivo,
             data = new CatalogoProductoViewModel
             {
                 Tipo = "DISPOSITIVO",
