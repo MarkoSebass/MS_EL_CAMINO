@@ -57,6 +57,12 @@ public class DispositivoCrearFuturaColeccionViewModel
 
 public class DispositivoEditarViewModel
 {
+    private const long MaxImageSizeBytes = 10 * 1024 * 1024;
+    private static readonly HashSet<string> AllowedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".webp", ".gif"
+    };
+
     [Required]
     public int IdDispositivo { get; set; }
 
@@ -83,9 +89,16 @@ public class DispositivoEditarViewModel
     public string EstadoColeccion { get; set; } = "COLECCION";
 
     [StringLength(500, ErrorMessage = "La URL de la imagen no puede superar los 500 caracteres.")]
-    [Url(ErrorMessage = "Debe ser una URL válida.")]
-    [Display(Name = "URL de Imagen")]
+    [Display(Name = "Imagen actual")]
     public string? ImagenUrl { get; set; }
+
+    [Display(Name = "Nueva imagen")]
+    public IFormFile? Imagen { get; set; }
+
+    public bool HasValidImage =>
+        Imagen == null
+        || Imagen.Length is > 0 and <= MaxImageSizeBytes
+        && AllowedImageExtensions.Contains(Path.GetExtension(Imagen.FileName));
 }
 
 public class DispositivoEliminarViewModel

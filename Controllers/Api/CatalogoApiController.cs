@@ -521,6 +521,7 @@ public sealed class CatalogoApiController : ControllerBase
     [HttpPut("juegos/{id:int}")]
     [Authorize(Roles = "ADMIN")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(11 * 1024 * 1024)]
     [ProducesResponseType(typeof(CatalogoMutationResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -528,7 +529,7 @@ public sealed class CatalogoApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CatalogoMutationResponseDto>> UpdateGame(
         int id,
-        [FromBody] CatalogoJuegoUpdateDto request,
+        [FromForm] CatalogoJuegoUpdateDto request,
         [FromHeader(Name = "X-CSRF-TOKEN")] string csrfToken)
     {
         if (!TryGetUserId(out var userId))
@@ -536,9 +537,19 @@ public sealed class CatalogoApiController : ControllerBase
             return Unauthorized();
         }
 
-        if (!await _context.Categorias.AnyAsync(category => category.IdCategoria == request.IdCategoria, HttpContext.RequestAborted))
+        var category = await _context.Categorias
+            .AsNoTracking()
+            .Where(item => item.IdCategoria == request.IdCategoria)
+            .Select(item => item.Nombre)
+            .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        if (category is null)
         {
             return BadRequest(new { message = "La categoría seleccionada no existe." });
+        }
+
+        if (request.Imagen is not null && !IsValidImage(request.Imagen))
+        {
+            return BadRequest(new { message = "La imagen debe ser JPG, PNG, WEBP o GIF y pesar como máximo 10 MB." });
         }
 
         var titulo = request.Titulo.Trim();
@@ -546,6 +557,26 @@ public sealed class CatalogoApiController : ControllerBase
         var genero = NormalizeOptionalText(request.Genero);
         var estado = NormalizeOptionalText(request.Estado);
         var imagenUrl = NormalizeImageUrl(request.ImagenUrl);
+        if (!IsSafeImageUrl(imagenUrl))
+        {
+            return BadRequest(new { message = "La imagen actual no tiene una dirección válida." });
+        }
+
+        if (request.Imagen is { Length: > 0 })
+        {
+            try
+            {
+                imagenUrl = await _storageService.UploadImageAsync(request.Imagen, "juegos", HttpContext.RequestAborted);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Error subiendo imagen al actualizar juego {GameId}.", id);
+                return Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "No se pudo subir la imagen",
+                    detail: "Inténtalo nuevamente.");
+            }
+        }
         try
         {
             var affectedRows = await _context.Juegos
@@ -576,7 +607,19 @@ public sealed class CatalogoApiController : ControllerBase
         return Ok(new CatalogoMutationResponseDto
         {
             Success = true,
-            Message = "¡Juego actualizado correctamente en la base de datos!"
+            Message = "¡Juego actualizado correctamente en la base de datos!",
+            Data = new
+            {
+                idJuego = id,
+                idCategoria = request.IdCategoria,
+                titulo,
+                nombre = titulo,
+                categoria = category,
+                plataforma,
+                genero,
+                estado,
+                imagenUrl
+            }
         });
     }
 
@@ -639,6 +682,22 @@ public sealed class CatalogoApiController : ControllerBase
     private static string? NormalizeImageUrl(string? imageUrl) =>
         string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
 
+    private static bool IsSafeImageUrl(string? imageUrl) =>
+        string.IsNullOrWhiteSpace(imageUrl)
+        || Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+        || imageUrl.StartsWith('/') && !imageUrl.StartsWith("//", StringComparison.Ordinal);
+
     private static string? NormalizeOptionalText(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static bool IsValidImage(IFormFile image)
+    {
+        const long maxImageSizeBytes = 10 * 1024 * 1024;
+        var extension = Path.GetExtension(image.FileName);
+        return image.Length is > 0 and <= maxImageSizeBytes
+            && extension is not null
+            && new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" }
+                .Contains(extension, StringComparer.OrdinalIgnoreCase);
+    }
 }

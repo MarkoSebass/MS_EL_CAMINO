@@ -53,7 +53,6 @@ public sealed class CatalogoDispositivoUpdateDto
     public string Estado { get; init; } = string.Empty;
 
     [StringLength(500)]
-    [Url]
     public string? ImagenUrl { get; init; }
 
     [Required]
@@ -93,8 +92,9 @@ public sealed class CatalogoJuegoUpdateDto
     public string? Estado { get; init; }
 
     [StringLength(500)]
-    [Url]
     public string? ImagenUrl { get; init; }
+
+    public IFormFile? Imagen { get; init; }
 }
 
 public sealed class CatalogoMutationResponseDto

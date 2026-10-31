@@ -83,38 +83,68 @@
             <div class="catalog-toolbar">
                 <div class="catalog-controls">
                     <div class="catalog-type-filter">
+                        <span class="catalog-control-label">Filtrar por categoría</span>
+                        <div class="dropdown catalog-type-filter__dropdown">
+                            <button class="catalog-type-filter__field" id="catalog-category-filter" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
+                                <span class="catalog-type-filter__selection" id="catalog-category-selection">Todas las categorías</span>
+                                <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-category-filter">
+                                <button class="dropdown-item catalog-type-filter__option catalog-category-filter__option is-selected" type="button"
+                                        data-category-id="TODAS" data-label="Todas las categorías" aria-pressed="true">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Todas las categorías</span>
+                                    <span class="catalog-type-filter__count" id="category-count-all">@Model.Productos.Count</span>
+                                </button>
+                                @foreach (var categoria in Model.Categorias)
+                                {
+                                    var productosEnCategoria = Model.Productos.Count(producto => producto.CategoriaId == categoria.IdCategoria);
+                                    <button class="dropdown-item catalog-type-filter__option catalog-category-filter__option" type="button"
+                                            data-category-id="@categoria.IdCategoria" data-label="@categoria.Nombre" aria-pressed="false"
+                                            hidden="@(productosEnCategoria == 0 ? "hidden" : null)">
+                                        <span class="catalog-type-filter__option-icon"><i class="bi bi-tag" aria-hidden="true"></i></span>
+                                        <span class="catalog-type-filter__option-label">@categoria.Nombre</span>
+                                        <span class="catalog-type-filter__count" data-category-count="@categoria.IdCategoria">@productosEnCategoria</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="catalog-type-filter" id="catalog-type-filter-group" hidden="@(Model.Productos.Count == 0 ? "hidden" : null)">
                         <span class="catalog-control-label">Filtrar por tipo</span>
                         <div class="dropdown catalog-type-filter__dropdown">
                             <button class="catalog-type-filter__field" id="catalog-type-filter" type="button"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-funnel" aria-hidden="true"></i>
-                                <span class="catalog-type-filter__selection">Todos los productos</span>
+                                <span class="catalog-type-filter__selection" id="catalog-type-selection">Todos los tipos</span>
                                 <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
                             </button>
                             <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-type-filter">
                                 <button class="dropdown-item catalog-type-filter__option is-selected" type="button"
-                                        data-type="TODOS" data-label="Todos los productos" aria-pressed="true">
+                                        data-type="TODOS" data-label="Todos los tipos" aria-pressed="true">
                                     <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
-                                    <span class="catalog-type-filter__option-label">Todos los productos</span>
-                                    <span class="catalog-type-filter__count" id="filter-count-todos">@Model.Productos.Count</span>
+                                    <span class="catalog-type-filter__option-label">Todos los tipos</span>
+                                    <span class="catalog-type-filter__count" data-type-count="TODOS">@Model.Productos.Count</span>
                                 </button>
                                 <button class="dropdown-item catalog-type-filter__option" type="button"
                                         data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
                                     <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
                                     <span class="catalog-type-filter__option-label">Dispositivos</span>
-                                    <span class="catalog-type-filter__count" id="filter-count-dispositivos">@Model.TotalDispositivos</span>
+                                    <span class="catalog-type-filter__count" data-type-count="DISPOSITIVO">@Model.TotalDispositivos</span>
                                 </button>
                                 <button class="dropdown-item catalog-type-filter__option" type="button"
                                         data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
                                     <span class="catalog-type-filter__option-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
                                     <span class="catalog-type-filter__option-label">Componentes</span>
-                                    <span class="catalog-type-filter__count">@Model.TotalComponentes</span>
+                                    <span class="catalog-type-filter__count" data-type-count="COMPONENTE">@Model.TotalComponentes</span>
                                 </button>
                                 <button class="dropdown-item catalog-type-filter__option" type="button"
                                         data-type="JUEGO" data-label="Videojuegos" aria-pressed="false">
                                     <span class="catalog-type-filter__option-icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
                                     <span class="catalog-type-filter__option-label">Videojuegos</span>
-                                    <span class="catalog-type-filter__count">@Model.TotalJuegos</span>
+                                    <span class="catalog-type-filter__count" data-type-count="JUEGO">@Model.TotalJuegos</span>
                                 </button>
                             </div>
                         </div>
@@ -344,7 +374,7 @@
                     </div>
                     <div class="catalog-detail-modal__information">
                         <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
-                        <span class="catalog-detail-modal__section-label">ESPECIFICACIONES <i class="bi bi-arrow-down-right" aria-hidden="true"></i></span>
+                        <span class="catalog-detail-modal__section-label">ESPECIFICACIONES</span>
                         <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
                     </div>
                 </div>
@@ -386,7 +416,18 @@
                                     <option value="DESEADO">Futuras colecciones</option>
                                 </select>
                             </label>
-                            <label class="catalog-admin-form__image"><span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen <span class="catalog-edit-field-label__optional">OPCIONAL</span></span><input class="form-control" name="ImagenUrl" type="url" maxlength="500" placeholder="https://..." /></label>
+                            <label class="catalog-admin-form__image">
+                                <span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
+                                <span class="catalog-edit-image">
+                                    <img id="catalog-edit-image-preview" alt="Vista previa de la imagen del producto" hidden />
+                                    <span class="catalog-edit-image__control">
+                                        <input class="form-control" id="catalog-edit-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
+                                        <small id="catalog-edit-image-help">JPG, PNG, WEBP o GIF · máximo 10 MB. Si no eliges otra, conservaremos la imagen actual.</small>
+                                        <span class="catalog-edit-image__filename" id="catalog-edit-image-filename" aria-live="polite">Ninguna imagen nueva seleccionada</span>
+                                    </span>
+                                </span>
+                                <input name="ImagenUrl" type="hidden" />
+                            </label>
                         </div>
                         <div class="catalog-admin-form__error" id="catalog-edit-error" role="alert" hidden></div>
                     </form>
@@ -402,11 +443,10 @@
                         <div class="catalog-delete-confirm__product">
                             <span class="catalog-delete-confirm__product-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
                             <span class="catalog-delete-confirm__product-copy"><small>VAS A ELIMINAR</small><strong id="catalog-delete-product-name"></strong></span>
-                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </div>
                         <p class="catalog-delete-confirm__warning"><i class="bi bi-info-circle" aria-hidden="true"></i> Esta acción no se puede deshacer.</p>
                         <div class="catalog-delete-confirm__actions">
-                            <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Conservar producto</button>
+                            <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel">Conservar producto</button>
                             <button type="button" class="btn catalog-admin-danger" id="catalog-delete-confirm-button">
                                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="delete-spinner"></span>
                                 <i class="bi bi-trash3 me-2" aria-hidden="true" id="delete-confirm-icon"></i>Eliminar definitivamente
@@ -421,7 +461,8 @@
                 @* Botón de Acción Especial: Marcar Como Adquirido *@
                 <button type="button" class="btn catalog-admin-save" id="btn-marcar-adquirido" hidden>
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="adquirido-spinner"></span>
-                    <i class="bi bi-bag-check-fill me-2" aria-hidden="true" id="adquirido-icon"></i>Marcar como adquirido
+                    <i class="bi bi-bag-check-fill" aria-hidden="true" id="adquirido-icon"></i>
+                    <span>Marcar como adquirido</span>
                 </button>
 
                 @if (esAdmin)
@@ -443,7 +484,56 @@
                     </div>
                 }
                 <button type="button" class="btn catalog-detail-modal__close-action" id="catalog-modal-close" data-bs-dismiss="modal">
-                    <i class="bi bi-check2 me-2" aria-hidden="true"></i>Listo
+                    <span class="catalog-detail-modal__close-icon"><i class="bi bi-check2" aria-hidden="true"></i></span>
+                    <span>Cerrar ficha</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade catalog-acquired-modal" id="catalog-acquired-modal" tabindex="-1"
+     aria-labelledby="catalog-acquired-title" aria-describedby="catalog-acquired-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="catalog-acquired-modal__step"><i class="bi bi-stars" aria-hidden="true"></i> ACTUALIZAR COLECCIÓN</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <span class="catalog-acquired-modal__icon"><i class="bi bi-bag-check" aria-hidden="true"></i></span>
+                <h2 id="catalog-acquired-title">¿Ya lo tienes contigo?</h2>
+                <p id="catalog-acquired-message">Este producto pasará de tus objetivos a Mi colección.</p>
+                <div class="catalog-acquired-modal__product">
+                    <span class="catalog-acquired-modal__product-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                    <span><small>PRODUCTO</small><strong id="catalog-acquired-product-name"></strong></span>
+                </div>
+                <p class="catalog-acquired-modal__note"><i class="bi bi-info-circle" aria-hidden="true"></i> Se registrará la fecha de hoy como fecha de adquisición.</p>
+                <div class="catalog-acquired-modal__error" id="catalog-acquired-error" role="alert" hidden></div>
+            </div>
+            <div class="catalog-acquired-modal__footer">
+                <button type="button" class="btn catalog-acquired-modal__cancel" data-bs-dismiss="modal">Aún no</button>
+                <button type="button" class="btn catalog-acquired-modal__confirm" id="catalog-acquired-confirm">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="acquired-confirm-spinner"></span>
+                    <i class="bi bi-bag-check me-2" aria-hidden="true" id="acquired-confirm-icon"></i>
+                    <span>Confirmar adquisición</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade catalog-update-modal" id="catalog-update-success-modal" tabindex="-1"
+     aria-labelledby="catalog-update-success-title" aria-describedby="catalog-update-success-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span class="catalog-update-modal__icon"><i class="bi bi-check2" aria-hidden="true"></i></span>
+                <span class="catalog-update-modal__eyebrow">CAMBIOS GUARDADOS</span>
+                <h2 id="catalog-update-success-title">¡Actualización exitosa!</h2>
+                <p id="catalog-update-success-message" aria-live="polite">Los datos del producto se actualizaron correctamente.</p>
+                <button type="button" class="btn catalog-update-modal__button" data-bs-dismiss="modal">
+                    <i class="bi bi-check-lg me-2" aria-hidden="true"></i>Continuar
                 </button>
             </div>
         </div>
@@ -512,22 +602,84 @@
             const noResults = document.getElementById("catalog-no-results");
             const pagination = document.getElementById("catalog-pagination");
             const paginationList = document.getElementById("catalog-pagination-list");
-            const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option"));
+            const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option[data-type]"));
+            const categoryOptions = Array.from(document.querySelectorAll(".catalog-category-filter__option"));
+            const typeFilterGroup = document.getElementById("catalog-type-filter-group");
+            const typeFilterButton = document.getElementById("catalog-type-filter");
             const pageSize = 9;
-            let activeFilter = "TODOS";
+            let activeTypeFilter = "TODOS";
+            let activeCategoryFilter = "TODAS";
             let currentPage = 1;
 
             const getItems = () => grid ? Array.from(grid.querySelectorAll("[data-catalog-item]")) : [];
 
+            const updateDependentFilters = (items) => {
+                let categoryItems = activeCategoryFilter === "TODAS"
+                    ? items
+                    : items.filter((item) => item.dataset.categoryId === activeCategoryFilter);
+                if (activeCategoryFilter !== "TODAS" && categoryItems.length === 0) {
+                    activeCategoryFilter = "TODAS";
+                    categoryItems = items;
+                    categoryOptions.forEach((option) => {
+                        const selected = option.dataset.categoryId === "TODAS";
+                        option.classList.toggle("is-selected", selected);
+                        option.setAttribute("aria-pressed", String(selected));
+                    });
+                    const selection = document.getElementById("catalog-category-selection");
+                    if (selection) selection.textContent = "Todas las categorías";
+                }
+                const availableTypes = new Set(categoryItems.map((item) => item.dataset.type));
+                const allCategoriesCount = document.getElementById("category-count-all");
+                if (allCategoriesCount) allCategoriesCount.textContent = items.length;
+
+                categoryOptions.forEach((option) => {
+                    if (option.dataset.categoryId === "TODAS") return;
+                    const count = items.filter((item) => item.dataset.categoryId === option.dataset.categoryId).length;
+                    option.hidden = count === 0;
+                    const counter = option.querySelector(".catalog-type-filter__count");
+                    if (counter) counter.textContent = count;
+                });
+
+                typeOptions.forEach((option) => {
+                    const type = option.dataset.type;
+                    const count = type === "TODOS"
+                        ? categoryItems.length
+                        : categoryItems.filter((item) => item.dataset.type === type).length;
+                    option.hidden = count === 0;
+                    const counter = option.querySelector(".catalog-type-filter__count");
+                    if (counter) counter.textContent = count;
+                });
+
+                if (activeTypeFilter !== "TODOS" && !availableTypes.has(activeTypeFilter)) {
+                    activeTypeFilter = "TODOS";
+                    typeOptions.forEach((option) => {
+                        const selected = option.dataset.type === "TODOS";
+                        option.classList.toggle("is-selected", selected);
+                        option.setAttribute("aria-pressed", String(selected));
+                    });
+                    const selection = document.getElementById("catalog-type-selection");
+                    if (selection) selection.textContent = "Todos los tipos";
+                }
+
+                typeFilterGroup.hidden = categoryItems.length === 0;
+                if (typeFilterButton) {
+                    typeFilterButton.disabled = categoryItems.length === 0;
+                    typeFilterButton.setAttribute("aria-disabled", String(categoryItems.length === 0));
+                }
+            };
+
             const showPage = () => {
                 if (!grid) return;
                 const items = getItems();
+                updateDependentFilters(items);
                 const query = (searchInput?.value || "").trim().toLocaleLowerCase("es");
                 const matches = items.filter((item) => {
-                    const matchesType = activeFilter === "TODOS" || item.dataset.type === activeFilter;
+                    const matchesType = activeTypeFilter === "TODOS" || item.dataset.type === activeTypeFilter;
+                    const matchesCategory = activeCategoryFilter === "TODAS"
+                        || item.dataset.categoryId === activeCategoryFilter;
                     const matchesText = `${item.dataset.name} ${item.dataset.category} ${item.dataset.brand}`
                         .toLocaleLowerCase("es").includes(query);
-                    return matchesType && matchesText;
+                    return matchesType && matchesCategory && matchesText;
                 });
                 const pageCount = Math.ceil(matches.length / pageSize);
                 currentPage = Math.min(currentPage, Math.max(pageCount, 1));
@@ -566,16 +718,32 @@
             };
 
             typeOptions.forEach((option) => option.addEventListener("click", () => {
-                activeFilter = option.dataset.type;
+                activeTypeFilter = option.dataset.type;
                 currentPage = 1;
                 typeOptions.forEach((candidate) => {
                     const selected = candidate === option;
                     candidate.classList.toggle("is-selected", selected);
                     candidate.setAttribute("aria-pressed", String(selected));
                 });
-                const sel = document.querySelector(".catalog-type-filter__selection");
+                const sel = document.getElementById("catalog-type-selection");
                 if (sel) sel.textContent = option.dataset.label;
                 const dropdownInstance = bootstrap.Dropdown.getInstance(document.getElementById("catalog-type-filter"));
+                if (dropdownInstance) dropdownInstance.hide();
+                showPage();
+            }));
+
+            categoryOptions.forEach((option) => option.addEventListener("click", () => {
+                activeCategoryFilter = option.dataset.categoryId;
+                currentPage = 1;
+                categoryOptions.forEach((candidate) => {
+                    const selected = candidate === option;
+                    candidate.classList.toggle("is-selected", selected);
+                    candidate.setAttribute("aria-pressed", String(selected));
+                });
+                const selection = document.getElementById("catalog-category-selection");
+                if (selection) selection.textContent = option.dataset.label;
+                updateDependentFilters(getItems());
+                const dropdownInstance = bootstrap.Dropdown.getInstance(document.getElementById("catalog-category-filter"));
                 if (dropdownInstance) dropdownInstance.hide();
                 showPage();
             }));
@@ -610,11 +778,39 @@
             const deleteConfirm = document.getElementById("catalog-delete-confirm");
             const closeButton = document.getElementById("catalog-modal-close");
             const btnMarcarAdquirido = document.getElementById("btn-marcar-adquirido");
+            const acquiredModalElement = document.getElementById("catalog-acquired-modal");
+            const acquiredModal = bootstrap.Modal.getOrCreateInstance(acquiredModalElement);
+            const acquiredConfirmButton = document.getElementById("catalog-acquired-confirm");
+            const editImageInput = document.getElementById("catalog-edit-image-input");
+            const editImagePreview = document.getElementById("catalog-edit-image-preview");
+            const editImageFilename = document.getElementById("catalog-edit-image-filename");
+            const updateSuccessModalElement = document.getElementById("catalog-update-success-modal");
             const deviceFields = Array.from(document.querySelectorAll("[data-device-field]"));
             const gameFields = Array.from(document.querySelectorAll("[data-game-field]"));
             let selectedItem = null;
+            let editImageObjectUrl = null;
+            let acquiredUpdateCompleted = false;
 
             const isAdmin = Boolean(editForm);
+            const setEditImagePreview = (imageUrl) => {
+                if (editImageObjectUrl) {
+                    URL.revokeObjectURL(editImageObjectUrl);
+                    editImageObjectUrl = null;
+                }
+
+                editImageInput.value = "";
+                editImagePreview.hidden = !imageUrl;
+                editImagePreview.removeAttribute("src");
+                editImageFilename.textContent = imageUrl ? "Se conservará la imagen actual" : "Ninguna imagen seleccionada";
+                if (imageUrl) editImagePreview.src = imageUrl;
+            };
+
+            const showCatalogUpdateModal = (message) => {
+                document.getElementById("catalog-update-success-message").textContent = message;
+                const successModal = bootstrap.Modal.getOrCreateInstance(updateSuccessModalElement);
+                modalElement.addEventListener("hidden.bs.modal", () => successModal.show(), { once: true });
+                modal.hide();
+            };
 
             const appendDetail = (label, value) => {
                 if (!value) return;
@@ -630,6 +826,7 @@
 
             const openDetails = (item) => {
                 selectedItem = item;
+                acquiredUpdateCompleted = false;
                 const product = item.dataset;
                 modalElement.dataset.mode = "details";
                 modalKickerLabel.textContent = "ARCHIVO PERSONAL / DETALLE DE PIEZA";
@@ -708,6 +905,7 @@
                     editForm.elements.Estado.value = product.status || "";
                     editForm.elements.EstadoColeccion.value = product.collectionState || "COLECCION";
                     editForm.elements.ImagenUrl.value = product.image || "";
+                    setEditImagePreview(product.image || "");
                     document.getElementById("catalog-edit-product-name").textContent = product.name;
                 }
 
@@ -773,13 +971,86 @@
                 document.getElementById("catalog-delete-cancel")?.addEventListener("click", () => showAdminMode("details"));
             }
 
+            editImageInput?.addEventListener("change", () => {
+                const file = editImageInput.files?.[0];
+                if (!file) {
+                    setEditImagePreview(editForm.elements.ImagenUrl.value);
+                    return;
+                }
+
+                if (editImageObjectUrl) URL.revokeObjectURL(editImageObjectUrl);
+                editImageObjectUrl = URL.createObjectURL(file);
+                editImagePreview.src = editImageObjectUrl;
+                editImagePreview.hidden = false;
+                editImageFilename.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+            });
+
+            acquiredModalElement.addEventListener("hidden.bs.modal", () => {
+                if (acquiredUpdateCompleted) {
+                    acquiredUpdateCompleted = false;
+                    document.getElementById("catalog-tab-current")?.click();
+                    showCatalogToast("¡Producto marcado como adquirido y movido a Mi Colección!");
+                    return;
+                }
+                if (selectedItem?.isConnected) modal.show();
+            });
+
+            btnMarcarAdquirido?.addEventListener("click", () => {
+                if (!selectedItem) return;
+                document.getElementById("catalog-acquired-product-name").textContent = selectedItem.dataset.name;
+                document.getElementById("catalog-acquired-error").hidden = true;
+                modalElement.addEventListener("hidden.bs.modal", () => acquiredModal.show(), { once: true });
+                modal.hide();
+            });
+
+            acquiredConfirmButton?.addEventListener("click", async () => {
+                if (!selectedItem) return;
+                const error = document.getElementById("catalog-acquired-error");
+                const spinner = document.getElementById("acquired-confirm-spinner");
+                const icon = document.getElementById("acquired-confirm-icon");
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
+                error.hidden = true;
+                acquiredConfirmButton.disabled = true;
+                if (spinner) spinner.hidden = false;
+                if (icon) icon.hidden = true;
+
+                try {
+                    const response = await fetch("/Catalogo/MarcarComoAdquirido", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "RequestVerificationToken": token,
+                            "X-CSRF-TOKEN": token
+                        },
+                        body: JSON.stringify({ idDispositivo: Number(selectedItem.dataset.deviceId) })
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.message || "No se pudo marcar como adquirido.");
+                    }
+
+                    updateCardInDOM(selectedItem, result.data);
+                    updateCounts();
+                    acquiredUpdateCompleted = true;
+                    acquiredModal.hide();
+                } catch (exception) {
+                    error.textContent = exception.message;
+                    error.hidden = false;
+                } finally {
+                    acquiredConfirmButton.disabled = false;
+                    if (spinner) spinner.hidden = true;
+                    if (icon) icon.hidden = false;
+                }
+            });
+
             // Actualización DOM Instantánea tras Editar
             const updateCardInDOM = (card, data) => {
                 card.dataset.name = data.nombre;
                 if ("marca" in data) card.dataset.brand = data.marca || "";
                 if ("modelo" in data) card.dataset.model = data.modelo || "";
                 card.dataset.category = data.categoria;
-                card.dataset.categoryId = data.idCategoria;
+                card.dataset.categoryId = data.idCategoria ?? data.categoriaId;
                 card.dataset.status = data.estado;
                 card.dataset.image = data.imagenUrl || "";
                 if ("plataforma" in data) card.dataset.platform = data.plataforma || "";
@@ -864,8 +1135,10 @@
             };
 
             const updateCounts = () => {
-                const totalOwned = document.querySelectorAll("#catalog-grid [data-catalog-item]").length;
-                const totalDevices = document.querySelectorAll("#catalog-grid [data-catalog-item][data-type='DISPOSITIVO']").length;
+                const ownedItems = Array.from(document.querySelectorAll("#catalog-grid [data-catalog-item]"));
+                const totalOwned = ownedItems.length;
+                const countByType = (type) => ownedItems.filter(item => item.dataset.type === type).length;
+                const totalDevices = countByType("DISPOSITIVO");
                 const totalFuture = document.querySelectorAll("#catalog-future-grid [data-future-catalog-item]").length;
 
                 const tabCount = document.getElementById("catalog-tab-count");
@@ -880,65 +1153,22 @@
                 const ownedDevices = document.getElementById("catalog-owned-devices");
                 if (ownedDevices) ownedDevices.textContent = totalDevices;
 
-                const filterTodos = document.getElementById("filter-count-todos");
-                if (filterTodos) filterTodos.textContent = totalOwned;
-
-                const filterDispositivos = document.getElementById("filter-count-dispositivos");
-                if (filterDispositivos) filterDispositivos.textContent = totalDevices;
+                document.querySelectorAll("[data-type-count]").forEach((counter) => {
+                    const type = counter.dataset.typeCount;
+                    counter.textContent = type === "TODOS" ? totalOwned : countByType(type);
+                });
+                document.querySelectorAll("[data-category-count]").forEach((counter) => {
+                    const categoryId = counter.dataset.categoryCount;
+                    counter.textContent = ownedItems.filter(item => item.dataset.categoryId === categoryId).length;
+                });
+                const allCategoriesCount = document.getElementById("category-count-all");
+                if (allCategoriesCount) allCategoriesCount.textContent = totalOwned;
 
                 const futureBadge = document.getElementById("future-badge-count");
                 if (futureBadge) futureBadge.innerHTML = `<i class="bi bi-hourglass-split" aria-hidden="true"></i> ${totalFuture} EN LA LISTA`;
 
                 CatalogFilter.refresh();
             };
-
-            // ACCIÓN ESPECIAL: Marcar Como Adquirido
-            if (btnMarcarAdquirido) {
-                btnMarcarAdquirido.addEventListener("click", async () => {
-                    if (!selectedItem) return;
-                    const id = Number(selectedItem.dataset.deviceId);
-                    const spinner = document.getElementById("adquirido-spinner");
-                    const icon = document.getElementById("adquirido-icon");
-                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
-
-                    btnMarcarAdquirido.disabled = true;
-                    if (spinner) spinner.hidden = false;
-                    if (icon) icon.hidden = true;
-
-                    try {
-                        const response = await fetch("/Catalogo/MarcarComoAdquirido", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Accept": "application/json",
-                                "RequestVerificationToken": token,
-                                "X-CSRF-TOKEN": token
-                            },
-                            body: JSON.stringify({ idDispositivo: id })
-                        });
-
-                        const result = await response.json();
-                        if (!response.ok || !result.success) {
-                            throw new Error(result.message || "No se pudo marcar como adquirido.");
-                        }
-
-                        // Mover inmediatamente la tarjeta a Mi Colección sin recarga
-                        updateCardInDOM(selectedItem, result.data);
-                        modal.hide();
-                        showCatalogToast(result.message || "¡Producto marcado como adquirido correctamente!");
-
-                        // Activar pestaña Mi Colección
-                        const tabCurrent = document.getElementById("catalog-tab-current");
-                        if (tabCurrent) tabCurrent.click();
-                    } catch (ex) {
-                        alert(ex.message);
-                    } finally {
-                        btnMarcarAdquirido.disabled = false;
-                        if (spinner) spinner.hidden = true;
-                        if (icon) icon.hidden = false;
-                    }
-                });
-            }
 
             // Guardar Cambios (Editar) vía AJAX al Controlador MVC
             if (isAdmin) {
@@ -954,6 +1184,17 @@
                         return;
                     }
 
+                    const selectedImage = editImageInput.files?.[0];
+                    if (selectedImage) {
+                        const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+                        const extension = selectedImage.name.slice(selectedImage.name.lastIndexOf(".")).toLowerCase();
+                        if (selectedImage.size > 10 * 1024 * 1024 || !allowedExtensions.includes(extension)) {
+                            error.textContent = "Selecciona una imagen JPG, PNG, WEBP o GIF de máximo 10 MB.";
+                            error.hidden = false;
+                            return;
+                        }
+                    }
+
                     saveButton.disabled = true;
                     if (spinner) spinner.hidden = false;
                     if (saveIcon) saveIcon.hidden = true;
@@ -962,27 +1203,17 @@
                         const isGame = Boolean(selectedItem.dataset.gameId);
                         const token = editForm.elements.__RequestVerificationToken.value;
                         const headers = {
-                            "Content-Type": "application/json",
                             "Accept": "application/json",
                             "RequestVerificationToken": token,
                             "X-CSRF-TOKEN": token
                         };
+                        const formData = new FormData(editForm);
 
                         if (!isGame) {
-                            const payload = {
-                                idDispositivo: Number(editForm.elements.IdDispositivo.value),
-                                idCategoria: Number(editForm.elements.IdCategoria.value),
-                                marca: editForm.elements.Marca.value,
-                                modelo: editForm.elements.Modelo.value,
-                                estado: editForm.elements.Estado.value,
-                                estadoColeccion: editForm.elements.EstadoColeccion.value,
-                                imagenUrl: editForm.elements.ImagenUrl.value || null
-                            };
-
                             const response = await fetch("/Catalogo/Editar", {
                                 method: "POST",
                                 headers,
-                                body: JSON.stringify(payload)
+                                body: formData
                             });
 
                             const result = await response.json();
@@ -991,43 +1222,27 @@
                             }
 
                             updateCardInDOM(selectedItem, result.data);
+                            updateCounts();
                             openDetails(selectedItem);
                             showAdminMode("details");
-                            showCatalogToast(result.message || "¡Producto actualizado correctamente!");
+                            showCatalogUpdateModal(result.message || "¡Producto actualizado correctamente!");
                         } else {
                             const id = selectedItem.dataset.gameId;
-                            const payload = {
-                                idCategoria: Number(editForm.elements.IdCategoria.value),
-                                titulo: editForm.elements.Titulo.value,
-                                plataforma: editForm.elements.Plataforma.value,
-                                genero: editForm.elements.Genero.value,
-                                estado: editForm.elements.Estado.value,
-                                imagenUrl: editForm.elements.ImagenUrl.value || null
-                            };
-
                             const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
                                 method: "PUT",
                                 headers,
-                                body: JSON.stringify(payload)
+                                body: formData
                             });
                             const result = await response.json();
                             if (!response.ok || !result.success) {
                                 throw new Error(result.message || result.detail || result.title || "Error al actualizar el juego.");
                             }
 
-                            const categorySelect = editForm.elements.IdCategoria;
-                            updateCardInDOM(selectedItem, {
-                                idCategoria: Number(categorySelect.value),
-                                categoria: categorySelect.selectedOptions[0]?.textContent.trim() || "",
-                                nombre: payload.titulo,
-                                plataforma: payload.plataforma,
-                                genero: payload.genero,
-                                estado: payload.estado,
-                                imagenUrl: payload.imagenUrl
-                            });
+                            updateCardInDOM(selectedItem, result.data);
+                            updateCounts();
                             openDetails(selectedItem);
                             showAdminMode("details");
-                            showCatalogToast(result.message || "¡Juego actualizado correctamente!");
+                            showCatalogUpdateModal(result.message || "¡Juego actualizado correctamente!");
                         }
                     } catch (exception) {
                         if (error) {

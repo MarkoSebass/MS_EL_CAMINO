@@ -253,7 +253,8 @@ public class CatalogoController : Controller
     [HttpPost]
     [Authorize(Roles = "ADMIN")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Editar([FromBody] DispositivoEditarViewModel model)
+    [RequestSizeLimit(11 * 1024 * 1024)]
+    public async Task<IActionResult> Editar([FromForm] DispositivoEditarViewModel model)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -267,6 +268,11 @@ public class CatalogoController : Controller
                 .Select(e => e.ErrorMessage)
                 .ToList();
             return BadRequest(new { success = false, message = "Datos inválidos.", errors });
+        }
+
+        if (!model.HasValidImage)
+        {
+            return BadRequest(new { success = false, message = "La imagen debe ser JPG, PNG, WEBP o GIF y pesar como máximo 10 MB." });
         }
 
         await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
@@ -286,6 +292,23 @@ public class CatalogoController : Controller
         var estado = model.Estado.Trim();
         var estadoColeccion = model.EstadoColeccion.Trim().ToUpperInvariant();
         var imagenUrl = string.IsNullOrWhiteSpace(model.ImagenUrl) ? null : model.ImagenUrl.Trim();
+        if (!IsSafeImageUrl(imagenUrl))
+        {
+            return BadRequest(new { success = false, message = "La imagen actual no tiene una dirección válida." });
+        }
+
+        if (model.Imagen is { Length: > 0 })
+        {
+            try
+            {
+                imagenUrl = await _storageService.UploadImageAsync(model.Imagen, "dispositivos", HttpContext.RequestAborted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al subir imagen al editar el dispositivo {Id}.", model.IdDispositivo);
+                return StatusCode(500, new { success = false, message = "No se pudo subir la imagen. Inténtalo nuevamente." });
+            }
+        }
 
         try
         {
@@ -499,7 +522,8 @@ public class CatalogoController : Controller
     private static bool IsSafeImageUrl(string? imageUrl) =>
         string.IsNullOrWhiteSpace(imageUrl)
         || Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri)
-            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+        || imageUrl.StartsWith('/') && !imageUrl.StartsWith("//", StringComparison.Ordinal);
 
     private static string GetDeviceIcon(string category) =>
         category.Trim().ToUpperInvariant() switch
