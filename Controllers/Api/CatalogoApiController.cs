@@ -197,6 +197,21 @@ public sealed class CatalogoApiController : ControllerBase
             return BadRequest(new { message = "La categoría seleccionada no existe." });
         }
 
+        var marca = request.Marca.Trim();
+        var modelo = request.Modelo.Trim();
+        var alreadyRegistered = await _context.Dispositivos.AnyAsync(device =>
+            device.IdUsuario == userId
+            && device.IdCategoria == request.IdCategoria
+            && device.Marca != null
+            && device.Modelo != null
+            && device.Marca.Trim().ToLower() == marca.ToLower()
+            && device.Modelo.Trim().ToLower() == modelo.ToLower(),
+            HttpContext.RequestAborted);
+        if (alreadyRegistered)
+        {
+            return Conflict(new { message = "Este producto ya está registrado en tu catálogo." });
+        }
+
         if (request.Imagen is { Length: > 0 } && !IsValidImage(request.Imagen))
         {
             return BadRequest(new { message = "La imagen debe ser JPG, PNG, WEBP o GIF y pesar como máximo 10 MB." });
@@ -223,8 +238,8 @@ public sealed class CatalogoApiController : ControllerBase
         {
             IdUsuario = userId,
             IdCategoria = request.IdCategoria,
-            Marca = request.Marca.Trim(),
-            Modelo = request.Modelo.Trim(),
+            Marca = marca,
+            Modelo = modelo,
             Precio = 0m,
             Estado = "Deseado",
             FechaCompra = null,
@@ -271,25 +286,35 @@ public sealed class CatalogoApiController : ControllerBase
         }
 
         var dispositivo = await _context.Dispositivos
+            .AsNoTracking()
             .Include(d => d.Categoria)
-            .FirstOrDefaultAsync(d => d.IdDispositivo == id && d.IdUsuario == userId, HttpContext.RequestAborted);
+            .FirstOrDefaultAsync(d => d.IdDispositivo == id
+                && d.IdUsuario == userId
+                && d.EstadoColeccion == DesiredState, HttpContext.RequestAborted);
 
         if (dispositivo == null)
         {
             return NotFound(new { message = "No se encontró el dispositivo en tu catálogo." });
         }
 
-        dispositivo.EstadoColeccion = CollectionState;
-        if (string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase))
-        {
-            dispositivo.Estado = "Adquirido";
-        }
-        if (!dispositivo.FechaCompra.HasValue)
-        {
-            dispositivo.FechaCompra = DateOnly.FromDateTime(DateTime.UtcNow);
-        }
+        var estado = string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase)
+            ? "Adquirido"
+            : dispositivo.Estado;
+        var fechaCompra = dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var affectedRows = await _context.Dispositivos
+            .Where(item => item.IdDispositivo == id
+                && item.IdUsuario == userId
+                && item.EstadoColeccion == DesiredState)
+            .ExecuteUpdateAsync(updates => updates
+                .SetProperty(item => item.EstadoColeccion, CollectionState)
+                .SetProperty(item => item.Estado, estado)
+                .SetProperty(item => item.FechaCompra, fechaCompra),
+                HttpContext.RequestAborted);
 
-        await _context.SaveChangesAsync(HttpContext.RequestAborted);
+        if (affectedRows == 0)
+        {
+            return Conflict(new { message = "El dispositivo ya no está en Futuras Colecciones." });
+        }
 
         return Ok(new CatalogoMutationResponseDto
         {
@@ -301,6 +326,8 @@ public sealed class CatalogoApiController : ControllerBase
                 idDispositivo = dispositivo.IdDispositivo,
                 marca = dispositivo.Marca,
                 modelo = dispositivo.Modelo,
+                estado,
+                fechaCompra,
                 categoria = dispositivo.Categoria.Nombre,
                 estadoColeccion = CollectionState,
                 imagenUrl = dispositivo.ImagenUrl

@@ -124,6 +124,21 @@ public class CatalogoController : Controller
             return BadRequest(new { success = false, message = "La categoría seleccionada no existe." });
         }
 
+        var marca = model.Marca.Trim();
+        var modelo = model.Modelo.Trim();
+        var alreadyRegistered = await context.Dispositivos.AnyAsync(dispositivo =>
+            dispositivo.IdUsuario == userId
+            && dispositivo.IdCategoria == model.IdCategoria
+            && dispositivo.Marca != null
+            && dispositivo.Modelo != null
+            && dispositivo.Marca.Trim().ToLower() == marca.ToLower()
+            && dispositivo.Modelo.Trim().ToLower() == modelo.ToLower(),
+            HttpContext.RequestAborted);
+        if (alreadyRegistered)
+        {
+            return Conflict(new { success = false, message = "Este producto ya está registrado en tu catálogo." });
+        }
+
         string? imagenUrl = null;
         if (model.Imagen != null && model.Imagen.Length > 0)
         {
@@ -145,8 +160,8 @@ public class CatalogoController : Controller
         {
             IdUsuario = userId,
             IdCategoria = model.IdCategoria,
-            Marca = model.Marca.Trim(),
-            Modelo = model.Modelo.Trim(),
+            Marca = marca,
+            Modelo = modelo,
             Precio = 0m,
             Estado = "Deseado",
             FechaCompra = null,
@@ -211,28 +226,38 @@ public class CatalogoController : Controller
         await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
 
         var dispositivo = await context.Dispositivos
+            .AsNoTracking()
             .Include(d => d.Categoria)
-            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
+            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo
+                && d.IdUsuario == userId
+                && d.EstadoColeccion == DesiredState, HttpContext.RequestAborted);
 
         if (dispositivo == null)
         {
             return NotFound(new { success = false, message = "El producto no fue encontrado en tu catálogo." });
         }
 
-        // Actualización directa sin crear registros nuevos ni duplicar datos
-        dispositivo.EstadoColeccion = CollectionState;
-        if (string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase))
-        {
-            dispositivo.Estado = "Adquirido";
-        }
-        if (!dispositivo.FechaCompra.HasValue)
-        {
-            dispositivo.FechaCompra = DateOnly.FromDateTime(DateTime.UtcNow);
-        }
+        var estado = string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase)
+            ? "Adquirido"
+            : dispositivo.Estado;
+        var fechaCompra = dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
         try
         {
-            await context.SaveChangesAsync(HttpContext.RequestAborted);
+            var affectedRows = await context.Dispositivos
+                .Where(d => d.IdDispositivo == model.IdDispositivo
+                    && d.IdUsuario == userId
+                    && d.EstadoColeccion == DesiredState)
+                .ExecuteUpdateAsync(updates => updates
+                    .SetProperty(d => d.EstadoColeccion, CollectionState)
+                    .SetProperty(d => d.Estado, estado)
+                    .SetProperty(d => d.FechaCompra, fechaCompra),
+                    HttpContext.RequestAborted);
+
+            if (affectedRows == 0)
+            {
+                return Conflict(new { success = false, message = "Este producto ya no está en Futuras Colecciones." });
+            }
         }
         catch (Exception ex)
         {
@@ -257,9 +282,9 @@ public class CatalogoController : Controller
                 EstadoColeccion = CollectionState,
                 Marca = dispositivo.Marca,
                 Modelo = dispositivo.Modelo,
-                Estado = dispositivo.Estado,
+                Estado = estado,
                 ImagenUrl = dispositivo.ImagenUrl,
-                FechaCompra = dispositivo.FechaCompra,
+                FechaCompra = fechaCompra,
                 Icono = icono
             }
         });
