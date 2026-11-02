@@ -77,6 +77,12 @@ public class DispositivoEditarViewModel
     [Required]
     public int IdDispositivo { get; set; }
 
+    public int? OriginalIdCategoria { get; set; }
+
+    public string? OriginalMarca { get; set; }
+
+    public string? OriginalModelo { get; set; }
+
     [Required(ErrorMessage = "La categoría es obligatoria.")]
     [Range(1, int.MaxValue, ErrorMessage = "Selecciona una categoría válida.")]
     [Display(Name = "Categoría")]
@@ -122,4 +128,10 @@ public class DispositivoMarcarAdquiridoViewModel
 {
     [Required]
     public int IdDispositivo { get; set; }
+
+    public int? IdCategoria { get; set; }
+
+    public string? Marca { get; set; }
+
+    public string? Modelo { get; set; }
 }

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using MS_EL_CAMINO.Data;
 using MS_EL_CAMINO.Models;
 using MS_EL_CAMINO.Services;
@@ -126,7 +127,7 @@ public class CatalogoController : Controller
 
         var marca = model.Marca.Trim();
         var modelo = model.Modelo.Trim();
-        var alreadyRegistered = await context.Dispositivos.AnyAsync(dispositivo =>
+        var alreadyRegistered = await context.Dispositivos.FirstOrDefaultAsync(dispositivo =>
             dispositivo.IdUsuario == userId
             && dispositivo.IdCategoria == model.IdCategoria
             && dispositivo.Marca != null
@@ -134,9 +135,10 @@ public class CatalogoController : Controller
             && dispositivo.Marca.Trim().ToLower() == marca.ToLower()
             && dispositivo.Modelo.Trim().ToLower() == modelo.ToLower(),
             HttpContext.RequestAborted);
-        if (alreadyRegistered)
+        if (alreadyRegistered != null)
         {
-            return Conflict(new { success = false, message = "Este producto ya está registrado en tu catálogo." });
+            return await CompleteExistingDeviceRegistrationAsync(
+                context, alreadyRegistered, userId, categoria.Nombre, HttpContext.RequestAborted);
         }
 
         string? imagenUrl = null;
@@ -173,6 +175,28 @@ public class CatalogoController : Controller
         {
             context.Dispositivos.Add(nuevoDispositivo);
             await context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException
+            { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "ux_dispositivo_usuario_producto" })
+        {
+            _logger.LogInformation("La BD ya contiene el producto del usuario {UserId}; se actualizará el registro existente.", userId);
+            var dispositivoExistente = await context.Dispositivos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(dispositivo => dispositivo.IdUsuario == userId
+                    && dispositivo.IdCategoria == model.IdCategoria
+                    && dispositivo.Marca != null
+                    && dispositivo.Modelo != null
+                    && dispositivo.Marca.Trim().ToLower() == marca.ToLower()
+                    && dispositivo.Modelo.Trim().ToLower() == modelo.ToLower(),
+                    HttpContext.RequestAborted);
+
+            if (dispositivoExistente != null)
+            {
+                return await CompleteExistingDeviceRegistrationAsync(
+                    context, dispositivoExistente, userId, categoria.Nombre, HttpContext.RequestAborted);
+            }
+
+            return Conflict(new { success = false, message = "El producto ya está registrado. Recarga el catálogo para actualizarlo." });
         }
         catch (Exception ex)
         {
@@ -225,29 +249,44 @@ public class CatalogoController : Controller
 
         await using var context = await _contextFactory.CreateDbContextAsync(HttpContext.RequestAborted);
 
-        var dispositivo = await context.Dispositivos
+        var dispositivosUsuario = context.Dispositivos
             .AsNoTracking()
+            .Where(d => d.IdUsuario == userId);
+        var dispositivo = await dispositivosUsuario
             .Include(d => d.Categoria)
-            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo
-                && d.IdUsuario == userId
-                && d.EstadoColeccion == DesiredState, HttpContext.RequestAborted);
+            .FirstOrDefaultAsync(d => d.IdDispositivo == model.IdDispositivo, HttpContext.RequestAborted);
+
+        if (dispositivo == null
+            && model.IdCategoria is > 0
+            && !string.IsNullOrWhiteSpace(model.Marca)
+            && !string.IsNullOrWhiteSpace(model.Modelo))
+        {
+            var marca = model.Marca.Trim().ToLower();
+            var modelo = model.Modelo.Trim().ToLower();
+            dispositivo = await dispositivosUsuario
+                .Where(d => d.IdCategoria == model.IdCategoria
+                    && d.Marca != null
+                    && d.Modelo != null
+                    && d.Marca.Trim().ToLower() == marca
+                    && d.Modelo.Trim().ToLower() == modelo)
+                .OrderBy(d => d.IdDispositivo)
+                .Include(d => d.Categoria)
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        }
 
         if (dispositivo == null)
         {
             return NotFound(new { success = false, message = "El producto no fue encontrado en tu catálogo." });
         }
 
-        var estado = string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase)
-            ? "Adquirido"
-            : dispositivo.Estado;
+        const string estado = "Adquirido";
         var fechaCompra = dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
         try
         {
             var affectedRows = await context.Dispositivos
-                .Where(d => d.IdDispositivo == model.IdDispositivo
-                    && d.IdUsuario == userId
-                    && d.EstadoColeccion == DesiredState)
+                .Where(d => d.IdDispositivo == dispositivo.IdDispositivo
+                    && d.IdUsuario == userId)
                 .ExecuteUpdateAsync(updates => updates
                     .SetProperty(d => d.EstadoColeccion, CollectionState)
                     .SetProperty(d => d.Estado, estado)
@@ -256,7 +295,7 @@ public class CatalogoController : Controller
 
             if (affectedRows == 0)
             {
-                return Conflict(new { success = false, message = "Este producto ya no está en Futuras Colecciones." });
+                return NotFound(new { success = false, message = "El producto no fue encontrado en tu catálogo." });
             }
         }
         catch (Exception ex)
@@ -341,6 +380,33 @@ public class CatalogoController : Controller
             return BadRequest(new { success = false, message = "La imagen actual no tiene una dirección válida." });
         }
 
+        var idDispositivo = model.IdDispositivo;
+        var productoExiste = await context.Dispositivos
+            .AnyAsync(d => d.IdDispositivo == idDispositivo && d.IdUsuario == userId, HttpContext.RequestAborted);
+        if (!productoExiste
+            && model.OriginalIdCategoria is > 0
+            && !string.IsNullOrWhiteSpace(model.OriginalMarca)
+            && !string.IsNullOrWhiteSpace(model.OriginalModelo))
+        {
+            var marcaOriginal = model.OriginalMarca.Trim().ToLower();
+            var modeloOriginal = model.OriginalModelo.Trim().ToLower();
+            idDispositivo = await context.Dispositivos
+                .Where(d => d.IdUsuario == userId
+                    && d.IdCategoria == model.OriginalIdCategoria
+                    && d.Marca != null
+                    && d.Modelo != null
+                    && d.Marca.Trim().ToLower() == marcaOriginal
+                    && d.Modelo.Trim().ToLower() == modeloOriginal)
+                .OrderBy(d => d.IdDispositivo)
+                .Select(d => d.IdDispositivo)
+                .FirstOrDefaultAsync(HttpContext.RequestAborted);
+        }
+
+        if (idDispositivo <= 0)
+        {
+            return NotFound(new { success = false, message = "El dispositivo no fue encontrado en tu catálogo." });
+        }
+
         if (model.Imagen is { Length: > 0 })
         {
             try
@@ -357,7 +423,7 @@ public class CatalogoController : Controller
         try
         {
             var affectedRows = await context.Dispositivos
-                .Where(d => d.IdDispositivo == model.IdDispositivo && d.IdUsuario == userId)
+                .Where(d => d.IdDispositivo == idDispositivo && d.IdUsuario == userId)
                 .ExecuteUpdateAsync(updates => updates
                     .SetProperty(d => d.IdCategoria, model.IdCategoria)
                     .SetProperty(d => d.Marca, marca)
@@ -383,7 +449,8 @@ public class CatalogoController : Controller
             message = "¡Producto actualizado correctamente!",
             data = new
             {
-                idDispositivo = model.IdDispositivo,
+                dispositivoId = idDispositivo,
+                idDispositivo,
                 idCategoria = model.IdCategoria,
                 categoria,
                 marca,
@@ -438,6 +505,58 @@ public class CatalogoController : Controller
             success = true,
             message = "¡Producto eliminado correctamente!",
             idDispositivo = model.IdDispositivo
+        });
+    }
+
+    private async Task<IActionResult> CompleteExistingDeviceRegistrationAsync(
+        ApplicationDbContext context,
+        Dispositivo dispositivo,
+        int userId,
+        string categoryName,
+        CancellationToken cancellationToken)
+    {
+        var wasDesired = dispositivo.EstadoColeccion == DesiredState;
+        var estadoColeccion = wasDesired ? CollectionState : dispositivo.EstadoColeccion;
+        var estado = wasDesired ? "Adquirido" : dispositivo.Estado;
+        var fechaCompra = wasDesired
+            ? dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow)
+            : dispositivo.FechaCompra;
+
+        var affectedRows = await context.Dispositivos
+            .Where(item => item.IdDispositivo == dispositivo.IdDispositivo && item.IdUsuario == userId)
+            .ExecuteUpdateAsync(updates => updates
+                .SetProperty(item => item.EstadoColeccion, estadoColeccion)
+                .SetProperty(item => item.Estado, estado)
+                .SetProperty(item => item.FechaCompra, fechaCompra),
+                cancellationToken);
+
+        if (affectedRows == 0)
+        {
+            return NotFound(new { success = false, message = "El producto ya no existe en tu catálogo." });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = wasDesired
+                ? "¡Producto registrado y movido a Mi Colección correctamente!"
+                : "El producto ya estaba registrado en tu colección.",
+            idDispositivo = dispositivo.IdDispositivo,
+            data = new CatalogoProductoViewModel
+            {
+                Tipo = "DISPOSITIVO",
+                Categoria = categoryName,
+                CategoriaId = dispositivo.IdCategoria,
+                Nombre = $"{dispositivo.Marca} {dispositivo.Modelo}".Trim(),
+                DispositivoId = dispositivo.IdDispositivo,
+                EstadoColeccion = estadoColeccion,
+                Marca = dispositivo.Marca,
+                Modelo = dispositivo.Modelo,
+                Estado = estado,
+                ImagenUrl = dispositivo.ImagenUrl,
+                FechaCompra = fechaCompra,
+                Icono = GetDeviceIcon(categoryName)
+            }
         });
     }
 

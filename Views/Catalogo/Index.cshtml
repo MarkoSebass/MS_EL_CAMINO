@@ -410,6 +410,9 @@
                     <form id="catalog-device-edit-form" method="post" class="catalog-admin-form" hidden>
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="IdDispositivo" />
+                        <input type="hidden" name="OriginalIdCategoria" />
+                        <input type="hidden" name="OriginalMarca" />
+                        <input type="hidden" name="OriginalModelo" />
                         <input type="hidden" name="IdJuego" />
                         <div class="catalog-edit-intro">
                             <span class="catalog-edit-intro__icon"><i class="bi bi-sliders2" aria-hidden="true"></i></span>
@@ -986,6 +989,9 @@
                         });
                     });
                     editForm.elements.IdDispositivo.value = product.deviceId || "";
+                    editForm.elements.OriginalIdCategoria.value = item.dataset.categoryId || "";
+                    editForm.elements.OriginalMarca.value = product.brand || "";
+                    editForm.elements.OriginalModelo.value = product.model || "";
                     editForm.elements.IdJuego.value = product.gameId || "";
                     editForm.elements.Marca.value = product.brand || "";
                     editForm.elements.Modelo.value = product.model || "";
@@ -1118,7 +1124,12 @@
                             "RequestVerificationToken": token,
                             "X-CSRF-TOKEN": token
                         },
-                        body: JSON.stringify({ idDispositivo: Number(selectedItem.dataset.deviceId) })
+                        body: JSON.stringify({
+                            idDispositivo: Number(selectedItem.dataset.deviceId),
+                            idCategoria: Number(selectedItem.dataset.categoryId),
+                            marca: selectedItem.dataset.brand,
+                            modelo: selectedItem.dataset.model
+                        })
                     });
                     const result = await readJsonResponse(response);
                     if (!response.ok || !result.success) {
@@ -1141,6 +1152,7 @@
 
             // Actualización DOM Instantánea tras Editar
             const updateCardInDOM = (card, data) => {
+                if (data.dispositivoId) card.dataset.deviceId = String(data.dispositivoId);
                 card.dataset.name = data.nombre;
                 if ("marca" in data) card.dataset.brand = data.marca || "";
                 if ("modelo" in data) card.dataset.model = data.modelo || "";
@@ -1508,6 +1520,29 @@
                         const deviceId = Number(result.idDispositivo ?? p.dispositivoId ?? p.DispositivoId);
                         if (!Number.isSafeInteger(deviceId) || deviceId <= 0) {
                             throw new Error("El producto se guardó, pero el servidor no devolvió un identificador válido. Recarga la página para actualizar la lista.");
+                        }
+
+                        if (p.estadoColeccion === "COLECCION") {
+                            const normalizeProductName = value => (value || "").trim().toLowerCase();
+                            const existingCard = Array.from(document.querySelectorAll("[data-device-id]")).find(card =>
+                                Number(card.dataset.deviceId) === deviceId
+                                || (Number(card.dataset.categoryId) === Number(p.categoriaId)
+                                    && normalizeProductName(card.dataset.brand) === normalizeProductName(p.marca)
+                                    && normalizeProductName(card.dataset.model) === normalizeProductName(p.modelo)));
+                            if (existingCard) {
+                                updateCardInDOM(existingCard, p);
+                            }
+
+                            updateCounts();
+                            futureCreateForm.reset();
+                            if (futureCreateImageObjectUrl) {
+                                URL.revokeObjectURL(futureCreateImageObjectUrl);
+                                futureCreateImageObjectUrl = null;
+                            }
+                            updateFutureImagePreview();
+                            document.getElementById("catalog-tab-current")?.click();
+                            showCatalogUpdateModal(result.message, futureCreateModalEl);
+                            return;
                         }
 
                         const article = document.createElement("article");

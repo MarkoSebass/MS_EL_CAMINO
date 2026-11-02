@@ -289,22 +289,18 @@ public sealed class CatalogoApiController : ControllerBase
             .AsNoTracking()
             .Include(d => d.Categoria)
             .FirstOrDefaultAsync(d => d.IdDispositivo == id
-                && d.IdUsuario == userId
-                && d.EstadoColeccion == DesiredState, HttpContext.RequestAborted);
+                && d.IdUsuario == userId, HttpContext.RequestAborted);
 
         if (dispositivo == null)
         {
             return NotFound(new { message = "No se encontró el dispositivo en tu catálogo." });
         }
 
-        var estado = string.Equals(dispositivo.Estado, "Deseado", StringComparison.OrdinalIgnoreCase)
-            ? "Adquirido"
-            : dispositivo.Estado;
+        const string estado = "Adquirido";
         var fechaCompra = dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow);
         var affectedRows = await _context.Dispositivos
             .Where(item => item.IdDispositivo == id
-                && item.IdUsuario == userId
-                && item.EstadoColeccion == DesiredState)
+                && item.IdUsuario == userId)
             .ExecuteUpdateAsync(updates => updates
                 .SetProperty(item => item.EstadoColeccion, CollectionState)
                 .SetProperty(item => item.Estado, estado)
@@ -313,7 +309,7 @@ public sealed class CatalogoApiController : ControllerBase
 
         if (affectedRows == 0)
         {
-            return Conflict(new { message = "El dispositivo ya no está en Futuras Colecciones." });
+            return NotFound(new { message = "No se encontró el dispositivo en tu catálogo." });
         }
 
         return Ok(new CatalogoMutationResponseDto
