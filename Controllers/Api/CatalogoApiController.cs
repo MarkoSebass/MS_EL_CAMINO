@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
@@ -296,7 +296,7 @@ public sealed class CatalogoApiController : ControllerBase
             return NotFound(new { message = "No se encontró el dispositivo en tu catálogo." });
         }
 
-        const string estado = "Adquirido";
+        const string estado = "Coleccion";
         var fechaCompra = dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow);
         var affectedRows = await _context.Dispositivos
             .Where(item => item.IdDispositivo == id

@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @model MS_EL_CAMINO.ViewModels.CatalogoViewModel
 @{
     ViewData["Title"] = "Catálogo tecnológico";
@@ -1522,28 +1522,6 @@
                             throw new Error("El producto se guardó, pero el servidor no devolvió un identificador válido. Recarga la página para actualizar la lista.");
                         }
 
-                        if (p.estadoColeccion === "COLECCION") {
-                            const normalizeProductName = value => (value || "").trim().toLowerCase();
-                            const existingCard = Array.from(document.querySelectorAll("[data-device-id]")).find(card =>
-                                Number(card.dataset.deviceId) === deviceId
-                                || (Number(card.dataset.categoryId) === Number(p.categoriaId)
-                                    && normalizeProductName(card.dataset.brand) === normalizeProductName(p.marca)
-                                    && normalizeProductName(card.dataset.model) === normalizeProductName(p.modelo)));
-                            if (existingCard) {
-                                updateCardInDOM(existingCard, p);
-                            }
-
-                            updateCounts();
-                            futureCreateForm.reset();
-                            if (futureCreateImageObjectUrl) {
-                                URL.revokeObjectURL(futureCreateImageObjectUrl);
-                                futureCreateImageObjectUrl = null;
-                            }
-                            updateFutureImagePreview();
-                            document.getElementById("catalog-tab-current")?.click();
-                            showCatalogUpdateModal(result.message, futureCreateModalEl);
-                            return;
-                        }
 
                         const article = document.createElement("article");
                         article.className = "catalog-card";

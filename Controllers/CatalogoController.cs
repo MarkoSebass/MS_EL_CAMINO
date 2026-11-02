@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -137,8 +137,7 @@ public class CatalogoController : Controller
             HttpContext.RequestAborted);
         if (alreadyRegistered != null)
         {
-            return await CompleteExistingDeviceRegistrationAsync(
-                context, alreadyRegistered, userId, categoria.Nombre, HttpContext.RequestAborted);
+            return Conflict(new { success = false, message = "Este producto ya se encuentra registrado en tu catálogo." });
         }
 
         string? imagenUrl = null;
@@ -179,24 +178,8 @@ public class CatalogoController : Controller
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException
             { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "ux_dispositivo_usuario_producto" })
         {
-            _logger.LogInformation("La BD ya contiene el producto del usuario {UserId}; se actualizará el registro existente.", userId);
-            var dispositivoExistente = await context.Dispositivos
-                .AsNoTracking()
-                .FirstOrDefaultAsync(dispositivo => dispositivo.IdUsuario == userId
-                    && dispositivo.IdCategoria == model.IdCategoria
-                    && dispositivo.Marca != null
-                    && dispositivo.Modelo != null
-                    && dispositivo.Marca.Trim().ToLower() == marca.ToLower()
-                    && dispositivo.Modelo.Trim().ToLower() == modelo.ToLower(),
-                    HttpContext.RequestAborted);
-
-            if (dispositivoExistente != null)
-            {
-                return await CompleteExistingDeviceRegistrationAsync(
-                    context, dispositivoExistente, userId, categoria.Nombre, HttpContext.RequestAborted);
-            }
-
-            return Conflict(new { success = false, message = "El producto ya está registrado. Recarga el catálogo para actualizarlo." });
+            _logger.LogInformation("La BD ya contiene el producto del usuario {UserId}.", userId);
+            return Conflict(new { success = false, message = "El producto ya está registrado en tu catálogo." });
         }
         catch (Exception ex)
         {
@@ -279,7 +262,7 @@ public class CatalogoController : Controller
             return NotFound(new { success = false, message = "El producto no fue encontrado en tu catálogo." });
         }
 
-        const string estado = "Adquirido";
+        const string estado = "Coleccion";
         var fechaCompra = dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
         try
@@ -517,7 +500,7 @@ public class CatalogoController : Controller
     {
         var wasDesired = dispositivo.EstadoColeccion == DesiredState;
         var estadoColeccion = wasDesired ? CollectionState : dispositivo.EstadoColeccion;
-        var estado = wasDesired ? "Adquirido" : dispositivo.Estado;
+        var estado = wasDesired ? "Coleccion" : dispositivo.Estado;
         var fechaCompra = wasDesired
             ? dispositivo.FechaCompra ?? DateOnly.FromDateTime(DateTime.UtcNow)
             : dispositivo.FechaCompra;
