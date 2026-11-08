@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model MS_EL_CAMINO.ViewModels.CatalogoViewModel
 @{
     ViewData["Title"] = "Catálogo tecnológico";
@@ -160,75 +160,69 @@
                 <span class="catalog-results" id="catalog-results" aria-live="polite">@Model.Productos.Count productos</span>
             </div>
 
-            @if (Model.Productos.Count == 0)
-            {
-                <div class="catalog-empty" id="catalog-main-empty">
-                    <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
-                    <h3>Tu colección empieza aquí.</h3>
-                    <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
-                    <a asp-controller="Home" asp-action="Index">Volver al inicio <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
-                </div>
-            }
-            else
-            {
-                <div class="catalog-grid" id="catalog-grid">
-                    @foreach (var producto in Model.Productos)
-                    {
-                        var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
-                        <article class="catalog-card"
-                                 data-catalog-item
-                                 data-type="@producto.Tipo"
-                                 data-name="@producto.Nombre"
-                                 data-category="@producto.Categoria"
-                                 data-category-id="@producto.CategoriaId"
-                                 data-brand="@producto.Marca"
-                                 data-model="@producto.Modelo"
-                                 data-platform="@producto.Plataforma"
-                                 data-genre="@producto.Genero"
-                                 data-detail="@producto.Detalle"
-                                 data-status="@producto.Estado"
-                                 data-image="@producto.ImagenUrl"
-                                 data-device-id="@producto.DispositivoId"
-                                 data-game-id="@producto.JuegoId"
-                                 data-collection-state="@producto.EstadoColeccion"
-                                 role="button" tabindex="0" aria-haspopup="dialog"
-                                 aria-label="Ver detalles de @producto.Nombre">
-                            <div class="catalog-card__visual">
-                                @if (tieneImagen)
-                                {
-                                    <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
-                                }
-                                <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
-                                    <span></span><i class="bi @producto.Icono"></i>
-                                </div>
-                                <span class="catalog-card__type">@producto.Tipo</span>
+            <div class="catalog-empty" id="catalog-main-empty" hidden="@(Model.Productos.Count > 0 ? "hidden" : null)">
+                <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                <h3>Tu colección empieza aquí.</h3>
+                <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
+                <a asp-controller="Home" asp-action="Index">Volver al inicio <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="catalog-grid" id="catalog-grid" hidden="@(Model.Productos.Count == 0 ? "hidden" : null)">
+                @foreach (var producto in Model.Productos)
+                {
+                    var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                    <article class="catalog-card"
+                             data-catalog-item
+                             data-type="@producto.Tipo"
+                             data-name="@producto.Nombre"
+                             data-category="@producto.Categoria"
+                             data-category-id="@producto.CategoriaId"
+                             data-brand="@producto.Marca"
+                             data-model="@producto.Modelo"
+                             data-platform="@producto.Plataforma"
+                             data-genre="@producto.Genero"
+                             data-detail="@producto.Detalle"
+                             data-status="@producto.Estado"
+                             data-image="@producto.ImagenUrl"
+                             data-device-id="@producto.DispositivoId"
+                             data-game-id="@producto.JuegoId"
+                             data-collection-state="@producto.EstadoColeccion"
+                             role="button" tabindex="0" aria-haspopup="dialog"
+                             aria-label="Ver detalles de @producto.Nombre">
+                        <div class="catalog-card__visual">
+                            @if (tieneImagen)
+                            {
+                                <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
+                            }
+                            <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                                <span></span><i class="bi @producto.Icono"></i>
                             </div>
-                            <div class="catalog-card__body">
-                                <span class="catalog-card__category">@producto.Categoria</span>
-                                <h3>@producto.Nombre</h3>
-                                @if (!string.IsNullOrWhiteSpace(producto.Detalle))
+                            <span class="catalog-card__type">@producto.Tipo</span>
+                        </div>
+                        <div class="catalog-card__body">
+                            <span class="catalog-card__category">@producto.Categoria</span>
+                            <h3>@producto.Nombre</h3>
+                            @if (!string.IsNullOrWhiteSpace(producto.Detalle))
+                            {
+                                <p class="catalog-card__detail">@producto.Detalle</p>
+                            }
+                            <div class="catalog-card__meta">
+                                @if (!string.IsNullOrWhiteSpace(producto.Estado))
                                 {
-                                    <p class="catalog-card__detail">@producto.Detalle</p>
+                                    <span class="catalog-card__status"><i aria-hidden="true"></i>@producto.Estado</span>
                                 }
-                                <div class="catalog-card__meta">
-                                    @if (!string.IsNullOrWhiteSpace(producto.Estado))
-                                    {
-                                        <span class="catalog-card__status"><i aria-hidden="true"></i>@producto.Estado</span>
-                                    }
-                                </div>
                             </div>
-                        </article>
-                    }
-                </div>
-                <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden>
-                    <ul class="catalog-pagination__list" id="catalog-pagination-list"></ul>
-                </nav>
-                <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
-                    <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
-                    <h3>No encontramos coincidencias.</h3>
-                    <p>Prueba con otro nombre, categoría o tipo de producto.</p>
-                </div>
-            }
+                        </div>
+                    </article>
+                }
+            </div>
+            <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden>
+                <ul class="catalog-pagination__list" id="catalog-pagination-list"></ul>
+            </nav>
+            <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
+                <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <h3>No encontramos coincidencias.</h3>
+                <p>Prueba con otro nombre, categoría o tipo de producto.</p>
+            </div>
         </section>
     </section>
 
@@ -711,6 +705,11 @@
             const showPage = () => {
                 if (!grid) return;
                 const items = getItems();
+                const mainEmpty = document.getElementById("catalog-main-empty");
+                if (mainEmpty) {
+                    mainEmpty.hidden = items.length > 0;
+                }
+                grid.hidden = items.length === 0;
                 updateDependentFilters(items);
                 const query = (searchInput?.value || "").trim().toLocaleLowerCase("es");
                 const matches = items.filter((item) => {
@@ -1152,7 +1151,9 @@
 
             // Actualización DOM Instantánea tras Editar
             const updateCardInDOM = (card, data) => {
-                if (data.dispositivoId) card.dataset.deviceId = String(data.dispositivoId);
+                if (data.dispositivoId || data.idDispositivo) {
+                    card.dataset.deviceId = String(data.dispositivoId || data.idDispositivo);
+                }
                 card.dataset.name = data.nombre;
                 if ("marca" in data) card.dataset.brand = data.marca || "";
                 if ("modelo" in data) card.dataset.model = data.modelo || "";
@@ -1162,6 +1163,7 @@
                 card.dataset.image = data.imagenUrl || "";
                 if ("plataforma" in data) card.dataset.platform = data.plataforma || "";
                 if ("genero" in data) card.dataset.genre = data.genero || "";
+                if (data.estadoColeccion) card.dataset.collectionState = data.estadoColeccion;
                 
                 const titleEl = card.querySelector("h3");
                 if (titleEl) titleEl.textContent = data.nombre;
@@ -1449,6 +1451,16 @@
             const futureCreateUploadPreview = document.getElementById("future-create-upload-preview");
             const futureCreateDropzone = document.getElementById("future-create-dropzone");
             let futureCreateImageObjectUrl = null;
+
+            if (futureCreateModalEl) {
+                futureCreateModalEl.addEventListener("show.bs.modal", () => {
+                    const errorEl = document.getElementById("future-create-error");
+                    if (errorEl) {
+                        errorEl.hidden = true;
+                        errorEl.textContent = "";
+                    }
+                });
+            }
             const updateFutureImagePreview = () => {
                 if (futureCreateImageObjectUrl) {
                     URL.revokeObjectURL(futureCreateImageObjectUrl);

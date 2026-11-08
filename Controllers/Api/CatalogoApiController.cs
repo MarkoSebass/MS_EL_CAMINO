@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
@@ -199,7 +199,7 @@ public sealed class CatalogoApiController : ControllerBase
 
         var marca = request.Marca.Trim();
         var modelo = request.Modelo.Trim();
-        var alreadyRegistered = await _context.Dispositivos.AnyAsync(device =>
+        var alreadyRegistered = await _context.Dispositivos.FirstOrDefaultAsync(device =>
             device.IdUsuario == userId
             && device.IdCategoria == request.IdCategoria
             && device.Marca != null
@@ -207,9 +207,13 @@ public sealed class CatalogoApiController : ControllerBase
             && device.Marca.Trim().ToLower() == marca.ToLower()
             && device.Modelo.Trim().ToLower() == modelo.ToLower(),
             HttpContext.RequestAborted);
-        if (alreadyRegistered)
+        if (alreadyRegistered != null)
         {
-            return Conflict(new { message = "Este producto ya está registrado en tu catálogo." });
+            if (string.Equals(alreadyRegistered.EstadoColeccion, DesiredState, StringComparison.OrdinalIgnoreCase))
+            {
+                return Conflict(new { message = "Este producto ya se encuentra en tu lista de Futuras Colecciones." });
+            }
+            return Conflict(new { message = "Este producto ya se encuentra registrado en tu colección." });
         }
 
         if (request.Imagen is { Length: > 0 } && !IsValidImage(request.Imagen))

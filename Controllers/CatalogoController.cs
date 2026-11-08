@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -137,7 +137,11 @@ public class CatalogoController : Controller
             HttpContext.RequestAborted);
         if (alreadyRegistered != null)
         {
-            return Conflict(new { success = false, message = "Este producto ya se encuentra registrado en tu catálogo." });
+            if (string.Equals(alreadyRegistered.EstadoColeccion, DesiredState, StringComparison.OrdinalIgnoreCase))
+            {
+                return Conflict(new { success = false, message = "Este producto ya se encuentra en tu lista de Futuras Colecciones." });
+            }
+            return Conflict(new { success = false, message = "Este producto ya se encuentra registrado en tu colección." });
         }
 
         string? imagenUrl = null;
