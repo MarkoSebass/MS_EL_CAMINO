@@ -102,6 +102,7 @@ public sealed class CatalogoJuegoUpdateDto
 public sealed class CatalogoMutationResponseDto
 {
     public bool Success { get; init; } = true;
+    public bool AlreadyRegistered { get; init; }
     public string Message { get; init; } = string.Empty;
     public string Seccion { get; init; } = "my-collection";
     public object? Data { get; init; }

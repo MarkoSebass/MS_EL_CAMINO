@@ -1149,8 +1149,11 @@
                 }
             });
 
-            // Actualización DOM Instantánea tras Editar
+            // Actualiza la tarjeta y su sección después de una mutación exitosa.
             const updateCardInDOM = (card, data) => {
+                const oldState = card.dataset.collectionState;
+                const newState = data.estadoColeccion;
+
                 if (data.dispositivoId || data.idDispositivo) {
                     card.dataset.deviceId = String(data.dispositivoId || data.idDispositivo);
                 }
@@ -1163,7 +1166,6 @@
                 card.dataset.image = data.imagenUrl || "";
                 if ("plataforma" in data) card.dataset.platform = data.plataforma || "";
                 if ("genero" in data) card.dataset.genre = data.genero || "";
-                if (data.estadoColeccion) card.dataset.collectionState = data.estadoColeccion;
                 
                 const titleEl = card.querySelector("h3");
                 if (titleEl) titleEl.textContent = data.nombre;
@@ -1199,8 +1201,6 @@
                 }
 
                 // Si cambió el estado de colección (Mi colección vs Futuras colecciones), moverlo de contenedor
-                const oldState = card.dataset.collectionState;
-                const newState = data.estadoColeccion;
                 if (newState && oldState !== newState) {
                     card.dataset.collectionState = newState;
                     const mainGrid = document.getElementById("catalog-grid");
@@ -1226,20 +1226,11 @@
                         if (badge) badge.remove();
                         mainGrid.prepend(card);
                     }
-                    updateCounts();
                 }
             };
 
             const removeCardFromDOM = (card) => {
-                const isFuture = card.hasAttribute("data-future-catalog-item");
                 card.remove();
-                if (isFuture) {
-                    const futureGrid = document.getElementById("catalog-future-grid");
-                    const futureEmpty = document.getElementById("catalog-future-empty");
-                    if (futureGrid && futureGrid.querySelectorAll("[data-future-catalog-item]").length === 0 && futureEmpty) {
-                        futureEmpty.hidden = false;
-                    }
-                }
                 updateCounts();
             };
 
@@ -1249,6 +1240,13 @@
                 const countByType = (type) => ownedItems.filter(item => item.dataset.type === type).length;
                 const totalDevices = countByType("DISPOSITIVO");
                 const totalFuture = document.querySelectorAll("#catalog-future-grid [data-future-catalog-item]").length;
+                const mainGrid = document.getElementById("catalog-grid");
+                const mainEmpty = document.getElementById("catalog-main-empty");
+                const futureEmpty = document.getElementById("catalog-future-empty");
+
+                if (mainGrid) mainGrid.hidden = totalOwned === 0;
+                if (mainEmpty) mainEmpty.hidden = totalOwned > 0;
+                if (futureEmpty) futureEmpty.hidden = totalFuture > 0;
 
                 const tabCount = document.getElementById("catalog-tab-count");
                 if (tabCount) tabCount.textContent = totalOwned;
@@ -1534,6 +1532,28 @@
                             throw new Error("El producto se guardó, pero el servidor no devolvió un identificador válido. Recarga la página para actualizar la lista.");
                         }
 
+                        if (result.alreadyRegistered) {
+                            futureCreateForm.reset();
+                            updateFutureImagePreview();
+                            const sectionTab = p.estadoColeccion === "DESEADO"
+                                ? document.getElementById("catalog-tab-future")
+                                : document.getElementById("catalog-tab-current");
+                            sectionTab?.click();
+                            const existingCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+                            if (!existingCard) {
+                                const section = p.estadoColeccion === "DESEADO"
+                                    ? "future-collections"
+                                    : "my-collection";
+                                window.location.assign(`/Catalogo?seccion=${encodeURIComponent(section)}`);
+                                return;
+                            }
+                            existingCard.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center"
+                            });
+                            showCatalogUpdateModal(result.message, futureCreateModalEl);
+                            return;
+                        }
 
                         const article = document.createElement("article");
                         article.className = "catalog-card";

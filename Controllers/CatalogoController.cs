@@ -137,11 +137,7 @@ public class CatalogoController : Controller
             HttpContext.RequestAborted);
         if (alreadyRegistered != null)
         {
-            if (string.Equals(alreadyRegistered.EstadoColeccion, DesiredState, StringComparison.OrdinalIgnoreCase))
-            {
-                return Conflict(new { success = false, message = "Este producto ya se encuentra en tu lista de Futuras Colecciones." });
-            }
-            return Conflict(new { success = false, message = "Este producto ya se encuentra registrado en tu colección." });
+            return ExistingDeviceRegistrationResponse(alreadyRegistered, categoria.Nombre);
         }
 
         string? imagenUrl = null;
@@ -182,8 +178,25 @@ public class CatalogoController : Controller
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException
             { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "ux_dispositivo_usuario_producto" })
         {
-            _logger.LogInformation("La BD ya contiene el producto del usuario {UserId}.", userId);
-            return Conflict(new { success = false, message = "El producto ya está registrado en tu catálogo." });
+            context.ChangeTracker.Clear();
+            var existingDevice = await context.Dispositivos
+                .AsNoTracking()
+                .Include(dispositivo => dispositivo.Categoria)
+                .FirstOrDefaultAsync(dispositivo =>
+                    dispositivo.IdUsuario == userId
+                    && dispositivo.IdCategoria == model.IdCategoria
+                    && dispositivo.Marca != null
+                    && dispositivo.Modelo != null
+                    && dispositivo.Marca.Trim().ToLower() == marca.ToLower()
+                    && dispositivo.Modelo.Trim().ToLower() == modelo.ToLower(),
+                    HttpContext.RequestAborted);
+            if (existingDevice != null)
+            {
+                return ExistingDeviceRegistrationResponse(existingDevice, existingDevice.Categoria.Nombre);
+            }
+
+            _logger.LogError(ex, "La restricción de producto único se activó, pero no se encontró el producto para el usuario {UserId}.", userId);
+            return StatusCode(500, new { success = false, message = "No se pudo confirmar el registro. Recarga el catálogo e inténtalo nuevamente." });
         }
         catch (Exception ex)
         {
@@ -542,6 +555,38 @@ public class CatalogoController : Controller
                 Estado = estado,
                 ImagenUrl = dispositivo.ImagenUrl,
                 FechaCompra = fechaCompra,
+                Icono = GetDeviceIcon(categoryName)
+            }
+        });
+    }
+
+    private IActionResult ExistingDeviceRegistrationResponse(Dispositivo dispositivo, string categoryName)
+    {
+        var isDesired = string.Equals(dispositivo.EstadoColeccion, DesiredState, StringComparison.OrdinalIgnoreCase);
+        var estadoColeccion = isDesired ? DesiredState : CollectionState;
+        var estado = dispositivo.Estado ?? (isDesired ? "Deseado" : "Colección");
+
+        return Ok(new
+        {
+            success = true,
+            alreadyRegistered = true,
+            message = isDesired
+                ? "Este producto ya estaba en Futuras colecciones; no se creó un duplicado."
+                : "Este producto ya está en Mi colección; no se creó un duplicado.",
+            idDispositivo = dispositivo.IdDispositivo,
+            data = new CatalogoProductoViewModel
+            {
+                Tipo = "DISPOSITIVO",
+                Categoria = categoryName,
+                CategoriaId = dispositivo.IdCategoria,
+                Nombre = $"{dispositivo.Marca} {dispositivo.Modelo}".Trim(),
+                DispositivoId = dispositivo.IdDispositivo,
+                EstadoColeccion = estadoColeccion,
+                Marca = dispositivo.Marca,
+                Modelo = dispositivo.Modelo,
+                Estado = estado,
+                ImagenUrl = dispositivo.ImagenUrl,
+                FechaCompra = dispositivo.FechaCompra,
                 Icono = GetDeviceIcon(categoryName)
             }
         });

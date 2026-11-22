@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using MS_EL_CAMINO.Data;
 using MS_EL_CAMINO.DTOs;
 using MS_EL_CAMINO.Models;
@@ -170,6 +171,7 @@ public sealed class CatalogoApiController : ControllerBase
     /// <summary>
     /// Registra un nuevo dispositivo en Futuras Colecciones (ESTADO_COLECCION = DESEADO) subiendo su imagen a Supabase Storage.
     /// </summary>
+    /// <response code="200">El dispositivo ya estaba registrado; se devuelve el registro existente sin duplicarlo.</response>
     /// <response code="201">Producto creado exitosamente en PostgreSQL y almacenado en Supabase.</response>
     /// <response code="400">Datos inválidos o categoría inexistente.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
@@ -209,11 +211,7 @@ public sealed class CatalogoApiController : ControllerBase
             HttpContext.RequestAborted);
         if (alreadyRegistered != null)
         {
-            if (string.Equals(alreadyRegistered.EstadoColeccion, DesiredState, StringComparison.OrdinalIgnoreCase))
-            {
-                return Conflict(new { message = "Este producto ya se encuentra en tu lista de Futuras Colecciones." });
-            }
-            return Conflict(new { message = "Este producto ya se encuentra registrado en tu colección." });
+            return Ok(CreateExistingDeviceResponse(alreadyRegistered, categoria.Nombre));
         }
 
         if (request.Imagen is { Length: > 0 } && !IsValidImage(request.Imagen))
@@ -252,7 +250,36 @@ public sealed class CatalogoApiController : ControllerBase
         };
 
         _context.Dispositivos.Add(nuevoDispositivo);
-        await _context.SaveChangesAsync(HttpContext.RequestAborted);
+        try
+        {
+            await _context.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (DbUpdateException exception) when (exception.InnerException is PostgresException
+            { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "ux_dispositivo_usuario_producto" })
+        {
+            _context.ChangeTracker.Clear();
+            var existingDevice = await _context.Dispositivos
+                .AsNoTracking()
+                .Include(device => device.Categoria)
+                .FirstOrDefaultAsync(device =>
+                    device.IdUsuario == userId
+                    && device.IdCategoria == request.IdCategoria
+                    && device.Marca != null
+                    && device.Modelo != null
+                    && device.Marca.Trim().ToLower() == marca.ToLower()
+                    && device.Modelo.Trim().ToLower() == modelo.ToLower(),
+                    HttpContext.RequestAborted);
+            if (existingDevice is null)
+            {
+                _logger.LogError(exception, "La restricción de producto único se activó, pero no se encontró el producto para el usuario {UserId}.", userId);
+                return Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "No se pudo confirmar el registro",
+                    detail: "Recarga el catálogo e inténtalo nuevamente.");
+            }
+
+            return Ok(CreateExistingDeviceResponse(existingDevice, existingDevice.Categoria.Nombre));
+        }
 
         return CreatedAtAction(nameof(GetDevice), new { id = nuevoDispositivo.IdDispositivo }, new CatalogoMutationResponseDto
         {
@@ -720,6 +747,32 @@ public sealed class CatalogoApiController : ControllerBase
 
     private static string? NormalizeImageUrl(string? imageUrl) =>
         string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+
+    private static CatalogoMutationResponseDto CreateExistingDeviceResponse(Dispositivo device, string categoryName)
+    {
+        var isDesired = string.Equals(device.EstadoColeccion, DesiredState, StringComparison.OrdinalIgnoreCase);
+        return new CatalogoMutationResponseDto
+        {
+            Success = true,
+            AlreadyRegistered = true,
+            Message = isDesired
+                ? "Este producto ya estaba en Futuras colecciones; no se creó un duplicado."
+                : "Este producto ya está en Mi colección; no se creó un duplicado.",
+            Seccion = isDesired ? "future-collections" : "my-collection",
+            Data = new
+            {
+                idDispositivo = device.IdDispositivo,
+                idCategoria = device.IdCategoria,
+                marca = device.Marca,
+                modelo = device.Modelo,
+                nombre = $"{device.Marca} {device.Modelo}".Trim(),
+                categoria = categoryName,
+                estado = device.Estado,
+                estadoColeccion = isDesired ? DesiredState : CollectionState,
+                imagenUrl = device.ImagenUrl
+            }
+        };
+    }
 
     private static bool IsSafeImageUrl(string? imageUrl) =>
         string.IsNullOrWhiteSpace(imageUrl)
