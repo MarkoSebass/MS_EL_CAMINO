@@ -278,6 +278,9 @@
                 </article>
             }
         </div>
+        <nav class="catalog-pagination" id="catalog-future-pagination" aria-label="Paginación de futuras colecciones" hidden>
+            <ul class="catalog-pagination__list" id="catalog-future-pagination-list"></ul>
+        </nav>
         <div class="catalog-future__empty" id="catalog-future-empty" hidden="@(dispositivosFuturos.Count > 0 ? "hidden" : null)">
             <div class="catalog-future__mark" aria-hidden="true"><span>02</span><i class="bi bi-stars"></i></div>
             <div class="catalog-future__copy">
@@ -562,7 +565,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <span class="catalog-update-modal__icon"><i class="bi bi-check2" aria-hidden="true"></i></span>
-                <span class="catalog-update-modal__eyebrow">CAMBIOS GUARDADOS</span>
+                <span class="catalog-update-modal__eyebrow" id="catalog-update-success-eyebrow">CAMBIOS GUARDADOS</span>
                 <h2 id="catalog-update-success-title">¡Actualización exitosa!</h2>
                 <p id="catalog-update-success-message" aria-live="polite">Los datos del producto se actualizaron correctamente.</p>
                 <button type="button" class="btn catalog-update-modal__button" data-bs-dismiss="modal">
@@ -627,6 +630,50 @@
             activateTab(tabs.find((tab) => tab.dataset.catalogSection === initialPanel) || tabs[0]);
         })();
 
+        const renderCatalogPagination = (pagination, paginationList, pageCount, currentPage, onPageChange) => {
+            if (pagination) pagination.hidden = pageCount <= 1;
+            if (!paginationList) return;
+            paginationList.replaceChildren();
+            if (pageCount <= 1) return;
+
+            const addPageButton = (label, pageNumber, current = false, disabled = false) => {
+                const listItem = document.createElement("li");
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "catalog-page-button";
+                button.textContent = label;
+                button.disabled = disabled;
+                if (current) button.setAttribute("aria-current", "page");
+                button.addEventListener("click", () => onPageChange(pageNumber));
+                listItem.append(button);
+                paginationList.append(listItem);
+            };
+
+            addPageButton("‹", currentPage - 1, false, currentPage === 1);
+            const visiblePages = Array.from(new Set([
+                1,
+                currentPage - 1,
+                currentPage,
+                currentPage + 1,
+                pageCount
+            ].filter((pageNumber) => pageNumber >= 1 && pageNumber <= pageCount))).sort((a, b) => a - b);
+            let previousPage = 0;
+            visiblePages.forEach((pageNumber) => {
+                if (previousPage > 0 && pageNumber - previousPage > 1) {
+                    const listItem = document.createElement("li");
+                    const ellipsis = document.createElement("span");
+                    ellipsis.className = "catalog-pagination__ellipsis";
+                    ellipsis.setAttribute("aria-hidden", "true");
+                    ellipsis.textContent = "…";
+                    listItem.append(ellipsis);
+                    paginationList.append(listItem);
+                }
+                addPageButton(String(pageNumber), pageNumber, pageNumber === currentPage);
+                previousPage = pageNumber;
+            });
+            addPageButton("›", currentPage + 1, false, currentPage === pageCount);
+        };
+
         // Módulo de Filtrado y Paginación
         const CatalogFilter = (() => {
             const grid = document.getElementById("catalog-grid");
@@ -639,7 +686,7 @@
             const categoryOptions = Array.from(document.querySelectorAll(".catalog-category-filter__option"));
             const typeFilterGroup = document.getElementById("catalog-type-filter-group");
             const typeFilterButton = document.getElementById("catalog-type-filter");
-            const pageSize = 12;
+            const pageSize = 9;
             let activeTypeFilter = "TODOS";
             let activeCategoryFilter = "TODAS";
             let currentPage = 1;
@@ -728,50 +775,10 @@
                     resultsLabel.textContent = `${matches.length} ${matches.length === 1 ? "producto" : "productos"}`;
                 }
                 if (noResults) noResults.hidden = matches.length > 0;
-                if (pagination) pagination.hidden = pageCount <= 1;
-                if (paginationList) paginationList.replaceChildren();
-
-                const addPageButton = (label, pageNumber, current = false, disabled = false) => {
-                    const listItem = document.createElement("li");
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.className = "catalog-page-button";
-                    button.textContent = label;
-                    button.disabled = disabled;
-                    if (current) button.setAttribute("aria-current", "page");
-                    button.addEventListener("click", () => {
-                        currentPage = pageNumber;
-                        showPage();
-                    });
-                    listItem.append(button);
-                    paginationList.append(listItem);
-                };
-
-                if (pageCount > 1 && paginationList) {
-                    addPageButton("‹", currentPage - 1, false, currentPage === 1);
-                    const visiblePages = Array.from(new Set([
-                        1,
-                        currentPage - 1,
-                        currentPage,
-                        currentPage + 1,
-                        pageCount
-                    ].filter((pageNumber) => pageNumber >= 1 && pageNumber <= pageCount))).sort((a, b) => a - b);
-                    let previousPage = 0;
-                    visiblePages.forEach((pageNumber) => {
-                        if (previousPage > 0 && pageNumber - previousPage > 1) {
-                            const listItem = document.createElement("li");
-                            const ellipsis = document.createElement("span");
-                            ellipsis.className = "catalog-pagination__ellipsis";
-                            ellipsis.setAttribute("aria-hidden", "true");
-                            ellipsis.textContent = "…";
-                            listItem.append(ellipsis);
-                            paginationList.append(listItem);
-                        }
-                        addPageButton(String(pageNumber), pageNumber, pageNumber === currentPage);
-                        previousPage = pageNumber;
-                    });
-                    addPageButton("›", currentPage + 1, false, currentPage === pageCount);
-                }
+                renderCatalogPagination(pagination, paginationList, pageCount, currentPage, (pageNumber) => {
+                    currentPage = pageNumber;
+                    showPage();
+                });
             };
 
             typeOptions.forEach((option) => option.addEventListener("click", () => {
@@ -824,6 +831,39 @@
 
             showPage();
             return { refresh: showPage };
+        })();
+
+        const FutureCatalogPagination = (() => {
+            const grid = document.getElementById("catalog-future-grid");
+            const pagination = document.getElementById("catalog-future-pagination");
+            const paginationList = document.getElementById("catalog-future-pagination-list");
+            const pageSize = 9;
+            let currentPage = 1;
+
+            const getItems = () => grid ? Array.from(grid.querySelectorAll("[data-future-catalog-item]")) : [];
+            const showPage = (resetPage = false) => {
+                if (!grid) return;
+                const items = getItems();
+                const pageCount = Math.ceil(items.length / pageSize);
+                if (resetPage) currentPage = 1;
+                currentPage = Math.min(currentPage, Math.max(pageCount, 1));
+                const visibleItems = new Set(items.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+                items.forEach((item) => item.hidden = !visibleItems.has(item));
+                renderCatalogPagination(pagination, paginationList, pageCount, currentPage, (pageNumber) => {
+                    currentPage = pageNumber;
+                    showPage();
+                });
+            };
+
+            const reveal = (item) => {
+                const itemIndex = getItems().indexOf(item);
+                if (itemIndex < 0) return;
+                currentPage = Math.floor(itemIndex / pageSize) + 1;
+                showPage();
+            };
+
+            showPage();
+            return { refresh: showPage, reveal };
         })();
 
         // Módulo de Modal y Gestión de Productos
@@ -916,7 +956,13 @@
                 if (imageUrl) editImagePreview.src = imageUrl;
             };
 
-            const showCatalogUpdateModal = (message, sourceModalElement = modalElement) => {
+            const showCatalogUpdateModal = (
+                message,
+                sourceModalElement = modalElement,
+                { eyebrow = "CAMBIOS GUARDADOS", title = "¡Actualización exitosa!" } = {}
+            ) => {
+                document.getElementById("catalog-update-success-eyebrow").textContent = eyebrow;
+                document.getElementById("catalog-update-success-title").textContent = title;
                 document.getElementById("catalog-update-success-message").textContent = message;
                 const successModal = bootstrap.Modal.getOrCreateInstance(updateSuccessModalElement);
                 sourceModalElement.addEventListener("hidden.bs.modal", () => successModal.show(), { once: true });
@@ -1293,6 +1339,7 @@
                 if (futureBadge) futureBadge.innerHTML = `<i class="bi bi-hourglass-split" aria-hidden="true"></i> ${totalFuture} EN LA LISTA`;
 
                 CatalogFilter.refresh();
+                FutureCatalogPagination.refresh();
             };
 
             // Guardar Cambios (Editar) vía AJAX al Controlador MVC
@@ -1565,6 +1612,9 @@
                                 window.location.assign(`/Catalogo?seccion=${encodeURIComponent(section)}`);
                                 return;
                             }
+                            if (p.estadoColeccion === "DESEADO") {
+                                FutureCatalogPagination.reveal(existingCard);
+                            }
                             existingCard.scrollIntoView({
                                 behavior: "smooth",
                                 block: "center"
@@ -1650,7 +1700,12 @@
                         }
                         updateFutureImagePreview();
                         document.getElementById("catalog-tab-future")?.click();
-                        showCatalogUpdateModal(result.message || "¡Registro completado correctamente!", futureCreateModalEl);
+                        FutureCatalogPagination.refresh(true);
+                        showCatalogUpdateModal(
+                            "¡El producto se registró correctamente en Futuras colecciones!",
+                            futureCreateModalEl,
+                            { eyebrow: "REGISTRO COMPLETADO", title: "¡Producto registrado!" }
+                        );
                     } catch (ex) {
                         if (errorEl) {
                             errorEl.textContent = ex.message;
