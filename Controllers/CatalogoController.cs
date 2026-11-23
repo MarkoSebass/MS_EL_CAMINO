@@ -598,7 +598,8 @@ public class CatalogoController : Controller
         return await context.Dispositivos
             .AsNoTracking()
             .Where(dispositivo => dispositivo.IdUsuario == userId
-                && (dispositivo.EstadoColeccion == CollectionState || dispositivo.EstadoColeccion == DesiredState))
+                && (dispositivo.EstadoColeccion.Trim().ToUpper() == CollectionState
+                    || dispositivo.EstadoColeccion.Trim().ToUpper() == DesiredState))
             .Select(dispositivo => new CatalogoProductoViewModel
             {
                 Tipo = "DISPOSITIVO",
@@ -606,7 +607,7 @@ public class CatalogoController : Controller
                 CategoriaId = dispositivo.IdCategoria,
                 Nombre = (dispositivo.Marca ?? string.Empty) + " " + (dispositivo.Modelo ?? string.Empty),
                 DispositivoId = dispositivo.IdDispositivo,
-                EstadoColeccion = dispositivo.EstadoColeccion,
+                EstadoColeccion = dispositivo.EstadoColeccion.Trim().ToUpper(),
                 Marca = dispositivo.Marca,
                 Modelo = dispositivo.Modelo,
                 JuegoId = null,

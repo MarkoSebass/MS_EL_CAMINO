@@ -639,7 +639,7 @@
             const categoryOptions = Array.from(document.querySelectorAll(".catalog-category-filter__option"));
             const typeFilterGroup = document.getElementById("catalog-type-filter-group");
             const typeFilterButton = document.getElementById("catalog-type-filter");
-            const pageSize = 9;
+            const pageSize = 12;
             let activeTypeFilter = "TODOS";
             let activeCategoryFilter = "TODAS";
             let currentPage = 1;
@@ -749,9 +749,27 @@
 
                 if (pageCount > 1 && paginationList) {
                     addPageButton("‹", currentPage - 1, false, currentPage === 1);
-                    for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+                    const visiblePages = Array.from(new Set([
+                        1,
+                        currentPage - 1,
+                        currentPage,
+                        currentPage + 1,
+                        pageCount
+                    ].filter((pageNumber) => pageNumber >= 1 && pageNumber <= pageCount))).sort((a, b) => a - b);
+                    let previousPage = 0;
+                    visiblePages.forEach((pageNumber) => {
+                        if (previousPage > 0 && pageNumber - previousPage > 1) {
+                            const listItem = document.createElement("li");
+                            const ellipsis = document.createElement("span");
+                            ellipsis.className = "catalog-pagination__ellipsis";
+                            ellipsis.setAttribute("aria-hidden", "true");
+                            ellipsis.textContent = "…";
+                            listItem.append(ellipsis);
+                            paginationList.append(listItem);
+                        }
                         addPageButton(String(pageNumber), pageNumber, pageNumber === currentPage);
-                    }
+                        previousPage = pageNumber;
+                    });
                     addPageButton("›", currentPage + 1, false, currentPage === pageCount);
                 }
             };
