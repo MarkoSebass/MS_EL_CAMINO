@@ -19,6 +19,19 @@ public class ApplicationDbContext : DbContext
     public DbSet<Componente> Componentes => Set<Componente>();
     public DbSet<Juego> Juegos => Set<Juego>();
 
+    // Consultas compiladas para reducir overhead de compilación LINQ en rutas calientes
+    public static readonly Func<ApplicationDbContext, string, Task<Usuario?>> GetUsuarioByLoginCompiled =
+        EF.CompileAsyncQuery((ApplicationDbContext ctx, string usuLg) =>
+            ctx.Usuarios
+                .AsNoTracking()
+                .FirstOrDefault(u => u.UsuLg == usuLg));
+
+    public static readonly Func<ApplicationDbContext, int, int, Task<bool>> DispositivoExisteCompiled =
+        EF.CompileAsyncQuery((ApplicationDbContext ctx, int idDispositivo, int idUsuario) =>
+            ctx.Dispositivos
+                .AsNoTracking()
+                .Any(d => d.IdDispositivo == idDispositivo && d.IdUsuario == idUsuario));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -101,6 +114,8 @@ public class ApplicationDbContext : DbContext
                 .IsRequired();
             entity.HasIndex(e => new { e.IdUsuario, e.EstadoColeccion })
                 .HasDatabaseName("ix_dispositivo_usuario_estado_coleccion");
+            entity.HasIndex(e => new { e.IdUsuario, e.IdCategoria })
+                .HasDatabaseName("ix_dispositivo_usuario_categoria");
             entity.HasOne(e => e.Categoria)
                 .WithMany()
                 .HasForeignKey(e => e.IdCategoria)
@@ -124,6 +139,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.FechaCompra).HasColumnType("date");
             entity.HasIndex(e => e.IdUsuario)
                 .HasDatabaseName("ix_juegos_id_usuario");
+            entity.HasIndex(e => new { e.IdUsuario, e.IdCategoria })
+                .HasDatabaseName("ix_juegos_usuario_categoria");
             entity.HasOne(e => e.Categoria)
                 .WithMany()
                 .HasForeignKey(e => e.IdCategoria)

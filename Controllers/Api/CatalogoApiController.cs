@@ -1,9 +1,11 @@
 using System.Data.Common;
+using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Npgsql;
 using MS_EL_CAMINO.Data;
 using MS_EL_CAMINO.DTOs;
@@ -31,17 +33,20 @@ public sealed class CatalogoApiController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly IAntiforgery _antiforgery;
     private readonly IStorageService _storageService;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<CatalogoApiController> _logger;
 
     public CatalogoApiController(
         ApplicationDbContext context,
         IAntiforgery antiforgery,
         IStorageService storageService,
+        IMemoryCache cache,
         ILogger<CatalogoApiController> logger)
     {
         _context = context;
         _antiforgery = antiforgery;
         _storageService = storageService;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -69,14 +74,25 @@ public sealed class CatalogoApiController : ControllerBase
     /// <response code="200">Catálogo de categorías ordenado por nombre.</response>
     /// <response code="401">No hay una sesión iniciada.</response>
     [HttpGet("categorias")]
+    [ResponseCache(Duration = 300, Location = ResponseCacheLocation.Any)]
     [ProducesResponseType(typeof(IReadOnlyList<Categoria>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IReadOnlyList<Categoria>>> GetCategories()
     {
+        if (_cache.TryGetValue("Catalogo:Categorias", out List<Categoria>? cached) && cached is not null)
+        {
+            return Ok(cached);
+        }
+
+        var sw = Stopwatch.StartNew();
         var categories = await _context.Categorias
             .AsNoTracking()
             .OrderBy(category => category.Nombre)
             .ToListAsync(HttpContext.RequestAborted);
+        sw.Stop();
+        _logger.LogInformation("API GetCategories ejecutado en {ElapsedMs} ms", sw.ElapsedMilliseconds);
+
+        _cache.Set("Catalogo:Categorias", categories, TimeSpan.FromMinutes(10));
         return Ok(categories);
     }
 

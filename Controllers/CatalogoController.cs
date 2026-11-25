@@ -1,9 +1,13 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Npgsql;
 using MS_EL_CAMINO.Data;
+using MS_EL_CAMINO.Hubs;
 using MS_EL_CAMINO.Models;
 using MS_EL_CAMINO.Services;
 using MS_EL_CAMINO.ViewModels;
@@ -15,17 +19,24 @@ public class CatalogoController : Controller
 {
     private const string CollectionState = "COLECCION";
     private const string DesiredState = "DESEADO";
+    private const string CategoriesCacheKey = "Catalogo:Categorias";
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
     private readonly IStorageService _storageService;
+    private readonly IMemoryCache _cache;
+    private readonly IHubContext<CatalogoHub> _hubContext;
     private readonly ILogger<CatalogoController> _logger;
 
     public CatalogoController(
         IDbContextFactory<ApplicationDbContext> contextFactory,
         IStorageService storageService,
+        IMemoryCache cache,
+        IHubContext<CatalogoHub> hubContext,
         ILogger<CatalogoController> logger)
     {
         _contextFactory = contextFactory;
         _storageService = storageService;
+        _cache = cache;
+        _hubContext = hubContext;
         _logger = logger;
     }
 
@@ -37,12 +48,15 @@ public class CatalogoController : Controller
             return Forbid();
         }
 
+        var sw = Stopwatch.StartNew();
         var requestAborted = HttpContext.RequestAborted;
         var devicesTask = LoadDevicesAsync(userId, requestAborted);
         var componentsTask = LoadComponentsAsync(userId, requestAborted);
         var gamesTask = LoadGamesAsync(userId, requestAborted);
         var categoriesTask = LoadCategoriesAsync(requestAborted);
         await Task.WhenAll(new Task[] { devicesTask, componentsTask, gamesTask, categoriesTask });
+        sw.Stop();
+        _logger.LogInformation("CatalogoController.Index consultas completadas en {ElapsedMs} ms para usuario {UserId}", sw.ElapsedMilliseconds, userId);
 
         var dispositivosCatalogo = await devicesTask;
         var productos = dispositivosCatalogo
@@ -207,25 +221,33 @@ public class CatalogoController : Controller
         var nombreCompleto = $"{nuevoDispositivo.Marca} {nuevoDispositivo.Modelo}".Trim();
         var icono = GetDeviceIcon(categoria.Nombre);
 
+        var dto = new CatalogoProductoViewModel
+        {
+            Tipo = "DISPOSITIVO",
+            Categoria = categoria.Nombre,
+            CategoriaId = categoria.IdCategoria,
+            Nombre = nombreCompleto,
+            DispositivoId = nuevoDispositivo.IdDispositivo,
+            EstadoColeccion = DesiredState,
+            Marca = nuevoDispositivo.Marca,
+            Modelo = nuevoDispositivo.Modelo,
+            Estado = nuevoDispositivo.Estado,
+            ImagenUrl = nuevoDispositivo.ImagenUrl,
+            Icono = icono
+        };
+
+        await _hubContext.Clients.Group($"user-{userId}").SendAsync("CatalogoActualizado", new
+        {
+            action = "CREATED",
+            data = dto
+        }, HttpContext.RequestAborted);
+
         return Ok(new
         {
             success = true,
             message = "¡Registro completado correctamente!",
             idDispositivo = nuevoDispositivo.IdDispositivo,
-            data = new CatalogoProductoViewModel
-            {
-                Tipo = "DISPOSITIVO",
-                Categoria = categoria.Nombre,
-                CategoriaId = categoria.IdCategoria,
-                Nombre = nombreCompleto,
-                DispositivoId = nuevoDispositivo.IdDispositivo,
-                EstadoColeccion = DesiredState,
-                Marca = nuevoDispositivo.Marca,
-                Modelo = nuevoDispositivo.Modelo,
-                Estado = nuevoDispositivo.Estado,
-                ImagenUrl = nuevoDispositivo.ImagenUrl,
-                Icono = icono
-            }
+            data = dto
         });
     }
 
@@ -598,8 +620,8 @@ public class CatalogoController : Controller
         return await context.Dispositivos
             .AsNoTracking()
             .Where(dispositivo => dispositivo.IdUsuario == userId
-                && (dispositivo.EstadoColeccion.Trim().ToUpper() == CollectionState
-                    || dispositivo.EstadoColeccion.Trim().ToUpper() == DesiredState))
+                && (dispositivo.EstadoColeccion == CollectionState
+                    || dispositivo.EstadoColeccion == DesiredState))
             .Select(dispositivo => new CatalogoProductoViewModel
             {
                 Tipo = "DISPOSITIVO",
@@ -680,11 +702,19 @@ public class CatalogoController : Controller
 
     private async Task<List<Categoria>> LoadCategoriesAsync(CancellationToken cancellationToken)
     {
+        if (_cache.TryGetValue(CategoriesCacheKey, out List<Categoria>? cached) && cached is not null)
+        {
+            return cached;
+        }
+
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
-        return await context.Categorias
+        var categories = await context.Categorias
             .AsNoTracking()
             .OrderBy(categoria => categoria.Nombre)
             .ToListAsync(cancellationToken);
+
+        _cache.Set(CategoriesCacheKey, categories, TimeSpan.FromMinutes(10));
+        return categories;
     }
 
     private bool TryGetUserId(out int userId) =>

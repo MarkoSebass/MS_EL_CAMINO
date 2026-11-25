@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using Npgsql;
 using MS_EL_CAMINO.Data;
+using MS_EL_CAMINO.Hubs;
 using MS_EL_CAMINO.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,22 +12,49 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================================================
 // 1. CONFIGURACIÓN DE BASE DE DATOS (Entity Framework Core con PostgreSQL / Supabase)
 // ============================================================================
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+var npgsqlBuilder = new NpgsqlConnectionStringBuilder(connectionString)
+{
+    Pooling = true,
+    MinPoolSize = 5,
+    MaxPoolSize = 50,
+    ConnectionIdleLifetime = 300,
+    ConnectionPruningInterval = 10,
+    Timeout = 15,
+    CommandTimeout = 30,
+    KeepAlive = 30,
+    NoResetOnClose = true,
+    MaxAutoPrepare = 0 // Recomendado para PgBouncer Transaction Pooler (puerto 6543)
+};
+
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(connectionString, npgsqlOptions =>
+    options.UseNpgsql(npgsqlBuilder.ConnectionString, npgsqlOptions =>
     {
+        npgsqlOptions.CommandTimeout(30);
         // Reintentos automáticos para conexiones remotas / cloud (Supabase Pooler)
         npgsqlOptions.EnableRetryOnFailure(
             maxRetryCount: 5,
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorCodesToAdd: null);
     });
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 // ============================================================================
-// 2. INYECCIÓN DE DEPENDENCIAS (Servicios de Aplicación)
+// 2. INYECCIÓN DE DEPENDENCIAS (Servicios de Aplicación, Caché y SignalR)
 // ============================================================================
+builder.Services.AddMemoryCache();
+builder.Services.AddResponseCaching();
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.AddSignalR();
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddHttpClient<IStorageService, SupabaseStorageService>();
 
@@ -143,10 +173,18 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger"; // Disponible en /swagger
 });
 
+app.UseResponseCompression();
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.CacheControl = "public,max-age=604800";
+    }
+});
 
 app.UseRouting();
+app.UseResponseCaching();
 
 // Middlewares de Autenticación y Autorización en el orden correcto
 app.UseAuthentication();
@@ -155,6 +193,7 @@ app.UseAuthorization();
 // ============================================================================
 // 7. ENRUTAMIENTO (El Login es la primera pantalla del sistema)
 // ============================================================================
+app.MapHub<CatalogoHub>("/hubs/catalogo");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");

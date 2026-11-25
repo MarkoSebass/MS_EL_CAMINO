@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -67,11 +68,18 @@ public class LoginController : Controller
         var normalizedUsuLg = model.UsuLg.Trim().ToLower();
         Usuario? usuario = null;
 
-        // 1. Consulta segura a PostgreSQL con captura de excepciones
+        // 1. Consulta segura a PostgreSQL con AsNoTracking y medición de tiempo
+        var sw = Stopwatch.StartNew();
         try
         {
             usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.UsuLg.ToLower() == normalizedUsuLg);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UsuLg == normalizedUsuLg)
+                ?? await _context.Usuarios
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UsuLg.ToLower() == normalizedUsuLg);
+            sw.Stop();
+            _logger.LogInformation("Login query ejecutada en {ElapsedMs} ms", sw.ElapsedMilliseconds);
         }
         catch (Exception ex)
         {
