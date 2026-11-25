@@ -7,6 +7,11 @@
     <!-- HERO SECTION -->
     <section class="hero py-5 position-relative" aria-labelledby="hero-title">
         <div class="hero-copy">
+            <p class="hero-kicker mb-0">
+                <span>BITÁCORA TECNOLÓGICA</span>
+                <span class="hero-kicker__status"><i aria-hidden="true"></i> EN RUTA</span>
+            </p>
+
             <!-- MAIN TITLE -->
             <h1 id="hero-title" class="display-3 fw-bolder lh-1 text-white mb-4">
                 No es lo que tienes.<br />
@@ -57,7 +62,7 @@
                 <div class="col-12 col-md-4">
                     <div class="stat-pill p-3 rounded-3 h-100">
                         <div class="d-flex align-items-center justify-content-between mb-1">
-                            <span class="stat-number fs-4 fw-bold text-white">KM-001</span>
+                            <span class="stat-number fs-4 fw-bold text-white">∞</span>
                             <i class="bi bi-signpost-2-fill text-warning fs-5"></i>
                         </div>
                         <div class="stat-desc text-light-silver small">Etapa Actual</div>
@@ -110,7 +115,7 @@
                     <span class="text-light-silver small">Cada objeto guarda el momento que representa.</span>
                 </div>
                 <div class="text-end">
-                    <span class="badge bg-warning text-dark font-monospace fw-bold">KM 01 / &infin;</span>
+                    <span class="badge bg-warning text-dark font-monospace fw-bold">EN RUTA</span>
                 </div>
             </div>
         </div>
@@ -237,7 +242,7 @@
                 <div class="module-card-wrapper h-100">
                     @if (isAuthenticated)
                     {
-                        <a href="#catalogo" class="text-decoration-none h-100 d-block">
+                        <a asp-controller="Catalogo" asp-action="Index" class="text-decoration-none h-100 d-block">
                             <article class="module-card card h-100 border-0 p-4" id="catalogo">
                                 <div class="module-card__top d-flex justify-content-between align-items-center mb-3">
                                     <span class="module-card__number font-monospace text-light-silver">01 / COLECCIÓN</span>
@@ -496,11 +501,10 @@
                         <span class="font-monospace text-secondary small">
                             <i class="status-indicator me-1"></i> BITÁCORA PERSONAL
                         </span>
-                        <span class="font-monospace text-warning small fw-bold">KM-001</span>
+                        <span class="font-monospace text-warning small fw-bold">EN RUTA</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 </div>
-

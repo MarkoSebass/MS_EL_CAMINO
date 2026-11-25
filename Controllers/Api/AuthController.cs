@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,10 +56,17 @@ public class AuthController : ControllerBase
         var normalizedUsuLg = request.UsuLg.Trim().ToLower();
         Usuario? usuario = null;
 
+        var sw = Stopwatch.StartNew();
         try
         {
             usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.UsuLg.ToLower() == normalizedUsuLg);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UsuLg == normalizedUsuLg)
+                ?? await _context.Usuarios
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UsuLg.ToLower() == normalizedUsuLg);
+            sw.Stop();
+            _logger.LogInformation("API Auth query ejecutada en {ElapsedMs} ms", sw.ElapsedMilliseconds);
         }
         catch (Exception ex)
         {

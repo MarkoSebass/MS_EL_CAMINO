@@ -1,0 +1,1724 @@
+@using System.Globalization
+@model MS_EL_CAMINO.ViewModels.CatalogoViewModel
+@{
+    ViewData["Title"] = "Catálogo tecnológico";
+    var esAdmin = Model.EsAdministrador;
+    var dispositivosFuturos = Model.FuturasColecciones;
+}
+
+<div class="catalog-page" data-initial-section="@Model.SeccionInicial">
+    <header class="catalog-hero">
+        <div class="catalog-hero__copy">
+            <span class="catalog-kicker"><i class="bi bi-compass-fill" aria-hidden="true"></i> COLECCIÓN PERSONAL</span>
+            <h1>Lo que forma<br />parte del <span>camino.</span></h1>
+            <p>Dispositivos que acompañan tu historia, y los que todavía esperan su momento.</p>
+        </div>
+        <div class="catalog-hero__mark" aria-hidden="true">
+            <span class="catalog-hero__orbit"></span>
+            <i class="bi bi-box-seam"></i>
+            <span class="catalog-hero__coordinates">EL CAMINO · 001</span>
+        </div>
+    </header>
+
+    <nav class="catalog-section-nav" aria-label="Secciones del catálogo" role="tablist">
+        <button class="catalog-section-nav__link" id="catalog-tab-current" type="button"
+                role="tab" aria-selected="true" aria-controls="my-collection" data-catalog-section="my-collection">
+            <span class="catalog-section-nav__icon"><i class="bi bi-collection" aria-hidden="true"></i></span>
+            <span class="catalog-section-nav__copy">
+                <strong>Mi colección</strong>
+                <span>Lo que ya tienes</span>
+            </span>
+            <span class="catalog-section-nav__count" id="catalog-tab-count">@Model.Productos.Count</span>
+        </button>
+        <button class="catalog-section-nav__link" id="catalog-tab-future" type="button"
+                role="tab" aria-selected="false" aria-controls="future-collections" data-catalog-section="future-collections">
+            <span class="catalog-section-nav__icon catalog-section-nav__icon--future"><i class="bi bi-stars" aria-hidden="true"></i></span>
+            <span class="catalog-section-nav__copy">
+                <strong>Futuras colecciones</strong>
+                <span>Lo que viene en el camino</span>
+            </span>
+            <span class="catalog-section-nav__count" id="catalog-tab-future-count">@dispositivosFuturos.Count</span>
+        </button>
+    </nav>
+
+    @* ========================================== *@
+    @* SECCIÓN 1: MI COLECCIÓN                     *@
+    @* ========================================== *@
+    <section id="my-collection" role="tabpanel" aria-labelledby="catalog-tab-current">
+        <section class="catalog-overview" aria-label="Resumen de la colección">
+            <article class="catalog-stat catalog-stat--featured">
+                <span class="catalog-stat__label">PIEZAS EN TU RECORRIDO</span>
+                <strong id="catalog-owned-total">@Model.Productos.Count</strong>
+                <span class="catalog-stat__detail">registros personales</span>
+            </article>
+            <article class="catalog-stat">
+                <span class="catalog-stat__icon"><i class="bi bi-laptop" aria-hidden="true"></i></span>
+                <span class="catalog-stat__label">DISPOSITIVOS</span>
+                <strong id="catalog-owned-devices">@Model.TotalDispositivos</strong>
+                <span class="catalog-stat__detail">equipos registrados</span>
+            </article>
+            <article class="catalog-stat">
+                <span class="catalog-stat__icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                <span class="catalog-stat__label">COMPONENTES</span>
+                <strong>@Model.TotalComponentes</strong>
+                <span class="catalog-stat__detail">piezas del setup</span>
+            </article>
+            <article class="catalog-stat">
+                <span class="catalog-stat__icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+                <span class="catalog-stat__label">VIDEOJUEGOS</span>
+                <strong>@Model.TotalJuegos</strong>
+                <span class="catalog-stat__detail">mundos recorridos</span>
+            </article>
+        </section>
+
+        <section class="catalog-collection" aria-labelledby="collection-title">
+            <div class="catalog-collection__heading">
+                <div>
+                    <span class="catalog-kicker">ARCHIVO / 01</span>
+                    <h2 id="collection-title">Mi colección</h2>
+                    <p>Equipos, componentes y juegos que ya forman parte de tu historia.</p>
+                </div>
+            </div>
+
+            <div class="catalog-toolbar">
+                <div class="catalog-controls">
+                    <div class="catalog-type-filter">
+                        <span class="catalog-control-label">Filtrar por categoría</span>
+                        <div class="dropdown catalog-type-filter__dropdown">
+                            <button class="catalog-type-filter__field" id="catalog-category-filter" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
+                                <span class="catalog-type-filter__selection" id="catalog-category-selection">Todas las categorías</span>
+                                <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-category-filter">
+                                <button class="dropdown-item catalog-type-filter__option catalog-category-filter__option is-selected" type="button"
+                                        data-category-id="TODAS" data-label="Todas las categorías" aria-pressed="true">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Todas las categorías</span>
+                                    <span class="catalog-type-filter__count" id="category-count-all">@Model.Productos.Count</span>
+                                </button>
+                                @foreach (var categoria in Model.Categorias)
+                                {
+                                    var productosEnCategoria = Model.Productos.Count(producto => producto.CategoriaId == categoria.IdCategoria);
+                                    <button class="dropdown-item catalog-type-filter__option catalog-category-filter__option" type="button"
+                                            data-category-id="@categoria.IdCategoria" data-label="@categoria.Nombre" aria-pressed="false"
+                                            hidden="@(productosEnCategoria == 0 ? "hidden" : null)">
+                                        <span class="catalog-type-filter__option-icon"><i class="bi bi-tag" aria-hidden="true"></i></span>
+                                        <span class="catalog-type-filter__option-label">@categoria.Nombre</span>
+                                        <span class="catalog-type-filter__count" data-category-count="@categoria.IdCategoria">@productosEnCategoria</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="catalog-type-filter" id="catalog-type-filter-group" hidden>
+                        <span class="catalog-control-label">Filtrar por tipo</span>
+                        <div class="dropdown catalog-type-filter__dropdown">
+                            <button class="catalog-type-filter__field" id="catalog-type-filter" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-funnel" aria-hidden="true"></i>
+                                <span class="catalog-type-filter__selection" id="catalog-type-selection">Todos los tipos</span>
+                                <i class="bi bi-chevron-down catalog-type-filter__chevron" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu catalog-type-filter__menu" aria-labelledby="catalog-type-filter">
+                                <button class="dropdown-item catalog-type-filter__option is-selected" type="button"
+                                        data-type="TODOS" data-label="Todos los tipos" aria-pressed="true">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-grid" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Todos los tipos</span>
+                                    <span class="catalog-type-filter__count" data-type-count="TODOS">@Model.Productos.Count</span>
+                                </button>
+                                <button class="dropdown-item catalog-type-filter__option" type="button"
+                                        data-type="DISPOSITIVO" data-label="Dispositivos" aria-pressed="false">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Dispositivos</span>
+                                    <span class="catalog-type-filter__count" data-type-count="DISPOSITIVO">@Model.TotalDispositivos</span>
+                                </button>
+                                <button class="dropdown-item catalog-type-filter__option" type="button"
+                                        data-type="COMPONENTE" data-label="Componentes" aria-pressed="false">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Componentes</span>
+                                    <span class="catalog-type-filter__count" data-type-count="COMPONENTE">@Model.TotalComponentes</span>
+                                </button>
+                                <button class="dropdown-item catalog-type-filter__option" type="button"
+                                        data-type="JUEGO" data-label="Videojuegos" aria-pressed="false">
+                                    <span class="catalog-type-filter__option-icon"><i class="bi bi-controller" aria-hidden="true"></i></span>
+                                    <span class="catalog-type-filter__option-label">Videojuegos</span>
+                                    <span class="catalog-type-filter__count" data-type-count="JUEGO">@Model.TotalJuegos</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="catalog-search">
+                        <span class="catalog-control-label">Buscar en la colección</span>
+                        <span class="catalog-search__field">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <input id="catalog-search" type="search" placeholder="Escribe el nombre del producto..." autocomplete="off" />
+                        </span>
+                    </label>
+                </div>
+                <span class="catalog-results" id="catalog-results" aria-live="polite">@Model.Productos.Count productos</span>
+            </div>
+
+            <div class="catalog-empty" id="catalog-main-empty" hidden="@(Model.Productos.Count > 0 ? "hidden" : null)">
+                <span class="catalog-empty__icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                <h3>Tu colección empieza aquí.</h3>
+                <p>Aún no hay productos asociados a tu cuenta. Cuando registres dispositivos, componentes o juegos, los verás en este espacio.</p>
+                <a asp-controller="Home" asp-action="Index">Volver al inicio <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="catalog-grid" id="catalog-grid" hidden="@(Model.Productos.Count == 0 ? "hidden" : null)">
+                @foreach (var producto in Model.Productos)
+                {
+                    var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                    <article class="catalog-card"
+                             data-catalog-item
+                             data-type="@producto.Tipo"
+                             data-name="@producto.Nombre"
+                             data-category="@producto.Categoria"
+                             data-category-id="@producto.CategoriaId"
+                             data-brand="@producto.Marca"
+                             data-model="@producto.Modelo"
+                             data-platform="@producto.Plataforma"
+                             data-genre="@producto.Genero"
+                             data-detail="@producto.Detalle"
+                             data-status="@producto.Estado"
+                             data-image="@producto.ImagenUrl"
+                             data-device-id="@producto.DispositivoId"
+                             data-game-id="@producto.JuegoId"
+                             data-collection-state="@producto.EstadoColeccion"
+                             role="button" tabindex="0" aria-haspopup="dialog"
+                             aria-label="Ver detalles de @producto.Nombre">
+                        <div class="catalog-card__visual">
+                            @if (tieneImagen)
+                            {
+                                <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
+                            }
+                            <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                                <span></span><i class="bi @producto.Icono"></i>
+                            </div>
+                            <span class="catalog-card__type">@producto.Tipo</span>
+                        </div>
+                        <div class="catalog-card__body">
+                            <span class="catalog-card__category">@producto.Categoria</span>
+                            <h3>@producto.Nombre</h3>
+                            @if (!string.IsNullOrWhiteSpace(producto.Detalle))
+                            {
+                                <p class="catalog-card__detail">@producto.Detalle</p>
+                            }
+                            <div class="catalog-card__meta">
+                                @if (!string.IsNullOrWhiteSpace(producto.Estado))
+                                {
+                                    <span class="catalog-card__status"><i aria-hidden="true"></i>@producto.Estado</span>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+            <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" hidden>
+                <ul class="catalog-pagination__list" id="catalog-pagination-list"></ul>
+            </nav>
+            <div class="catalog-empty catalog-empty--filtered" id="catalog-no-results" hidden>
+                <span class="catalog-empty__icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <h3>No encontramos coincidencias.</h3>
+                <p>Prueba con otro nombre, categoría o tipo de producto.</p>
+            </div>
+        </section>
+    </section>
+
+    @* ========================================== *@
+    @* SECCIÓN 2: FUTURAS COLECCIONES              *@
+    @* ========================================== *@
+    <section class="catalog-future" id="future-collections" role="tabpanel" aria-labelledby="catalog-tab-future" hidden>
+        <div class="catalog-collection__heading catalog-future__heading d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="catalog-kicker"><i class="bi bi-stars" aria-hidden="true"></i> PRÓXIMOS OBJETIVOS</span>
+                <h2>Futuras colecciones</h2>
+                <p>Dispositivos que quieres sumar más adelante a tu historia personal.</p>
+            </div>
+            <div class="catalog-future__actions">
+                <span class="catalog-future__badge" id="future-badge-count"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @dispositivosFuturos.Count EN LA LISTA</span>
+                <button type="button" class="btn catalog-admin-save catalog-future-create-trigger" id="btn-open-create-future" data-bs-toggle="modal" data-bs-target="#future-create-modal">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i><span>Nuevo registro</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="catalog-grid catalog-grid--future" id="catalog-future-grid">
+            @foreach (var producto in dispositivosFuturos)
+            {
+                var tieneImagen = !string.IsNullOrWhiteSpace(producto.ImagenUrl);
+                <article class="catalog-card" data-future-catalog-item
+                         data-type="@producto.Tipo" data-name="@producto.Nombre"
+                         data-category="@producto.Categoria" data-category-id="@producto.CategoriaId" data-brand="@producto.Marca"
+                         data-model="@producto.Modelo" data-status="@producto.Estado"
+                         data-platform="@producto.Plataforma" data-genre="@producto.Genero" data-game-id="@producto.JuegoId"
+                         data-image="@producto.ImagenUrl" data-device-id="@producto.DispositivoId"
+                         data-collection-state="@producto.EstadoColeccion"
+                         role="button" tabindex="0" aria-haspopup="dialog"
+                         aria-label="Ver detalles de @producto.Nombre">
+                    <div class="catalog-card__visual">
+                        @if (tieneImagen)
+                        {
+                            <img src="@producto.ImagenUrl" alt="Imagen de @producto.Nombre" loading="lazy" />
+                        }
+                        <div class="catalog-card__placeholder" aria-hidden="true" hidden="@(tieneImagen ? "hidden" : null)">
+                            <span></span><i class="bi @producto.Icono"></i>
+                        </div>
+                        <span class="catalog-card__type">DISPOSITIVO</span>
+                    </div>
+                    <div class="catalog-card__body">
+                        <span class="catalog-card__category">@producto.Categoria</span>
+                        <h3>@producto.Nombre</h3>
+                        <div class="catalog-card__meta">
+                            <span class="catalog-card__status"><i aria-hidden="true"></i>@(string.IsNullOrWhiteSpace(producto.Estado) ? "Deseado" : producto.Estado)</span>
+                            <span class="catalog-card__collection-state">DESEADO</span>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+        <nav class="catalog-pagination" id="catalog-future-pagination" aria-label="Paginación de futuras colecciones" hidden>
+            <ul class="catalog-pagination__list" id="catalog-future-pagination-list"></ul>
+        </nav>
+        <div class="catalog-future__empty" id="catalog-future-empty" hidden="@(dispositivosFuturos.Count > 0 ? "hidden" : null)">
+            <div class="catalog-future__mark" aria-hidden="true"><span>02</span><i class="bi bi-stars"></i></div>
+            <div class="catalog-future__copy">
+                <span class="catalog-future__eyebrow">EL SIGUIENTE CAPÍTULO</span>
+                <h3>Tus próximas piezas empiezan con una idea.</h3>
+                <p>Los dispositivos que registres como deseados aparecerán aquí, listos para marcarse como adquiridos cuando los consigas.</p>
+            </div>
+            <span class="catalog-future__spark catalog-future__spark--one" aria-hidden="true"></span>
+            <span class="catalog-future__spark catalog-future__spark--two" aria-hidden="true"></span>
+        </div>
+    </section>
+</div>
+
+@* ========================================================== *@
+@* MODAL MODERNO DE REGISTRO: FUTURAS COLECCIONES (SUPABASE)   *@
+@* ========================================================== *@
+<div class="modal fade catalog-detail-modal catalog-future-create-modal" id="future-create-modal" tabindex="-1" aria-labelledby="future-create-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="catalog-future-create-modal__heading">
+                    <span class="catalog-future-create-modal__mark"><i class="bi bi-stars" aria-hidden="true"></i></span>
+                    <div>
+                        <span class="catalog-detail-modal__kicker">FUTURAS COLECCIONES / NUEVA PIEZA</span>
+                        <h2 class="modal-title" id="future-create-title">Añade un objetivo a tu camino</h2>
+                        <p>Registra el equipo que te gustaría sumar a tu colección.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="future-create-form" enctype="multipart/form-data" class="catalog-admin-form catalog-future-form">
+                    @Html.AntiForgeryToken()
+                    <div class="catalog-future-form__fields">
+                        <label>
+                            <span class="catalog-edit-field-label"><i class="bi bi-grid" aria-hidden="true"></i>Categoría</span>
+                            <select class="form-select" name="IdCategoria" required>
+                                <option value="" disabled selected>Selecciona una categoría...</option>
+                                @foreach (var categoria in Model.Categorias)
+                                {
+                                    <option value="@categoria.IdCategoria">@categoria.Nombre</option>
+                                }
+                            </select>
+                        </label>
+                        <label>
+                            <span class="catalog-edit-field-label"><i class="bi bi-bookmark-star" aria-hidden="true"></i>Marca</span>
+                            <input class="form-control" name="Marca" maxlength="100" required placeholder="Ej. Sony, Apple, Asus" />
+                        </label>
+                        <label>
+                            <span class="catalog-edit-field-label"><i class="bi bi-box" aria-hidden="true"></i>Modelo</span>
+                            <input class="form-control" name="Modelo" maxlength="150" required placeholder="Nombre del modelo que quieres conseguir" />
+                        </label>
+                    </div>
+                    <div class="catalog-future-upload">
+                        <div class="catalog-future-upload__heading">
+                            <span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen del producto <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
+                            <span class="catalog-future-upload__hint">JPG, PNG, WEBP o GIF · máximo 10 MB</span>
+                        </div>
+                        <label class="catalog-future-upload__dropzone" id="future-create-dropzone" for="future-create-image-input">
+                            <input class="catalog-future-upload__input" id="future-create-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
+                            <span class="catalog-future-upload__empty" id="future-create-upload-empty">
+                                <span class="catalog-future-upload__icon"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i></span>
+                                <strong>Arrastra tu imagen aquí</strong>
+                                <span>o <span class="catalog-future-upload__browse">explora tus archivos</span></span>
+                            </span>
+                            <span class="catalog-future-upload__preview" id="future-create-upload-preview" hidden>
+                                <img id="future-create-image-preview" alt="Vista previa del producto" />
+                                <span class="catalog-future-upload__file">
+                                    <i class="bi bi-image" aria-hidden="true"></i>
+                                    <span id="future-create-image-filename"></span>
+                                </span>
+                                <span class="catalog-future-upload__change">Cambiar imagen</span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="catalog-admin-form__error" id="future-create-error" role="alert" hidden></div>
+                </form>
+            </div>
+            <div class="modal-footer catalog-detail-modal__footer">
+                <button type="button" class="btn catalog-admin-secondary catalog-future-form__cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn catalog-admin-save catalog-future-form__submit" id="future-create-submit">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="future-create-spinner"></span>
+                    <i class="bi bi-plus-lg me-2" aria-hidden="true" id="future-create-icon"></i>Guardar registro
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ========================================================== *@
+@* MODAL BOOTSTRAP 5: DETALLES, EDICIÓN Y ELIMINACIÓN         *@
+@* ========================================================== *@
+<div class="modal fade catalog-detail-modal" id="catalog-detail-modal" tabindex="-1" aria-labelledby="catalog-detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <span class="catalog-detail-modal__kicker"><i class="bi bi-stars" aria-hidden="true"></i><span id="catalog-modal-kicker-label">ARCHIVO PERSONAL / DETALLE DE PIEZA</span></span>
+                    <h2 class="modal-title" id="catalog-detail-title"></h2>
+                    <p class="catalog-detail-modal__subtitle" id="catalog-modal-subtitle">Una pieza de tecnología, una parte de tu recorrido.</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                @* Panel de Información Detallada *@
+                <div class="catalog-detail-modal__layout" id="catalog-detail-panel">
+                    <div class="catalog-detail-modal__visual">
+                        <span class="catalog-detail-modal__visual-label"><i class="bi bi-box-seam" aria-hidden="true"></i> PIEZA DE TU RECORRIDO</span>
+                        <span class="catalog-detail-modal__visual-orbit" aria-hidden="true"></span>
+                        <img id="catalog-detail-image" alt="" hidden />
+                        <div class="catalog-detail-modal__placeholder" id="catalog-detail-placeholder" aria-hidden="true"><i class="bi bi-box-seam"></i></div>
+                        <span class="catalog-detail-modal__visual-caption"><span>EL CAMINO</span><span>OBJETO DE COLECCIÓN</span></span>
+                    </div>
+                    <div class="catalog-detail-modal__information">
+                        <span class="catalog-detail-modal__type" id="catalog-detail-type"></span>
+                        <span class="catalog-detail-modal__section-label">ESPECIFICACIONES</span>
+                        <dl class="catalog-detail-modal__list" id="catalog-detail-list"></dl>
+                    </div>
+                </div>
+
+                @if (esAdmin)
+                {
+                    @* Formulario de Edición (Solo ADMIN) *@
+                    <form id="catalog-device-edit-form" method="post" class="catalog-admin-form" hidden>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="IdDispositivo" />
+                        <input type="hidden" name="OriginalIdCategoria" />
+                        <input type="hidden" name="OriginalMarca" />
+                        <input type="hidden" name="OriginalModelo" />
+                        <input type="hidden" name="IdJuego" />
+                        <div class="catalog-edit-intro">
+                            <span class="catalog-edit-intro__icon"><i class="bi bi-sliders2" aria-hidden="true"></i></span>
+                            <div>
+                                <span class="catalog-edit-intro__eyebrow">PERSONALIZA TU REGISTRO</span>
+                                <p>Actualiza los datos para que esta pieza siga contando tu historia.</p>
+                            </div>
+                            <span class="catalog-edit-intro__product" id="catalog-edit-product-name"></span>
+                        </div>
+                        <div class="catalog-admin-form__grid" id="catalog-edit-fields">
+                            <label data-device-field><span class="catalog-edit-field-label"><i class="bi bi-bookmark" aria-hidden="true"></i>Marca</span><input class="form-control" name="Marca" maxlength="100" placeholder="Ej. Sony" /></label>
+                            <label data-device-field><span class="catalog-edit-field-label"><i class="bi bi-box" aria-hidden="true"></i>Modelo</span><input class="form-control" name="Modelo" maxlength="150" placeholder="Nombre del modelo" /></label>
+                            <label data-game-field><span class="catalog-edit-field-label"><i class="bi bi-controller" aria-hidden="true"></i>Título</span><input class="form-control" name="Titulo" maxlength="200" placeholder="Nombre del juego" /></label>
+                            <label data-game-field><span class="catalog-edit-field-label"><i class="bi bi-display" aria-hidden="true"></i>Plataforma</span><input class="form-control" name="Plataforma" maxlength="100" placeholder="Ej. PC, PlayStation 5" /></label>
+                            <label data-game-field><span class="catalog-edit-field-label"><i class="bi bi-collection" aria-hidden="true"></i>Género <span class="catalog-edit-field-label__optional">OPCIONAL</span></span><input class="form-control" name="Genero" maxlength="100" placeholder="Ej. Aventura" /></label>
+                            <label>
+                                <span class="catalog-edit-field-label"><i class="bi bi-grid" aria-hidden="true"></i>Categoría</span>
+                                <select class="form-select" name="IdCategoria" required>
+                                    @foreach (var categoria in Model.Categorias)
+                                    {
+                                        <option value="@categoria.IdCategoria">@categoria.Nombre</option>
+                                    }
+                                </select>
+                            </label>
+                            <label><span class="catalog-edit-field-label"><i class="bi bi-activity" aria-hidden="true"></i>Estado</span><input class="form-control" name="Estado" required maxlength="100" placeholder="Ej. En uso" /></label>
+                            <label data-device-field><span class="catalog-edit-field-label"><i class="bi bi-bookmark-star" aria-hidden="true"></i>Ubicación en tu colección</span>
+                                <select class="form-select" name="EstadoColeccion" required>
+                                    <option value="COLECCION">Mi colección</option>
+                                    <option value="DESEADO">Futuras colecciones</option>
+                                </select>
+                            </label>
+                            <div class="catalog-admin-form__image">
+                                <span class="catalog-edit-field-label"><i class="bi bi-image" aria-hidden="true"></i>Imagen <span class="catalog-edit-field-label__optional">OPCIONAL</span></span>
+                                <span class="catalog-future-upload">
+                                    <span class="catalog-future-upload__hint">JPG, PNG, WEBP o GIF · máximo 10 MB. Si no eliges otra, se conservará la actual.</span>
+                                    <label class="catalog-future-upload__dropzone" id="catalog-edit-dropzone" for="catalog-edit-image-input">
+                                        <input class="catalog-future-upload__input" id="catalog-edit-image-input" name="Imagen" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" />
+                                        <span class="catalog-future-upload__empty" id="catalog-edit-upload-empty">
+                                            <span class="catalog-future-upload__icon"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i></span>
+                                            <strong>Arrastra una imagen aquí</strong>
+                                            <span>o <span class="catalog-future-upload__browse">explora tus archivos</span></span>
+                                        </span>
+                                        <span class="catalog-future-upload__preview" id="catalog-edit-upload-preview" hidden>
+                                            <img id="catalog-edit-image-preview" alt="Vista previa de la imagen del producto" />
+                                            <span class="catalog-future-upload__file">
+                                                <i class="bi bi-image" aria-hidden="true"></i>
+                                                <span id="catalog-edit-image-filename"></span>
+                                            </span>
+                                            <span class="catalog-future-upload__change">Cambiar imagen</span>
+                                        </span>
+                                    </label>
+                                </span>
+                                <input name="ImagenUrl" type="hidden" />
+                            </div>
+                        </div>
+                        <div class="catalog-admin-form__error" id="catalog-edit-error" role="alert" hidden></div>
+                    </form>
+
+                    @* Diálogo de Confirmación para Eliminar *@
+                    <div class="catalog-delete-confirm" id="catalog-delete-confirm" hidden>
+                        <div class="catalog-delete-confirm__heading">
+                            <span class="catalog-delete-confirm__icon"><i class="bi bi-trash3" aria-hidden="true"></i></span>
+                            <span class="catalog-delete-confirm__eyebrow">ACCIÓN PERMANENTE</span>
+                            <h3 id="catalog-delete-confirm-title">¿Eliminar esta pieza?</h3>
+                            <p>El registro se quitará definitivamente de tu catálogo.</p>
+                        </div>
+                        <div class="catalog-delete-confirm__product">
+                            <span class="catalog-delete-confirm__product-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                            <span class="catalog-delete-confirm__product-copy"><small>VAS A ELIMINAR</small><strong id="catalog-delete-product-name"></strong></span>
+                        </div>
+                        <p class="catalog-delete-confirm__warning"><i class="bi bi-info-circle" aria-hidden="true"></i> Esta acción no se puede deshacer.</p>
+                        <div class="catalog-delete-confirm__actions">
+                            <button type="button" class="btn catalog-admin-secondary" id="catalog-delete-cancel">Conservar producto</button>
+                            <button type="button" class="btn catalog-admin-danger" id="catalog-delete-confirm-button">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="delete-spinner"></span>
+                                <i class="bi bi-trash3 me-2" aria-hidden="true" id="delete-confirm-icon"></i>Eliminar definitivamente
+                            </button>
+                        </div>
+                        <div class="catalog-admin-form__error" id="catalog-delete-error" role="alert" hidden></div>
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer catalog-detail-modal__footer">
+                @* Botón de Acción Especial: Marcar Como Adquirido *@
+                <button type="button" class="btn catalog-admin-save" id="btn-marcar-adquirido" hidden>
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="adquirido-spinner"></span>
+                    <i class="bi bi-bag-check-fill" aria-hidden="true" id="adquirido-icon"></i>
+                    <span>Marcar como adquirido</span>
+                </button>
+
+                @if (esAdmin)
+                {
+                    <div class="catalog-admin-actions" id="catalog-admin-actions" hidden>
+                        <button type="button" class="btn catalog-admin-icon-action catalog-admin-icon-action--edit" id="catalog-edit-button" title="Editar producto" aria-label="Editar producto">
+                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn catalog-admin-icon-action catalog-admin-icon-action--delete" id="catalog-delete-button" title="Eliminar producto" aria-label="Eliminar producto">
+                            <i class="bi bi-trash3" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="catalog-admin-actions" id="catalog-edit-actions" hidden>
+                        <button type="button" class="btn catalog-admin-secondary" id="catalog-edit-cancel">Cancelar</button>
+                        <button type="button" class="btn catalog-admin-save" id="catalog-edit-save">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="edit-spinner"></span>
+                            <i class="bi bi-check2 me-2" aria-hidden="true" id="edit-save-icon"></i>Guardar cambios
+                        </button>
+                    </div>
+                }
+                <button type="button" class="btn catalog-detail-modal__close-action" id="catalog-modal-close" data-bs-dismiss="modal">
+                    <span class="catalog-detail-modal__close-icon"><i class="bi bi-check2" aria-hidden="true"></i></span>
+                    <span>Cerrar ficha</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade catalog-acquired-modal" id="catalog-acquired-modal" tabindex="-1"
+     aria-labelledby="catalog-acquired-title" aria-describedby="catalog-acquired-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="catalog-acquired-modal__step"><i class="bi bi-stars" aria-hidden="true"></i> ACTUALIZAR COLECCIÓN</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <span class="catalog-acquired-modal__icon"><i class="bi bi-bag-check" aria-hidden="true"></i></span>
+                <h2 id="catalog-acquired-title">¿Ya lo tienes contigo?</h2>
+                <p id="catalog-acquired-message">Este producto pasará de tus objetivos a Mi colección.</p>
+                <div class="catalog-acquired-modal__product">
+                    <span class="catalog-acquired-modal__product-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+                    <span><small>PRODUCTO</small><strong id="catalog-acquired-product-name"></strong></span>
+                </div>
+                <p class="catalog-acquired-modal__note"><i class="bi bi-info-circle" aria-hidden="true"></i> Se registrará la fecha de hoy como fecha de adquisición.</p>
+                <div class="catalog-acquired-modal__error" id="catalog-acquired-error" role="alert" hidden></div>
+            </div>
+            <div class="catalog-acquired-modal__footer">
+                <button type="button" class="btn catalog-acquired-modal__cancel" data-bs-dismiss="modal">Aún no</button>
+                <button type="button" class="btn catalog-acquired-modal__confirm" id="catalog-acquired-confirm">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" hidden id="acquired-confirm-spinner"></span>
+                    <i class="bi bi-bag-check me-2" aria-hidden="true" id="acquired-confirm-icon"></i>
+                    <span>Confirmar adquisición</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade catalog-update-modal" id="catalog-update-success-modal" tabindex="-1"
+     aria-labelledby="catalog-update-success-title" aria-describedby="catalog-update-success-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span class="catalog-update-modal__icon"><i class="bi bi-check2" aria-hidden="true"></i></span>
+                <span class="catalog-update-modal__eyebrow" id="catalog-update-success-eyebrow">CAMBIOS GUARDADOS</span>
+                <h2 id="catalog-update-success-title">¡Actualización exitosa!</h2>
+                <p id="catalog-update-success-message" aria-live="polite">Los datos del producto se actualizaron correctamente.</p>
+                <button type="button" class="btn catalog-update-modal__button" data-bs-dismiss="modal">
+                    <i class="bi bi-check-lg me-2" aria-hidden="true"></i>Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Toast flotante para notificaciones de éxito instantáneas *@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="catalog-feedback-toast" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success fs-5" aria-hidden="true"></i>
+                <span id="catalog-feedback-toast-message">Operación completada con éxito.</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Función global de notificación tipo Toast instantáneo
+        const showCatalogToast = (message) => {
+            const toastEl = document.getElementById("catalog-feedback-toast");
+            const msgEl = document.getElementById("catalog-feedback-toast-message");
+            if (toastEl && msgEl) {
+                msgEl.textContent = message;
+                const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 3500 });
+                toast.show();
+            }
+        };
+        (() => {
+            const page = document.querySelector(".catalog-page");
+            const tabs = Array.from(document.querySelectorAll("[data-catalog-section]"));
+            const panels = tabs.map((tab) => document.getElementById(tab.dataset.catalogSection));
+            const initialPanel = page.dataset.initialSection;
+
+            const activateTab = (selectedTab, focusTab = false) => {
+                tabs.forEach((tab, index) => {
+                    const selected = tab === selectedTab;
+                    tab.setAttribute("aria-selected", String(selected));
+                    tab.tabIndex = selected ? 0 : -1;
+                    panels[index].hidden = !selected;
+                });
+                if (focusTab) selectedTab.focus();
+            };
+
+            tabs.forEach((tab, index) => {
+                tab.addEventListener("click", () => activateTab(tab));
+                tab.addEventListener("keydown", (event) => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                    event.preventDefault();
+                    const step = event.key === "ArrowRight" ? 1 : -1;
+                    activateTab(tabs[(index + step + tabs.length) % tabs.length], true);
+                });
+            });
+
+            activateTab(tabs.find((tab) => tab.dataset.catalogSection === initialPanel) || tabs[0]);
+        })();
+
+        const renderCatalogPagination = (pagination, paginationList, pageCount, currentPage, onPageChange) => {
+            if (pagination) pagination.hidden = pageCount <= 1;
+            if (!paginationList) return;
+            paginationList.replaceChildren();
+            if (pageCount <= 1) return;
+
+            const addPageButton = (label, pageNumber, current = false, disabled = false) => {
+                const listItem = document.createElement("li");
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "catalog-page-button";
+                button.textContent = label;
+                button.disabled = disabled;
+                if (current) button.setAttribute("aria-current", "page");
+                button.addEventListener("click", () => onPageChange(pageNumber));
+                listItem.append(button);
+                paginationList.append(listItem);
+            };
+
+            addPageButton("‹", currentPage - 1, false, currentPage === 1);
+            const visiblePages = Array.from(new Set([
+                1,
+                currentPage - 1,
+                currentPage,
+                currentPage + 1,
+                pageCount
+            ].filter((pageNumber) => pageNumber >= 1 && pageNumber <= pageCount))).sort((a, b) => a - b);
+            let previousPage = 0;
+            visiblePages.forEach((pageNumber) => {
+                if (previousPage > 0 && pageNumber - previousPage > 1) {
+                    const listItem = document.createElement("li");
+                    const ellipsis = document.createElement("span");
+                    ellipsis.className = "catalog-pagination__ellipsis";
+                    ellipsis.setAttribute("aria-hidden", "true");
+                    ellipsis.textContent = "…";
+                    listItem.append(ellipsis);
+                    paginationList.append(listItem);
+                }
+                addPageButton(String(pageNumber), pageNumber, pageNumber === currentPage);
+                previousPage = pageNumber;
+            });
+            addPageButton("›", currentPage + 1, false, currentPage === pageCount);
+        };
+
+        // Módulo de Filtrado y Paginación
+        const CatalogFilter = (() => {
+            const grid = document.getElementById("catalog-grid");
+            const searchInput = document.getElementById("catalog-search");
+            const resultsLabel = document.getElementById("catalog-results");
+            const noResults = document.getElementById("catalog-no-results");
+            const pagination = document.getElementById("catalog-pagination");
+            const paginationList = document.getElementById("catalog-pagination-list");
+            const typeOptions = Array.from(document.querySelectorAll(".catalog-type-filter__option[data-type]"));
+            const categoryOptions = Array.from(document.querySelectorAll(".catalog-category-filter__option"));
+            const typeFilterGroup = document.getElementById("catalog-type-filter-group");
+            const typeFilterButton = document.getElementById("catalog-type-filter");
+            const pageSize = 9;
+            let activeTypeFilter = "TODOS";
+            let activeCategoryFilter = "TODAS";
+            let currentPage = 1;
+
+            const getItems = () => grid ? Array.from(grid.querySelectorAll("[data-catalog-item]")) : [];
+
+            const updateDependentFilters = (items) => {
+                let categoryItems = activeCategoryFilter === "TODAS"
+                    ? items
+                    : items.filter((item) => item.dataset.categoryId === activeCategoryFilter);
+                if (activeCategoryFilter !== "TODAS" && categoryItems.length === 0) {
+                    activeCategoryFilter = "TODAS";
+                    categoryItems = items;
+                    categoryOptions.forEach((option) => {
+                        const selected = option.dataset.categoryId === "TODAS";
+                        option.classList.toggle("is-selected", selected);
+                        option.setAttribute("aria-pressed", String(selected));
+                    });
+                    const selection = document.getElementById("catalog-category-selection");
+                    if (selection) selection.textContent = "Todas las categorías";
+                }
+                const availableTypes = new Set(categoryItems.map((item) => item.dataset.type));
+                const allCategoriesCount = document.getElementById("category-count-all");
+                if (allCategoriesCount) allCategoriesCount.textContent = items.length;
+
+                categoryOptions.forEach((option) => {
+                    if (option.dataset.categoryId === "TODAS") return;
+                    const count = items.filter((item) => item.dataset.categoryId === option.dataset.categoryId).length;
+                    option.hidden = count === 0;
+                    const counter = option.querySelector(".catalog-type-filter__count");
+                    if (counter) counter.textContent = count;
+                });
+
+                typeOptions.forEach((option) => {
+                    const type = option.dataset.type;
+                    const count = type === "TODOS"
+                        ? categoryItems.length
+                        : categoryItems.filter((item) => item.dataset.type === type).length;
+                    option.hidden = count === 0;
+                    const counter = option.querySelector(".catalog-type-filter__count");
+                    if (counter) counter.textContent = count;
+                });
+
+                if (activeTypeFilter !== "TODOS" && !availableTypes.has(activeTypeFilter)) {
+                    activeTypeFilter = "TODOS";
+                    typeOptions.forEach((option) => {
+                        const selected = option.dataset.type === "TODOS";
+                        option.classList.toggle("is-selected", selected);
+                        option.setAttribute("aria-pressed", String(selected));
+                    });
+                    const selection = document.getElementById("catalog-type-selection");
+                    if (selection) selection.textContent = "Todos los tipos";
+                }
+
+                const hasSelectedCategory = activeCategoryFilter !== "TODAS" && categoryItems.length > 0;
+                typeFilterGroup.hidden = !hasSelectedCategory;
+                if (typeFilterButton) {
+                    typeFilterButton.disabled = !hasSelectedCategory;
+                    typeFilterButton.setAttribute("aria-disabled", String(!hasSelectedCategory));
+                }
+            };
+
+            const showPage = () => {
+                if (!grid) return;
+                const items = getItems();
+                const mainEmpty = document.getElementById("catalog-main-empty");
+                if (mainEmpty) {
+                    mainEmpty.hidden = items.length > 0;
+                }
+                grid.hidden = items.length === 0;
+                updateDependentFilters(items);
+                const query = (searchInput?.value || "").trim().toLocaleLowerCase("es");
+                const matches = items.filter((item) => {
+                    const matchesType = activeTypeFilter === "TODOS" || item.dataset.type === activeTypeFilter;
+                    const matchesCategory = activeCategoryFilter === "TODAS"
+                        || item.dataset.categoryId === activeCategoryFilter;
+                    const matchesText = `${item.dataset.name} ${item.dataset.category} ${item.dataset.brand}`
+                        .toLocaleLowerCase("es").includes(query);
+                    return matchesType && matchesCategory && matchesText;
+                });
+                const pageCount = Math.ceil(matches.length / pageSize);
+                currentPage = Math.min(currentPage, Math.max(pageCount, 1));
+                const visibleItems = new Set(matches.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+                items.forEach((item) => item.hidden = !visibleItems.has(item));
+                if (resultsLabel) {
+                    resultsLabel.textContent = `${matches.length} ${matches.length === 1 ? "producto" : "productos"}`;
+                }
+                if (noResults) noResults.hidden = matches.length > 0;
+                renderCatalogPagination(pagination, paginationList, pageCount, currentPage, (pageNumber) => {
+                    currentPage = pageNumber;
+                    showPage();
+                });
+            };
+
+            typeOptions.forEach((option) => option.addEventListener("click", () => {
+                activeTypeFilter = option.dataset.type;
+                currentPage = 1;
+                typeOptions.forEach((candidate) => {
+                    const selected = candidate === option;
+                    candidate.classList.toggle("is-selected", selected);
+                    candidate.setAttribute("aria-pressed", String(selected));
+                });
+                const sel = document.getElementById("catalog-type-selection");
+                if (sel) sel.textContent = option.dataset.label;
+                const dropdownInstance = bootstrap.Dropdown.getInstance(document.getElementById("catalog-type-filter"));
+                if (dropdownInstance) dropdownInstance.hide();
+                showPage();
+            }));
+
+            categoryOptions.forEach((option) => option.addEventListener("click", () => {
+                activeCategoryFilter = option.dataset.categoryId;
+                if (activeCategoryFilter === "TODAS") {
+                    activeTypeFilter = "TODOS";
+                    typeOptions.forEach((candidate) => {
+                        const selected = candidate.dataset.type === "TODOS";
+                        candidate.classList.toggle("is-selected", selected);
+                        candidate.setAttribute("aria-pressed", String(selected));
+                    });
+                    const typeSelection = document.getElementById("catalog-type-selection");
+                    if (typeSelection) typeSelection.textContent = "Todos los tipos";
+                }
+                currentPage = 1;
+                categoryOptions.forEach((candidate) => {
+                    const selected = candidate === option;
+                    candidate.classList.toggle("is-selected", selected);
+                    candidate.setAttribute("aria-pressed", String(selected));
+                });
+                const selection = document.getElementById("catalog-category-selection");
+                if (selection) selection.textContent = option.dataset.label;
+                updateDependentFilters(getItems());
+                const dropdownInstance = bootstrap.Dropdown.getInstance(document.getElementById("catalog-category-filter"));
+                if (dropdownInstance) dropdownInstance.hide();
+                showPage();
+            }));
+
+            if (searchInput) {
+                searchInput.addEventListener("input", () => {
+                    currentPage = 1;
+                    showPage();
+                });
+            }
+
+            showPage();
+            return { refresh: showPage };
+        })();
+
+        const FutureCatalogPagination = (() => {
+            const grid = document.getElementById("catalog-future-grid");
+            const pagination = document.getElementById("catalog-future-pagination");
+            const paginationList = document.getElementById("catalog-future-pagination-list");
+            const pageSize = 9;
+            let currentPage = 1;
+
+            const getItems = () => grid ? Array.from(grid.querySelectorAll("[data-future-catalog-item]")) : [];
+            const showPage = (resetPage = false) => {
+                if (!grid) return;
+                const items = getItems();
+                const pageCount = Math.ceil(items.length / pageSize);
+                if (resetPage) currentPage = 1;
+                currentPage = Math.min(currentPage, Math.max(pageCount, 1));
+                const visibleItems = new Set(items.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+                items.forEach((item) => item.hidden = !visibleItems.has(item));
+                renderCatalogPagination(pagination, paginationList, pageCount, currentPage, (pageNumber) => {
+                    currentPage = pageNumber;
+                    showPage();
+                });
+            };
+
+            const reveal = (item) => {
+                const itemIndex = getItems().indexOf(item);
+                if (itemIndex < 0) return;
+                currentPage = Math.floor(itemIndex / pageSize) + 1;
+                showPage();
+            };
+
+            showPage();
+            return { refresh: showPage, reveal };
+        })();
+
+        // Módulo de Modal y Gestión de Productos
+        (() => {
+            const modalElement = document.getElementById("catalog-detail-modal");
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            const detailTitle = document.getElementById("catalog-detail-title");
+            const modalKickerLabel = document.getElementById("catalog-modal-kicker-label");
+            const modalSubtitle = document.getElementById("catalog-modal-subtitle");
+            const detailType = document.getElementById("catalog-detail-type");
+            const detailImage = document.getElementById("catalog-detail-image");
+            const detailPlaceholder = document.getElementById("catalog-detail-placeholder");
+            const detailList = document.getElementById("catalog-detail-list");
+            const detailPanel = document.getElementById("catalog-detail-panel");
+            const editForm = document.getElementById("catalog-device-edit-form");
+            const editFields = document.getElementById("catalog-edit-fields");
+            const adminActions = document.getElementById("catalog-admin-actions");
+            const editActions = document.getElementById("catalog-edit-actions");
+            const deleteConfirm = document.getElementById("catalog-delete-confirm");
+            const closeButton = document.getElementById("catalog-modal-close");
+            const btnMarcarAdquirido = document.getElementById("btn-marcar-adquirido");
+            const acquiredModalElement = document.getElementById("catalog-acquired-modal");
+            const acquiredModal = bootstrap.Modal.getOrCreateInstance(acquiredModalElement);
+            const acquiredConfirmButton = document.getElementById("catalog-acquired-confirm");
+            const editImageInput = document.getElementById("catalog-edit-image-input");
+            const editImagePreview = document.getElementById("catalog-edit-image-preview");
+            const editImageFilename = document.getElementById("catalog-edit-image-filename");
+            const editImageEmpty = document.getElementById("catalog-edit-upload-empty");
+            const editImagePreviewContainer = document.getElementById("catalog-edit-upload-preview");
+            const editDropzone = document.getElementById("catalog-edit-dropzone");
+            const updateSuccessModalElement = document.getElementById("catalog-update-success-modal");
+            const deviceFields = Array.from(document.querySelectorAll("[data-device-field]"));
+            const gameFields = Array.from(document.querySelectorAll("[data-game-field]"));
+            let selectedItem = null;
+            let editImageObjectUrl = null;
+            let acquiredUpdateCompleted = false;
+
+            const readJsonResponse = async (response) => {
+                if (!(response.headers.get("content-type") || "").includes("json")) {
+                    if (response.redirected) {
+                        throw new Error("Tu sesión pudo haber expirado. Inicia sesión nuevamente e inténtalo.");
+                    }
+                    throw new Error(`No se pudo completar la solicitud (HTTP ${response.status}).`);
+                }
+
+                try {
+                    return await response.json();
+                } catch {
+                    throw new Error("El servidor devolvió una respuesta inválida. Inténtalo nuevamente.");
+                }
+            };
+
+            const bindImageDropzone = (input, dropzone, onChange) => {
+                if (!input || !dropzone) return;
+                input.addEventListener("change", onChange);
+                dropzone.addEventListener("dragover", (event) => {
+                    event.preventDefault();
+                    dropzone.classList.add("is-dragging");
+                });
+                dropzone.addEventListener("dragleave", (event) => {
+                    if (!dropzone.contains(event.relatedTarget)) {
+                        dropzone.classList.remove("is-dragging");
+                    }
+                });
+                dropzone.addEventListener("drop", (event) => {
+                    event.preventDefault();
+                    dropzone.classList.remove("is-dragging");
+                    const file = event.dataTransfer?.files?.[0];
+                    if (!file) return;
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+                });
+            };
+
+            const isAdmin = Boolean(editForm);
+            const setEditImagePreview = (imageUrl) => {
+                if (editImageObjectUrl) {
+                    URL.revokeObjectURL(editImageObjectUrl);
+                    editImageObjectUrl = null;
+                }
+
+                editImageInput.value = "";
+                editImagePreview.hidden = !imageUrl;
+                editImageEmpty.hidden = Boolean(imageUrl);
+                editImagePreviewContainer.hidden = !imageUrl;
+                editImagePreview.removeAttribute("src");
+                editImageFilename.textContent = imageUrl ? "Se conservará la imagen actual" : "Ninguna imagen seleccionada";
+                if (imageUrl) editImagePreview.src = imageUrl;
+            };
+
+            const showCatalogUpdateModal = (
+                message,
+                sourceModalElement = modalElement,
+                { eyebrow = "CAMBIOS GUARDADOS", title = "¡Actualización exitosa!" } = {}
+            ) => {
+                document.getElementById("catalog-update-success-eyebrow").textContent = eyebrow;
+                document.getElementById("catalog-update-success-title").textContent = title;
+                document.getElementById("catalog-update-success-message").textContent = message;
+                const successModal = bootstrap.Modal.getOrCreateInstance(updateSuccessModalElement);
+                sourceModalElement.addEventListener("hidden.bs.modal", () => successModal.show(), { once: true });
+                bootstrap.Modal.getOrCreateInstance(sourceModalElement).hide();
+            };
+
+            const appendDetail = (label, value) => {
+                if (!value) return;
+                const row = document.createElement("div");
+                const term = document.createElement("dt");
+                const description = document.createElement("dd");
+                row.className = "catalog-detail-modal__field";
+                term.textContent = label;
+                description.textContent = value;
+                row.append(term, description);
+                detailList.append(row);
+            };
+
+            const openDetails = (item) => {
+                selectedItem = item;
+                acquiredUpdateCompleted = false;
+                const product = item.dataset;
+                modalElement.dataset.mode = "details";
+                modalKickerLabel.textContent = "ARCHIVO PERSONAL / DETALLE DE PIEZA";
+                modalSubtitle.textContent = "Una pieza de tecnología, una parte de tu recorrido.";
+                detailTitle.textContent = product.name;
+                detailType.textContent = `${product.category || "Producto"} · ${product.type}`;
+                detailList.replaceChildren();
+                appendDetail("Marca", product.brand);
+                appendDetail("Modelo", product.model);
+                appendDetail("Plataforma", product.platform);
+                appendDetail("Género", product.genre);
+                appendDetail("Categoría", product.category);
+                appendDetail("Estado", product.status || (product.collectionState === "DESEADO" ? "Deseado" : null));
+                if (product.type === "DISPOSITIVO") {
+                    appendDetail("Estado de Colección", product.collectionState === "DESEADO" ? "Futuras colecciones" : "Mi colección");
+                }
+
+                detailImage.hidden = true;
+                detailImage.removeAttribute("src");
+                detailPlaceholder.hidden = false;
+                detailImage.alt = `Imagen de ${product.name}`;
+                const icon = item.querySelector(".catalog-card__placeholder i");
+                detailPlaceholder.replaceChildren();
+                const placeholderIcon = document.createElement("i");
+                placeholderIcon.className = icon?.className || "bi bi-box-seam";
+                detailPlaceholder.append(placeholderIcon);
+                if (product.image) {
+                    detailImage.onerror = () => {
+                        detailImage.hidden = true;
+                        detailPlaceholder.hidden = false;
+                    };
+                    detailImage.onload = () => {
+                        detailImage.hidden = false;
+                        detailPlaceholder.hidden = true;
+                    };
+                    detailImage.src = product.image;
+                }
+
+                // Botón especial: Marcar como adquirido (solo para productos en DESEADO)
+                const isDesired = product.type === "DISPOSITIVO" && product.collectionState === "DESEADO" && product.deviceId;
+                if (btnMarcarAdquirido) {
+                    btnMarcarAdquirido.hidden = !isDesired;
+                }
+
+                if (isAdmin) {
+                    const isDevice = product.type === "DISPOSITIVO" && product.deviceId;
+                    const isGame = product.type === "JUEGO" && product.gameId;
+                    const editable = Boolean(isDevice || isGame);
+                    adminActions.hidden = !editable;
+                    editActions.hidden = true;
+                    closeButton.hidden = false;
+                    editForm.hidden = true;
+                    editFields.hidden = false;
+                    detailPanel.hidden = false;
+                    deleteConfirm.hidden = true;
+                    deviceFields.forEach((field) => {
+                        field.hidden = !isDevice;
+                        field.querySelectorAll("input, select").forEach((input) => {
+                            input.required = isDevice && input.name === "EstadoColeccion";
+                        });
+                    });
+                    gameFields.forEach((field) => {
+                        field.hidden = !isGame;
+                        field.querySelectorAll("input").forEach((input) => {
+                            input.required = isGame && ["Titulo", "Plataforma"].includes(input.name);
+                        });
+                    });
+                    editForm.elements.IdDispositivo.value = product.deviceId || "";
+                    editForm.elements.OriginalIdCategoria.value = item.dataset.categoryId || "";
+                    editForm.elements.OriginalMarca.value = product.brand || "";
+                    editForm.elements.OriginalModelo.value = product.model || "";
+                    editForm.elements.IdJuego.value = product.gameId || "";
+                    editForm.elements.Marca.value = product.brand || "";
+                    editForm.elements.Modelo.value = product.model || "";
+                    editForm.elements.Titulo.value = product.name || "";
+                    editForm.elements.Plataforma.value = product.platform || "";
+                    editForm.elements.Genero.value = product.genre || "";
+                    editForm.elements.IdCategoria.value = item.dataset.categoryId || "";
+                    editForm.elements.Estado.value = product.status || "";
+                    editForm.elements.EstadoColeccion.value = product.collectionState || "COLECCION";
+                    editForm.elements.ImagenUrl.value = product.image || "";
+                    setEditImagePreview(product.image || "");
+                    document.getElementById("catalog-edit-product-name").textContent = product.name;
+                }
+
+                modal.show();
+            };
+
+            const bindCardEvents = (card) => {
+                card.addEventListener("click", () => openDetails(card));
+                card.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openDetails(card);
+                    }
+                });
+            };
+
+            document.querySelectorAll("[data-catalog-item], [data-future-catalog-item]").forEach(bindCardEvents);
+
+            document.querySelectorAll(".catalog-card__visual img").forEach((image) => {
+                image.addEventListener("error", () => {
+                    image.hidden = true;
+                    const placeholder = image.nextElementSibling;
+                    if (placeholder) placeholder.hidden = false;
+                });
+            });
+
+            const showAdminMode = (mode) => {
+                modalElement.dataset.mode = mode;
+                detailPanel.hidden = mode !== "details";
+                if (editForm) {
+                    editForm.hidden = mode !== "edit";
+                    editFields.hidden = mode !== "edit";
+                }
+                if (deleteConfirm) deleteConfirm.hidden = mode !== "delete";
+                if (adminActions) adminActions.hidden = mode !== "details" || !(selectedItem?.dataset.deviceId || selectedItem?.dataset.gameId);
+                if (editActions) editActions.hidden = mode !== "edit";
+                closeButton.hidden = mode !== "details";
+                if (btnMarcarAdquirido) {
+                    const isDesired = selectedItem?.dataset.type === "DISPOSITIVO" && selectedItem?.dataset.collectionState === "DESEADO";
+                    btnMarcarAdquirido.hidden = mode !== "details" || !isDesired;
+                }
+                const editError = document.getElementById("catalog-edit-error");
+                const delError = document.getElementById("catalog-delete-error");
+                if (editError) editError.hidden = true;
+                if (delError) delError.hidden = true;
+                if (mode === "edit") {
+                    modalKickerLabel.textContent = "EDICIÓN / AJUSTA LOS DETALLES";
+                    modalSubtitle.textContent = "Los cambios se aplicarán a esta pieza de tu colección.";
+                } else if (mode === "delete") {
+                    modalKickerLabel.textContent = "CONFIRMACIÓN / ELIMINACIÓN";
+                    modalSubtitle.textContent = "Revisa el producto antes de confirmar esta acción.";
+                    document.getElementById("catalog-delete-product-name").textContent = selectedItem?.dataset.name || "este producto";
+                } else {
+                    modalKickerLabel.textContent = "ARCHIVO PERSONAL / DETALLE DE PIEZA";
+                    modalSubtitle.textContent = "Una pieza de tecnología, una parte de tu recorrido.";
+                }
+            };
+
+            if (isAdmin) {
+                document.getElementById("catalog-edit-button")?.addEventListener("click", () => showAdminMode("edit"));
+                document.getElementById("catalog-edit-cancel")?.addEventListener("click", () => showAdminMode("details"));
+                document.getElementById("catalog-delete-button")?.addEventListener("click", () => showAdminMode("delete"));
+                document.getElementById("catalog-delete-cancel")?.addEventListener("click", () => showAdminMode("details"));
+            }
+
+            const updateEditImagePreview = () => {
+                const file = editImageInput.files?.[0];
+                if (!file) {
+                    setEditImagePreview(editForm.elements.ImagenUrl.value);
+                    return;
+                }
+
+                if (editImageObjectUrl) URL.revokeObjectURL(editImageObjectUrl);
+                editImageObjectUrl = URL.createObjectURL(file);
+                editImagePreview.src = editImageObjectUrl;
+                editImagePreview.hidden = false;
+                editImageEmpty.hidden = true;
+                editImagePreviewContainer.hidden = false;
+                editImageFilename.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+            };
+            bindImageDropzone(editImageInput, editDropzone, updateEditImagePreview);
+
+            acquiredModalElement.addEventListener("hidden.bs.modal", () => {
+                if (acquiredUpdateCompleted) {
+                    acquiredUpdateCompleted = false;
+                    document.getElementById("catalog-tab-current")?.click();
+                    document.getElementById("catalog-update-success-message").textContent = "¡Producto marcado como adquirido y movido a Mi Colección!";
+                    bootstrap.Modal.getOrCreateInstance(updateSuccessModalElement).show();
+                    return;
+                }
+                if (selectedItem?.isConnected) modal.show();
+            });
+
+            btnMarcarAdquirido?.addEventListener("click", () => {
+                if (!selectedItem) return;
+                document.getElementById("catalog-acquired-product-name").textContent = selectedItem.dataset.name;
+                document.getElementById("catalog-acquired-error").hidden = true;
+                modalElement.addEventListener("hidden.bs.modal", () => acquiredModal.show(), { once: true });
+                modal.hide();
+            });
+
+            acquiredConfirmButton?.addEventListener("click", async () => {
+                if (!selectedItem) return;
+                const error = document.getElementById("catalog-acquired-error");
+                const spinner = document.getElementById("acquired-confirm-spinner");
+                const icon = document.getElementById("acquired-confirm-icon");
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
+                error.hidden = true;
+                acquiredConfirmButton.disabled = true;
+                if (spinner) spinner.hidden = false;
+                if (icon) icon.hidden = true;
+
+                try {
+                    const response = await fetch("/Catalogo/MarcarComoAdquirido", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "RequestVerificationToken": token,
+                            "X-CSRF-TOKEN": token
+                        },
+                        body: JSON.stringify({
+                            idDispositivo: Number(selectedItem.dataset.deviceId),
+                            idCategoria: Number(selectedItem.dataset.categoryId),
+                            marca: selectedItem.dataset.brand,
+                            modelo: selectedItem.dataset.model
+                        })
+                    });
+                    const result = await readJsonResponse(response);
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.message || "No se pudo marcar como adquirido.");
+                    }
+
+                    updateCardInDOM(selectedItem, result.data);
+                    updateCounts();
+                    acquiredUpdateCompleted = true;
+                    acquiredModal.hide();
+                } catch (exception) {
+                    error.textContent = exception.message;
+                    error.hidden = false;
+                } finally {
+                    acquiredConfirmButton.disabled = false;
+                    if (spinner) spinner.hidden = true;
+                    if (icon) icon.hidden = false;
+                }
+            });
+
+            // Actualiza la tarjeta y su sección después de una mutación exitosa.
+            const updateCardInDOM = (card, data) => {
+                const oldState = card.dataset.collectionState;
+                const newState = data.estadoColeccion;
+
+                if (data.dispositivoId || data.idDispositivo) {
+                    card.dataset.deviceId = String(data.dispositivoId || data.idDispositivo);
+                }
+                card.dataset.name = data.nombre;
+                if ("marca" in data) card.dataset.brand = data.marca || "";
+                if ("modelo" in data) card.dataset.model = data.modelo || "";
+                card.dataset.category = data.categoria;
+                card.dataset.categoryId = data.idCategoria ?? data.categoriaId;
+                card.dataset.status = data.estado;
+                card.dataset.image = data.imagenUrl || "";
+                if ("plataforma" in data) card.dataset.platform = data.plataforma || "";
+                if ("genero" in data) card.dataset.genre = data.genero || "";
+                
+                const titleEl = card.querySelector("h3");
+                if (titleEl) titleEl.textContent = data.nombre;
+
+                const catEl = card.querySelector(".catalog-card__category");
+                if (catEl) catEl.textContent = data.categoria;
+
+                const statusEl = card.querySelector(".catalog-card__status");
+                if (statusEl) {
+                    const statusIcon = document.createElement("i");
+                    statusIcon.setAttribute("aria-hidden", "true");
+                    statusEl.replaceChildren(statusIcon, document.createTextNode(data.estado || ""));
+                }
+
+                const imgContainer = card.querySelector(".catalog-card__visual");
+                if (imgContainer) {
+                    let img = imgContainer.querySelector("img");
+                    const placeholder = imgContainer.querySelector(".catalog-card__placeholder");
+                    if (data.imagenUrl) {
+                        if (!img) {
+                            img = document.createElement("img");
+                            img.alt = `Imagen de ${data.nombre}`;
+                            img.loading = "lazy";
+                            imgContainer.prepend(img);
+                        }
+                        img.src = data.imagenUrl;
+                        img.hidden = false;
+                        if (placeholder) placeholder.hidden = true;
+                    } else {
+                        if (img) img.remove();
+                        if (placeholder) placeholder.hidden = false;
+                    }
+                }
+
+                // Si cambió el estado de colección (Mi colección vs Futuras colecciones), moverlo de contenedor
+                if (newState && oldState !== newState) {
+                    card.dataset.collectionState = newState;
+                    const mainGrid = document.getElementById("catalog-grid");
+                    const futureGrid = document.getElementById("catalog-future-grid");
+                    const futureEmpty = document.getElementById("catalog-future-empty");
+
+                    if (newState === "DESEADO" && futureGrid) {
+                        card.removeAttribute("data-catalog-item");
+                        card.setAttribute("data-future-catalog-item", "");
+                        let meta = card.querySelector(".catalog-card__meta");
+                        if (meta && !meta.querySelector(".catalog-card__collection-state")) {
+                            const badge = document.createElement("span");
+                            badge.className = "catalog-card__collection-state";
+                            badge.textContent = "DESEADO";
+                            meta.append(badge);
+                        }
+                        futureGrid.appendChild(card);
+                        if (futureEmpty) futureEmpty.hidden = true;
+                    } else if (newState === "COLECCION" && mainGrid) {
+                        card.removeAttribute("data-future-catalog-item");
+                        card.setAttribute("data-catalog-item", "");
+                        const badge = card.querySelector(".catalog-card__collection-state");
+                        if (badge) badge.remove();
+                        mainGrid.prepend(card);
+                    }
+                }
+            };
+
+            const removeCardFromDOM = (card) => {
+                card.remove();
+                updateCounts();
+            };
+
+            const updateCounts = () => {
+                const ownedItems = Array.from(document.querySelectorAll("#catalog-grid [data-catalog-item]"));
+                const totalOwned = ownedItems.length;
+                const countByType = (type) => ownedItems.filter(item => item.dataset.type === type).length;
+                const totalDevices = countByType("DISPOSITIVO");
+                const totalFuture = document.querySelectorAll("#catalog-future-grid [data-future-catalog-item]").length;
+                const mainGrid = document.getElementById("catalog-grid");
+                const mainEmpty = document.getElementById("catalog-main-empty");
+                const futureEmpty = document.getElementById("catalog-future-empty");
+
+                if (mainGrid) mainGrid.hidden = totalOwned === 0;
+                if (mainEmpty) mainEmpty.hidden = totalOwned > 0;
+                if (futureEmpty) futureEmpty.hidden = totalFuture > 0;
+
+                const tabCount = document.getElementById("catalog-tab-count");
+                if (tabCount) tabCount.textContent = totalOwned;
+
+                const tabFutureCount = document.getElementById("catalog-tab-future-count");
+                if (tabFutureCount) tabFutureCount.textContent = totalFuture;
+
+                const ownedTotal = document.getElementById("catalog-owned-total");
+                if (ownedTotal) ownedTotal.textContent = totalOwned;
+
+                const ownedDevices = document.getElementById("catalog-owned-devices");
+                if (ownedDevices) ownedDevices.textContent = totalDevices;
+
+                document.querySelectorAll("[data-type-count]").forEach((counter) => {
+                    const type = counter.dataset.typeCount;
+                    counter.textContent = type === "TODOS" ? totalOwned : countByType(type);
+                });
+                document.querySelectorAll("[data-category-count]").forEach((counter) => {
+                    const categoryId = counter.dataset.categoryCount;
+                    counter.textContent = ownedItems.filter(item => item.dataset.categoryId === categoryId).length;
+                });
+                const allCategoriesCount = document.getElementById("category-count-all");
+                if (allCategoriesCount) allCategoriesCount.textContent = totalOwned;
+
+                const futureBadge = document.getElementById("future-badge-count");
+                if (futureBadge) futureBadge.innerHTML = `<i class="bi bi-hourglass-split" aria-hidden="true"></i> ${totalFuture} EN LA LISTA`;
+
+                CatalogFilter.refresh();
+                FutureCatalogPagination.refresh();
+            };
+
+            // Guardar Cambios (Editar) vía AJAX al Controlador MVC
+            if (isAdmin) {
+                document.getElementById("catalog-edit-save")?.addEventListener("click", async () => {
+                    const error = document.getElementById("catalog-edit-error");
+                    const saveButton = document.getElementById("catalog-edit-save");
+                    const spinner = document.getElementById("edit-spinner");
+                    const saveIcon = document.getElementById("edit-save-icon");
+                    if (error) error.hidden = true;
+
+                    if (!editForm.checkValidity()) {
+                        editForm.reportValidity();
+                        return;
+                    }
+
+                    const selectedImage = editImageInput.files?.[0];
+                    if (selectedImage) {
+                        const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+                        const extension = selectedImage.name.slice(selectedImage.name.lastIndexOf(".")).toLowerCase();
+                        if (selectedImage.size <= 0 || selectedImage.size > 10 * 1024 * 1024 || !allowedExtensions.includes(extension)) {
+                            error.textContent = "Selecciona una imagen JPG, PNG, WEBP o GIF de máximo 10 MB.";
+                            error.hidden = false;
+                            return;
+                        }
+                    }
+
+                    saveButton.disabled = true;
+                    if (spinner) spinner.hidden = false;
+                    if (saveIcon) saveIcon.hidden = true;
+
+                    try {
+                        const isGame = Boolean(selectedItem.dataset.gameId);
+                        const token = editForm.elements.__RequestVerificationToken.value;
+                        const headers = {
+                            "Accept": "application/json",
+                            "RequestVerificationToken": token,
+                            "X-CSRF-TOKEN": token
+                        };
+                        const formData = new FormData(editForm);
+
+                        if (!isGame) {
+                            const response = await fetch("/Catalogo/Editar", {
+                                method: "POST",
+                                headers,
+                                body: formData
+                            });
+
+                            const result = await readJsonResponse(response);
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.message || (result.errors ? result.errors.join(", ") : "Error al actualizar."));
+                            }
+
+                            updateCardInDOM(selectedItem, result.data);
+                            updateCounts();
+                            openDetails(selectedItem);
+                            showAdminMode("details");
+                            showCatalogUpdateModal(result.message || "¡Producto actualizado correctamente!");
+                        } else {
+                            const id = selectedItem.dataset.gameId;
+                            const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
+                                method: "PUT",
+                                headers,
+                                body: formData
+                            });
+                            const result = await readJsonResponse(response);
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.message || result.detail || result.title || "Error al actualizar el juego.");
+                            }
+
+                            updateCardInDOM(selectedItem, result.data);
+                            updateCounts();
+                            openDetails(selectedItem);
+                            showAdminMode("details");
+                            showCatalogUpdateModal(result.message || "¡Juego actualizado correctamente!");
+                        }
+                    } catch (exception) {
+                        if (error) {
+                            error.textContent = exception.message;
+                            error.hidden = false;
+                        }
+                    } finally {
+                        saveButton.disabled = false;
+                        if (spinner) spinner.hidden = true;
+                        if (saveIcon) saveIcon.hidden = false;
+                    }
+                });
+
+                // Confirmar Eliminación vía AJAX al Controlador MVC
+                document.getElementById("catalog-delete-confirm-button")?.addEventListener("click", async () => {
+                    const error = document.getElementById("catalog-delete-error");
+                    const button = document.getElementById("catalog-delete-confirm-button");
+                    const spinner = document.getElementById("delete-spinner");
+                    const icon = document.getElementById("delete-confirm-icon");
+                    const itemToDelete = selectedItem;
+                    if (!itemToDelete) {
+                        if (error) {
+                            error.textContent = "Selecciona un producto antes de eliminarlo.";
+                            error.hidden = false;
+                        }
+                        return;
+                    }
+
+                    if (error) error.hidden = true;
+                    button.disabled = true;
+                    if (spinner) spinner.hidden = false;
+                    if (icon) icon.hidden = true;
+
+                    try {
+                        const isGame = Boolean(itemToDelete.dataset.gameId);
+                        const token = editForm.elements.__RequestVerificationToken.value;
+                        const headers = {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "RequestVerificationToken": token,
+                            "X-CSRF-TOKEN": token
+                        };
+
+                        if (!isGame) {
+                            const id = Number(itemToDelete.dataset.deviceId);
+                            if (!Number.isSafeInteger(id) || id <= 0) {
+                                throw new Error("No se encontró un identificador válido para este dispositivo. Recarga la página e inténtalo nuevamente.");
+                            }
+
+                            const response = await fetch("/Catalogo/Eliminar", {
+                                method: "POST",
+                                headers,
+                                body: JSON.stringify({ idDispositivo: id })
+                            });
+
+                            const result = await readJsonResponse(response);
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.message || "Error al eliminar el dispositivo.");
+                            }
+
+                            removeCardFromDOM(itemToDelete);
+                            showCatalogUpdateModal(result.message || "¡Producto eliminado correctamente!");
+                        } else {
+                            const id = itemToDelete.dataset.gameId;
+                            const response = await fetch(`/api/catalogo/juegos/${encodeURIComponent(id)}`, {
+                                method: "DELETE",
+                                headers
+                            });
+                            const result = await readJsonResponse(response);
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.message || result.detail || result.title || "Error al eliminar el juego.");
+                            }
+                            removeCardFromDOM(itemToDelete);
+                            showCatalogUpdateModal(result.message || "¡Producto eliminado correctamente!");
+                        }
+                    } catch (exception) {
+                        if (error) {
+                            error.textContent = exception.message;
+                            error.hidden = false;
+                        }
+                    } finally {
+                        button.disabled = false;
+                        if (spinner) spinner.hidden = true;
+                        if (icon) icon.hidden = false;
+                    }
+                });
+            }
+
+            // CREAR NUEVA FUTURA COLECCIÓN (SUBIDA A SUPABASE STORAGE Y GUARDADO EN POSTGRESQL)
+            const futureCreateModalEl = document.getElementById("future-create-modal");
+            const futureCreateForm = document.getElementById("future-create-form");
+            const btnFutureCreateSubmit = document.getElementById("future-create-submit");
+            const futureCreateImageInput = document.getElementById("future-create-image-input");
+            const futureCreateImagePreview = document.getElementById("future-create-image-preview");
+            const futureCreateImageFilename = document.getElementById("future-create-image-filename");
+            const futureCreateUploadEmpty = document.getElementById("future-create-upload-empty");
+            const futureCreateUploadPreview = document.getElementById("future-create-upload-preview");
+            const futureCreateDropzone = document.getElementById("future-create-dropzone");
+            let futureCreateImageObjectUrl = null;
+
+            if (futureCreateModalEl) {
+                futureCreateModalEl.addEventListener("show.bs.modal", () => {
+                    const errorEl = document.getElementById("future-create-error");
+                    if (errorEl) {
+                        errorEl.hidden = true;
+                        errorEl.textContent = "";
+                    }
+                });
+            }
+            const updateFutureImagePreview = () => {
+                if (futureCreateImageObjectUrl) {
+                    URL.revokeObjectURL(futureCreateImageObjectUrl);
+                    futureCreateImageObjectUrl = null;
+                }
+
+                const file = futureCreateImageInput.files?.[0];
+                futureCreateUploadEmpty.hidden = Boolean(file);
+                futureCreateUploadPreview.hidden = !file;
+                futureCreateImagePreview.removeAttribute("src");
+                if (!file) {
+                    futureCreateImageFilename.textContent = "";
+                    return;
+                }
+
+                futureCreateImageObjectUrl = URL.createObjectURL(file);
+                futureCreateImagePreview.src = futureCreateImageObjectUrl;
+                futureCreateImageFilename.textContent = `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+            };
+
+            bindImageDropzone(futureCreateImageInput, futureCreateDropzone, updateFutureImagePreview);
+
+            if (btnFutureCreateSubmit && futureCreateForm) {
+                btnFutureCreateSubmit.addEventListener("click", async () => {
+                    const errorEl = document.getElementById("future-create-error");
+                    const spinner = document.getElementById("future-create-spinner");
+                    const icon = document.getElementById("future-create-icon");
+                    if (errorEl) errorEl.hidden = true;
+
+                    if (!futureCreateForm.checkValidity()) {
+                        futureCreateForm.reportValidity();
+                        return;
+                    }
+
+                    const selectedImage = futureCreateImageInput.files?.[0];
+                    if (selectedImage) {
+                        const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+                        const extension = selectedImage.name.slice(selectedImage.name.lastIndexOf(".")).toLowerCase();
+                        if (selectedImage.size <= 0 || selectedImage.size > 10 * 1024 * 1024 || !allowedExtensions.includes(extension)) {
+                            errorEl.textContent = "Selecciona una imagen JPG, PNG, WEBP o GIF de hasta 10 MB.";
+                            errorEl.hidden = false;
+                            return;
+                        }
+                    }
+
+
+
+                    btnFutureCreateSubmit.disabled = true;
+                    if (spinner) spinner.hidden = false;
+                    if (icon) icon.hidden = true;
+
+                    const formData = new FormData(futureCreateForm);
+
+                    try {
+                        const response = await fetch("/Catalogo/CrearFuturaColeccion", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        const result = await readJsonResponse(response);
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.message || result.detail || result.title || (result.errors ? result.errors.join(", ") : "No se pudo registrar el objetivo."));
+                        }
+
+                        // Crear la tarjeta en el grid de Futuras Colecciones en tiempo real
+                        const futureGrid = document.getElementById("catalog-future-grid");
+                        const futureEmpty = document.getElementById("catalog-future-empty");
+                        const p = result.data;
+                        const deviceId = Number(result.idDispositivo ?? p.dispositivoId ?? p.DispositivoId);
+                        if (!Number.isSafeInteger(deviceId) || deviceId <= 0) {
+                            throw new Error("El producto se guardó, pero el servidor no devolvió un identificador válido. Recarga la página para actualizar la lista.");
+                        }
+
+                        if (result.alreadyRegistered) {
+                            futureCreateForm.reset();
+                            updateFutureImagePreview();
+                            const sectionTab = p.estadoColeccion === "DESEADO"
+                                ? document.getElementById("catalog-tab-future")
+                                : document.getElementById("catalog-tab-current");
+                            sectionTab?.click();
+                            const existingCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+                            if (!existingCard) {
+                                const section = p.estadoColeccion === "DESEADO"
+                                    ? "future-collections"
+                                    : "my-collection";
+                                window.location.assign(`/Catalogo?seccion=${encodeURIComponent(section)}`);
+                                return;
+                            }
+                            if (p.estadoColeccion === "DESEADO") {
+                                FutureCatalogPagination.reveal(existingCard);
+                            }
+                            existingCard.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center"
+                            });
+                            showCatalogUpdateModal(result.message, futureCreateModalEl);
+                            return;
+                        }
+
+                        const article = document.createElement("article");
+                        article.className = "catalog-card";
+                        article.setAttribute("data-future-catalog-item", "");
+                        article.dataset.type = p.tipo;
+                        article.dataset.name = p.nombre;
+                        article.dataset.category = p.categoria;
+                        article.dataset.categoryId = p.categoriaId;
+                        article.dataset.brand = p.marca;
+                        article.dataset.model = p.modelo;
+                        article.dataset.status = p.estado;
+                        article.dataset.image = p.imagenUrl || "";
+                        article.dataset.deviceId = String(deviceId);
+                        article.dataset.collectionState = p.estadoColeccion;
+                        article.setAttribute("role", "button");
+                        article.setAttribute("tabindex", "0");
+                        article.setAttribute("aria-haspopup", "dialog");
+                        article.setAttribute("aria-label", `Ver detalles de ${p.nombre}`);
+
+                        const visual = document.createElement("div");
+                        visual.className = "catalog-card__visual";
+                        if (p.imagenUrl) {
+                            const image = document.createElement("img");
+                            image.src = p.imagenUrl;
+                            image.alt = `Imagen de ${p.nombre}`;
+                            image.loading = "lazy";
+                            visual.append(image);
+                        }
+                        const placeholder = document.createElement("div");
+                        placeholder.className = "catalog-card__placeholder";
+                        placeholder.setAttribute("aria-hidden", "true");
+                        placeholder.hidden = Boolean(p.imagenUrl);
+                        const placeholderAccent = document.createElement("span");
+                        const placeholderIcon = document.createElement("i");
+                        placeholderIcon.className = `bi ${p.icono || "bi-box-seam"}`;
+                        placeholder.append(placeholderAccent, placeholderIcon);
+                        visual.append(placeholder);
+
+                        const cardType = document.createElement("span");
+                        cardType.className = "catalog-card__type";
+                        cardType.textContent = "DISPOSITIVO";
+                        visual.append(cardType);
+
+                        const body = document.createElement("div");
+                        body.className = "catalog-card__body";
+                        const category = document.createElement("span");
+                        category.className = "catalog-card__category";
+                        category.textContent = p.categoria;
+                        const name = document.createElement("h3");
+                        name.textContent = p.nombre;
+                        const meta = document.createElement("div");
+                        meta.className = "catalog-card__meta";
+                        const status = document.createElement("span");
+                        status.className = "catalog-card__status";
+                        const statusIcon = document.createElement("i");
+                        statusIcon.setAttribute("aria-hidden", "true");
+                        status.append(statusIcon, document.createTextNode(p.estado || "Deseado"));
+                        const collectionState = document.createElement("span");
+                        collectionState.className = "catalog-card__collection-state";
+                        collectionState.textContent = "DESEADO";
+                        meta.append(status, collectionState);
+                        body.append(category, name, meta);
+                        article.append(visual, body);
+
+                        bindCardEvents(article);
+                        if (futureGrid) {
+                            futureGrid.prepend(article);
+                        }
+                        if (futureEmpty) futureEmpty.hidden = true;
+
+                        updateCounts();
+                        futureCreateForm.reset();
+                        if (futureCreateImageObjectUrl) {
+                            URL.revokeObjectURL(futureCreateImageObjectUrl);
+                            futureCreateImageObjectUrl = null;
+                        }
+                        updateFutureImagePreview();
+                        document.getElementById("catalog-tab-future")?.click();
+                        FutureCatalogPagination.refresh(true);
+                        showCatalogUpdateModal(
+                            "¡El producto se registró correctamente en Futuras colecciones!",
+                            futureCreateModalEl,
+                            { eyebrow: "REGISTRO COMPLETADO", title: "¡Producto registrado!" }
+                        );
+                    } catch (ex) {
+                        if (errorEl) {
+                            errorEl.textContent = ex.message;
+                            errorEl.hidden = false;
+                        }
+                    } finally {
+                        btnFutureCreateSubmit.disabled = false;
+                        if (spinner) spinner.hidden = true;
+                        if (icon) icon.hidden = false;
+                    }
+                });
+            }
+
+        })();
+    </script>
+}
